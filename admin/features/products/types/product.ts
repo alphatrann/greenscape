@@ -23,7 +23,7 @@ export interface Product {
 export interface ProductImage {
   file: {
     id: string;
-    url: string;
+    url?: string;
   };
 }
 export interface ProductFormDto {

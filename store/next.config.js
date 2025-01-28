@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["varve.s3.us-east-1.amazonaws.com"],
+    remotePatterns: [
+      {
+        hostname: "localhost",
+      },
+    ],
   },
 };
 

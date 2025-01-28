@@ -5,7 +5,7 @@ import {
   DataTableRowActions,
 } from "@/features/common/data-table";
 import { useDeleteRecordsModal } from "@/features/common/delete-records";
-import { formatPrice } from "@/features/common/utils";
+import { formatPrice, getLocalImage } from "@/features/common/utils";
 import { Badge } from "@/features/ui/badge";
 import { Checkbox } from "@/features/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
@@ -46,7 +46,10 @@ export const columns: ColumnDef<Product>[] = [
           alt="Product image"
           className="aspect-square rounded-md object-cover"
           height="128"
-          src={row.original.images[0]?.file?.url}
+          src={
+            row.original.images[0].file?.url ||
+            getLocalImage(row.original.images[0].file.id)
+          }
           width="128"
         />
       </div>

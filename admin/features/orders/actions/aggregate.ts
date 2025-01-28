@@ -18,7 +18,7 @@ export const aggregateOrders = async (query = "") => {
   } = await axios.get<OrdersResponse>(
     process.env.NEXT_PUBLIC_API_URL + "/orders/aggregate" + query,
     {
-      headers: { Cookie: cookies().toString() },
+      headers: { Cookie: (await cookies()).toString() },
     },
   );
   return { statusGroups, countryGroups, shippingOptionGroups };

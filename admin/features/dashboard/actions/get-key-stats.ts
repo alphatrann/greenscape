@@ -6,7 +6,7 @@ export const getKeyStats = async () => {
   const {
     data: { data },
   } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/stats/key`, {
-    headers: { Cookie: cookies().toString() },
+    headers: { Cookie: (await cookies()).toString() },
   });
 
   return data as KeyStats;

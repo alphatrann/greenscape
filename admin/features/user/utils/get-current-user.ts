@@ -7,7 +7,7 @@ export const getCurrentUser = async () => {
     const { data } = await axios.get(
       process.env.NEXT_PUBLIC_API_URL + "/auth/me-admin",
       {
-        headers: { Cookie: cookies().toString() },
+        headers: { Cookie: (await cookies()).toString() },
       },
     );
     return data?.data as User | undefined;

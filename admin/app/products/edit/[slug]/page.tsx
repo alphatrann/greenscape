@@ -6,22 +6,24 @@ import { getCurrentUser } from "@/features/user/utils";
 import { redirect } from "next/navigation";
 
 interface ProductSettingsPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export const generateMetadata = async ({
-  params: { slug },
+  params,
 }: ProductSettingsPageProps) => {
+  const { slug } = await params;
   const { data: product } = await getProduct(slug);
   if (!product) return { title: "Product not found" };
   return { title: "Update product - " + product.name };
 };
 
 export default async function ProductSettingsPage({
-  params: { slug },
+  params,
 }: ProductSettingsPageProps) {
+  const { slug } = await params;
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
   const categories = await getCategoriesTree();

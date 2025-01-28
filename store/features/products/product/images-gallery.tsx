@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useState } from "react";
 import { Product } from "../types";
+import { getLocalImage } from "@/features/categories/utils";
 
 interface ImagesGalleryProps {
   product: Product;
@@ -15,7 +16,10 @@ export const ImagesGallery: React.FC<ImagesGalleryProps> = ({ product }) => {
     <div className="space-y-6">
       <div className="w-full rounded-md bg-gray-200/50">
         <Image
-          src={product.images[pos].file.url}
+          src={
+            product.images[pos].file.url ||
+            getLocalImage(product.images[pos].file.id)
+          }
           alt="Cover image"
           width={1024}
           height={1024}
@@ -39,7 +43,7 @@ export const ImagesGallery: React.FC<ImagesGalleryProps> = ({ product }) => {
                 "aspect-square rounded object-cover",
                 pos !== i && "opacity-50"
               )}
-              src={image.file.url}
+              src={image.file.url || getLocalImage(image.file.id)}
               alt={product.name}
             />
           </div>

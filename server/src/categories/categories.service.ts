@@ -92,7 +92,10 @@ export class CategoriesService {
         include: {
           products: {
             include: {
-              images: { take: 1, select: { file: { select: { url: true } } } },
+              images: {
+                take: 1,
+                select: { file: { select: { id: true, url: true } } },
+              },
             },
           },
           _count: { select: { subCategories: true, products: true } },

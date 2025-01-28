@@ -23,9 +23,12 @@ model User {
 }
 
 model File {
-  id    String @id
-  url   String
-  image Image?
+  id       String  @id
+  url      String?
+  mimetype String
+  filename String
+  path     String
+  image    Image?
 }
 
 model Category {

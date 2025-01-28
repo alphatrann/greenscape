@@ -15,7 +15,7 @@ export const getProducts = async (
         (slug ? "/category/" + slug : slug) +
         query,
       {
-        headers: { Cookie: cookies().toString() },
+        headers: { Cookie: (await cookies()).toString() },
       },
     );
     return data as Product[];

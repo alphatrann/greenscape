@@ -1,3 +1,4 @@
+import { getLocalImage } from "@/features/common/utils";
 import { FilePreview, ProductImage } from "@/features/products/types";
 import {
   Card,
@@ -25,7 +26,7 @@ export const ImagesUpload: React.FC<ImagesUploadProps> = memo(
     const urls = useMemo(
       () =>
         existingImages
-          .map((image) => image.file.url)
+          .map((image) => image.file.url || getLocalImage(image.file.id))
           .concat(files.map((file) => file.preview)),
       [files, existingImages],
     );

@@ -8,7 +8,7 @@ export const getOrder = async (id: string) => {
   } = await axios.get(
     process.env.NEXT_PUBLIC_API_URL + "/orders/details/" + id,
     {
-      headers: { Cookie: cookies().toString() },
+      headers: { Cookie: (await cookies()).toString() },
     },
   );
 

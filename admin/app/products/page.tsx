@@ -24,7 +24,7 @@ export const metadata = {
 };
 
 interface ProductsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     offset?: string;
     sortBy?: string;
@@ -35,23 +35,14 @@ interface ProductsPageProps {
     inStock?: string;
     from?: string;
     to?: string;
-  };
+  }>;
 }
 
 export default async function ProductsPage({
-  searchParams: {
-    limit,
-    offset,
-    order,
-    q,
-    sortBy,
-    status,
-    price,
-    inStock,
-    from,
-    to,
-  },
+  searchParams,
 }: ProductsPageProps) {
+  const { limit, offset, order, q, sortBy, status, price, inStock, from, to } =
+    await searchParams;
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
   const query = qs.stringifyUrl({

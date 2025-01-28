@@ -12,6 +12,7 @@ import {
   UploadedFiles,
   UseInterceptors,
   ParseFilePipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import {
@@ -25,8 +26,8 @@ import {
 import { DeleteManyDto } from '../common/dto';
 import { Role, Status } from '@prisma/client';
 import { RolesGuard } from '../auth/guards';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { imageValidators } from '../files/validators';
+import { LocalFilesInterceptor } from '../files/interceptors/local-files.interceptor';
 
 @Controller('products')
 export class ProductsController {
@@ -142,7 +143,27 @@ export class ProductsController {
 
   @Patch(':id/upload-images')
   @UseGuards(RolesGuard(Role.Admin))
-  @UseInterceptors(FilesInterceptor('images', 4))
+  // to upload file to aws, uncomment this interceptor and comment the interceptor below
+  // @UseInterceptors(FilesInterceptor('images', 4))
+  // for local use, uncomment this interceptor and comment the interceptor above
+  @UseInterceptors(
+    LocalFilesInterceptor({
+      fieldName: 'images',
+      path: '/products',
+      fileFilter: (_request, file, callback) => {
+        if (!file.mimetype.includes('image')) {
+          return callback(
+            new BadRequestException('Provide a valid image'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 10 * Math.pow(1024, 2), // 10MB
+      },
+    }),
+  )
   async uploadImages(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFiles(
@@ -157,6 +178,8 @@ export class ProductsController {
       files.map((file) => ({
         buffer: file.buffer,
         filename: file.originalname,
+        mimetype: file.mimetype,
+        path: file.path,
       })),
     );
     return { success: true };

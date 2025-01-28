@@ -19,7 +19,7 @@ export const getCategories = async (query = "", slug = "") => {
         data: { categories },
       },
     } = await axios.get<CategoriesResponse>(url, {
-      headers: { Cookie: cookies().toString() },
+      headers: { Cookie: (await cookies()).toString() },
     });
     return categories;
   } catch (error: any) {

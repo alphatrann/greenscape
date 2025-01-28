@@ -7,17 +7,17 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UploadFileDto } from '../files/dto';
-import { FilesService } from '../files/files.service';
 import { PrismaError } from '../prisma/prisma-error';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, FindManyProductsDto, UpdateProductDto } from './dto';
 import { endOfDay, startOfDay } from 'date-fns';
+import { LocalFilesService } from '../files/local-files.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
-    private filesService: FilesService,
+    private filesService: LocalFilesService,
   ) {}
 
   async create({ categoryIds, ...dto }: CreateProductDto) {
@@ -56,12 +56,9 @@ export class ProductsService {
     productId: number,
     imagesUploadDto: UploadFileDto[],
   ) {
-    const uploadResults = await this.filesService.createMany(imagesUploadDto);
+    const keys = await this.filesService.createMany(imagesUploadDto);
     await this.prisma.image.createMany({
-      data: uploadResults.map(({ Key }) => ({
-        fileId: Key,
-        productId,
-      })),
+      data: keys.map((key) => ({ fileId: key, productId })),
     });
   }
 
@@ -183,7 +180,7 @@ export class ProductsService {
           createdAt: true,
           status: true,
           images: {
-            select: { file: { select: { url: true } } },
+            select: { file: { select: { id: true, url: true } } },
             take: 1,
           },
           _count: { select: { orders: true } },

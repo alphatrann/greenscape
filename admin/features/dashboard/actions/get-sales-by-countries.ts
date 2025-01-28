@@ -6,7 +6,7 @@ export const getSalesByCountries = async () => {
   const {
     data: { data },
   } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/stats/countries`, {
-    headers: { Cookie: cookies().toString() },
+    headers: { Cookie: (await cookies()).toString() },
   });
 
   return data as SaleByCountry[];

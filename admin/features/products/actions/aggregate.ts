@@ -20,7 +20,7 @@ export const aggregateProducts = async (
       slug +
       query,
     {
-      headers: { Cookie: cookies().toString() },
+      headers: { Cookie: (await cookies()).toString() },
     },
   );
   return { statusGroups, inStockGroups };

@@ -28,6 +28,7 @@ import { Role, Status } from '@prisma/client';
 import { RolesGuard } from '../auth/guards';
 import { imageValidators } from '../files/validators';
 import { LocalFilesInterceptor } from '../files/interceptors/local-files.interceptor';
+import { MAX_IMAGE_SIZE, MAX_PRODUCT_IMAGES_COUNT } from '../common/constants';
 
 @Controller('products')
 export class ProductsController {
@@ -148,6 +149,7 @@ export class ProductsController {
   // for local use, uncomment this interceptor and comment the interceptor above
   @UseInterceptors(
     LocalFilesInterceptor({
+      maxFilesCount: MAX_PRODUCT_IMAGES_COUNT,
       fieldName: 'images',
       path: '/products',
       fileFilter: (_request, file, callback) => {
@@ -160,7 +162,7 @@ export class ProductsController {
         callback(null, true);
       },
       limits: {
-        fileSize: 10 * Math.pow(1024, 2), // 10MB
+        fileSize: MAX_IMAGE_SIZE, // 10MB
       },
     }),
   )

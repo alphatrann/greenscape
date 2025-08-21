@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "@/features/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useDeleteRecords } from "./use-delete-records";
 import { useDeleteRecordsModal } from "./use-modal";
 
@@ -18,10 +17,9 @@ interface DeleteRecordModalProps {
   entityName: "categories" | "products";
 }
 
-export default function DeleteRecordsModal({
+export function DeleteRecordsModal({
   entityName,
 }: DeleteRecordModalProps) {
-  const router = useRouter();
   const { isOpen, onClose, ids } = useDeleteRecordsModal();
   const { loading, deleteRecords } = useDeleteRecords();
 
@@ -47,7 +45,7 @@ export default function DeleteRecordsModal({
             <Button
               variant="destructive"
               onClick={() =>
-                deleteRecords(entityName).then(() => router.refresh())
+                deleteRecords(entityName).then(() => {})
               }
               disabled={loading}
             >

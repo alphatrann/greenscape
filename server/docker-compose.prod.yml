@@ -1,7 +1,9 @@
 services:
   api:
     container_name: api
-    image: greenscape:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - '5000:5000'
     env_file:
@@ -9,8 +11,8 @@ services:
     depends_on:
       - postgres
       - redis
+
   postgres:
-    container_name: postgres
     image: postgres:alpine
     ports:
       - '5432:5432'
@@ -22,7 +24,6 @@ services:
       - POSTGRES_DB=greenscape
 
   redis:
-    container_name: redis
     image: redis:alpine
     ports:
       - '6379:6379'

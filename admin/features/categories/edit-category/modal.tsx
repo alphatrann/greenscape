@@ -18,7 +18,7 @@ interface EditCategoryModalProps {
   parents: Category | null;
 }
 
-export default function EditCategoryModal({ parents }: EditCategoryModalProps) {
+export function EditCategoryModal({ parents }: EditCategoryModalProps) {
   const { isOpen, onClose, currentCategory } = useEditCategoryModal();
   const { loading, handleSubmit, form } = useEditCategory(currentCategory);
 

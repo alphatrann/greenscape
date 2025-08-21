@@ -18,6 +18,7 @@ async function bootstrap() {
     origin: [
       configService.get('CORS_ORIGIN_ADMIN'),
       configService.get('CORS_ORIGIN_STORE'),
+      configService.get('CORS_DESKTOP_ORIGIN'),
     ],
     credentials: true,
   });
@@ -38,12 +39,12 @@ async function bootstrap() {
         sameSite: 'lax',
         secure: configService.get('NODE_ENV') === 'production',
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        domain: configService.get('COOKIE_DOMAIN')
+        domain: configService.get('COOKIE_DOMAIN'),
       },
     }),
   );
 
-  app.set('trust proxy', 1)
+  app.set('trust proxy', 1);
 
   app.use(passport.initialize());
   app.use(passport.session());

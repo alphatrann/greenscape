@@ -21,14 +21,21 @@ import { MetricsModule } from './metrics/metrics.module';
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
         SESSION_SECRET: Joi.string().required(),
+
         CORS_ORIGIN_ADMIN: Joi.string().required(),
         CORS_ORIGIN_STORE: Joi.string().required(),
+        CORS_DESKTOP_ORIGIN: Joi.string().required(),
+
         REDIS_URL: Joi.string().required(),
         STRIPE_SECRET_KEY: Joi.string().required(),
         STRIPE_WEBHOOK_SECRET: Joi.string().required(),
+
+        // if upload files to S3
         AWS_BUCKET_NAME: Joi.string(),
         AWS_OBJECT_DEST: Joi.string(),
+
         COOKIE_DOMAIN: Joi.string(),
+        UPLOADED_FILES_DEST: Joi.string(), // if upload files locally
       }),
     }),
     CategoriesModule,

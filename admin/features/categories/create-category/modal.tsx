@@ -19,7 +19,7 @@ interface CreateCategoryModalProps {
   parents: Category | null;
 }
 
-export default function CreateCategoryModal({
+export function CreateCategoryModal({
   parents,
 }: CreateCategoryModalProps) {
   const { isOpen, onClose } = useCreateCategoryModal();

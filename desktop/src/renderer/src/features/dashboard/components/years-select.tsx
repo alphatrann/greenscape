@@ -19,15 +19,14 @@ export const YearsSelect = ({ startYear, endYear }: YearsSelectProps) => {
   const [year, setYear] = useState(new Date().getFullYear())
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const diffBetweenTwoYears = useMemo(() => endYear - startYear + 1, [startYear, endYear])
+  const diffBetweenTwoYears = useMemo(() => new Date().getFullYear() - startYear + 1, [startYear])
 
   useEffect(() => {
     const shownYear = searchParams.get('year')
 
     if (shownYear && !isNaN(+shownYear)) {
       const currentYear = +shownYear
-      if (currentYear >= startYear && currentYear <= endYear) setYear(currentYear)
-      else setYear(new Date().getFullYear())
+      setYear(currentYear)
     }
   }, [startYear, endYear, searchParams.get('year')])
 

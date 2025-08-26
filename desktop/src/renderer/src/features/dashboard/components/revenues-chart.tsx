@@ -29,7 +29,7 @@ export const RevenuesChart = ({ startYear, endYear, monthlyRevenues }: RevenuesC
   const data = useMemo(() => groupRevenuesByMonths(monthlyRevenues), [monthlyRevenues])
 
   return (
-    <Card className="col-span-3 md:col-span-2">
+    <Card className="col-span-3 lg:col-span-2">
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-base">
           Overview

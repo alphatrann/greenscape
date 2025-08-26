@@ -23,8 +23,6 @@ export const useUserGuard = () => {
       if (data) {
         setCurrentUser(data)
 
-        console.log({ data })
-
         if (location.pathname === AppRoute.Login) navigate(AppRoute.Home)
       } else {
         if (location.pathname !== AppRoute.Login) redirectToLogin()

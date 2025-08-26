@@ -5,6 +5,7 @@ import LoginPage from './pages/login'
 import { Toaster } from 'react-hot-toast'
 import ErrorPage from './pages/error'
 import { Navbar } from './layout/navbar'
+import CategoriesPage from './pages/categories'
 
 function App(): React.JSX.Element {
   return (
@@ -17,6 +18,7 @@ function App(): React.JSX.Element {
             <Route path={AppRoute.Home} element={<DashboardPage />} />{' '}
             <Route path={AppRoute.Login} element={<LoginPage />} />{' '}
             <Route path={AppRoute.Error} element={<ErrorPage />} />{' '}
+            <Route path={`${AppRoute.Categories}/:slug?`} element={<CategoriesPage />} />
           </Routes>
         </div>
       </HashRouter>

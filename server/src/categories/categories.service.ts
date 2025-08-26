@@ -41,7 +41,7 @@ export class CategoriesService {
     slug: string = null,
   ) {
     const where: Prisma.CategoryWhereInput = {
-      parentCategory: slug ? { slug } : null,
+      parentCategory: q ? undefined : slug ? { slug } : null,
       name: {
         contains: q,
         mode: 'insensitive',

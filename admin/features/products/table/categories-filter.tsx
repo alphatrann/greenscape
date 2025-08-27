@@ -38,7 +38,6 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({
 
   useEffect(() => {
     const currentQuery = qs.parse(searchParams.toString());
-    table.resetPageIndex();
     let url = "/products";
     if (foundCategoryPath && foundCategoryPath?.length > 0) {
       url += "/category/" + foundCategoryPath.map((c) => c.slug).join("/");
@@ -48,8 +47,15 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({
       url,
       query: currentQuery,
     });
-    router.push(urlWithCategorySlug, { scroll: false });
-  }, [foundCategoryPath]);
+    // prevent infinite re-rendering
+    if (
+      urlWithCategorySlug !==
+      window.location.pathname + window.location.search
+    ) {
+      table.resetPageIndex();
+      router.push(urlWithCategorySlug, { scroll: false });
+    }
+  }, [searchParams.toString(), foundCategoryPath]);
 
   return (
     <CategoriesRadioMenu

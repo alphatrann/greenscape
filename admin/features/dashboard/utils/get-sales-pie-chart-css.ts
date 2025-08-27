@@ -1,13 +1,13 @@
 export const getSalesPieChartCss = (
   salesByCountries: {
-    name: string | undefined;
+    name?: string;
     value: number;
     color: string;
   }[],
 ) => {
-  const total_value = salesByCountries.reduce((a, b) => a + b.value, 0);
+  const totalValue = salesByCountries.reduce((a, b) => a + b.value, 0);
   const convertToPercent = (num: number) =>
-    Math.round((num / total_value) * 100);
+    Math.round((num / totalValue) * 100);
   const convertToDegrees = (num: number) => Math.round((num / 100) * 360);
 
   const css_string = salesByCountries

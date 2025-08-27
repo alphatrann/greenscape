@@ -2,23 +2,23 @@ import { MonthlyRevenue } from "../types";
 
 export const groupRevenuesByMonths = (monthlyRevenues: MonthlyRevenue[]) => {
   const revenuesEveryMonth = [
-    { name: "Jan", total: 0 },
-    { name: "Feb", total: 0 },
-    { name: "Mar", total: 0 },
-    { name: "Apr", total: 0 },
-    { name: "May", total: 0 },
-    { name: "Jun", total: 0 },
-    { name: "Jul", total: 0 },
-    { name: "Aug", total: 0 },
-    { name: "Sep", total: 0 },
-    { name: "Oct", total: 0 },
-    { name: "Nov", total: 0 },
-    { name: "Dec", total: 0 },
+    { month: "Jan", revenue: 0 },
+    { month: "Feb", revenue: 0 },
+    { month: "Mar", revenue: 0 },
+    { month: "Apr", revenue: 0 },
+    { month: "May", revenue: 0 },
+    { month: "Jun", revenue: 0 },
+    { month: "Jul", revenue: 0 },
+    { month: "Aug", revenue: 0 },
+    { month: "Sep", revenue: 0 },
+    { month: "Oct", revenue: 0 },
+    { month: "Nov", revenue: 0 },
+    { month: "Dec", revenue: 0 },
   ];
 
   monthlyRevenues.forEach((revenue) => {
     const revenueMonth = new Date(revenue.createdAt).getMonth();
-    revenuesEveryMonth[revenueMonth].total += revenue.total;
+    revenuesEveryMonth[revenueMonth].revenue += revenue.total;
   });
   return revenuesEveryMonth;
 };

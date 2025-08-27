@@ -27,5 +27,5 @@ export const formSchema = z.object({
     .gte(1)
     .array()
     .min(1, { message: "Please select at least 1 category" }),
-  status: z.enum(["Active", "Draft", "Archived"]).default("Draft"),
+  status: z.enum(["Active", "Draft", "Archived"]),
 });

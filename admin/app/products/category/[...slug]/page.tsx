@@ -1,4 +1,5 @@
 import { getCategoriesTree } from "@/features/categories/actions";
+import { DeleteRecordsModal } from "@/features/common/delete-records/modal";
 import {
   aggregateProducts,
   getProducts,
@@ -10,21 +11,16 @@ import { Breadcrumb } from "@/features/ui/breadcrumb";
 import { Button } from "@/features/ui/button";
 import { getCurrentUser } from "@/features/user/utils";
 import { PlusIcon } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import qs from "query-string";
-
-const DeleteRecordsModal = dynamic(
-  () => import("@/features/common/delete-records/modal"),
-);
 
 export const metadata = {
   title: "Products",
 };
 
 interface ProductsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     offset?: string;
     sortBy?: string;
@@ -35,27 +31,15 @@ interface ProductsPageProps {
     inStock?: string;
     from?: string;
     to?: string;
-  };
-  params: {
-    slug?: string[];
-  };
+  }>;
+  params: Promise<{ slug?: string }>;
 }
 
-export default async function ProductsPage({
-  searchParams: {
-    limit,
-    offset,
-    order,
-    q,
-    sortBy,
-    status,
-    price,
-    inStock,
-    from,
-    to,
-  },
-  params: { slug },
-}: ProductsPageProps) {
+export default async function ProductsPage(props: ProductsPageProps) {
+  const { searchParams, params } = props;
+  const { limit, offset, order, q, sortBy, status, price, inStock, from, to } =
+    await searchParams;
+  const { slug } = await params;
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
   const query = qs.stringifyUrl({
@@ -80,7 +64,7 @@ export default async function ProductsPage({
     slug?.at(-1),
   );
 
-  const categories = await getCategoriesTree();
+  const categories = await getCategoriesTree(query);
 
   return (
     <>

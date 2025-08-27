@@ -14,7 +14,7 @@ export default async function CreateProductPage() {
   const categories = await getCategoriesTree();
 
   return (
-    <div className="container max-w-7xl">
+    <div className="container max-w-5xl">
       <div className="mb-8">
         <Breadcrumb
           links={[

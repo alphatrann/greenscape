@@ -5,9 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/features/ui/card";
+import { FormField, FormItem, FormMessage } from "@/features/ui/form";
 import { Input } from "@/features/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { FormField, FormItem, FormMessage } from "../../ui/form";
 import { ProductFormDto } from "../types";
 
 interface SlugInputProps {
@@ -21,7 +21,7 @@ export const SlugInput = ({ form, loading }: SlugInputProps) => {
       <CardHeader>
         <CardTitle>Slug</CardTitle>
         <CardDescription>
-          Lipsum dolor sit amet, consectetur adipiscing elit.
+          Unique, URL-friendly name for the product
         </CardDescription>
       </CardHeader>
       <CardContent>

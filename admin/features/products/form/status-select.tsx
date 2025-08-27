@@ -30,10 +30,8 @@ export const StatusSelect = ({ form, loading }: StatusSelectProps) => {
               <FormItem className="grid gap-3">
                 <FormLabel htmlFor="status">Status</FormLabel>
                 <Select
+                  onValueChange={field.onChange}
                   value={field.value}
-                  onValueChange={(newValue) =>
-                    form.setValue("status", newValue as Status)
-                  }
                   disabled={loading}
                 >
                   <SelectTrigger id="status" aria-label="Select status">

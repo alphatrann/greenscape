@@ -10,6 +10,8 @@ import { PrismaError } from '../prisma/prisma-error';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { FindManyDto } from '../common/dto';
+import { FindManyProductsDto } from '../products/dto';
+import { formProductQueries } from '../products/utils';
 
 @Injectable()
 export class CategoriesService {
@@ -111,16 +113,22 @@ export class CategoriesService {
     }
   }
 
-  async findCategoriesTree() {
+  async findCategoriesTree(dto: FindManyProductsDto) {
+    const productQueries = formProductQueries(dto);
     const categories = await this.prisma.category.findMany({
       where: { parentCategory: null },
       include: {
         subCategories: {
           include: {
-            _count: { select: { products: true } },
             subCategories: {
               include: {
-                _count: { select: { products: true } },
+                _count: {
+                  select: {
+                    products: {
+                      where: productQueries.where,
+                    },
+                  },
+                },
               },
             },
           },

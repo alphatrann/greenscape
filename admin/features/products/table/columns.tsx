@@ -5,13 +5,15 @@ import {
   DataTableRowActions,
 } from "@/features/common/data-table";
 import { useDeleteRecordsModal } from "@/features/common/delete-records";
-import { formatPrice, getLocalImage } from "@/features/common/utils";
+import { formatPrice } from "@/features/common/utils";
 import { Badge } from "@/features/ui/badge";
 import { Checkbox } from "@/features/ui/checkbox";
+import { EyeIcon } from "@heroicons/react/24/outline";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Button } from "../../ui/button";
 import { Product } from "../types";
 
 export const columns: ColumnDef<Product>[] = [
@@ -37,25 +39,6 @@ export const columns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   {
-    id: "images",
-    accessorKey: "images",
-    header: "",
-    cell: ({ row }) => (
-      <div className="h-16 w-16">
-        <Image
-          alt="Product image"
-          className="aspect-square rounded-md object-cover"
-          height="128"
-          src={
-            row.original.images[0].file?.url ||
-            getLocalImage(row.original.images[0].file.id)
-          }
-          width="128"
-        />
-      </div>
-    ),
-  },
-  {
     id: "name",
     accessorKey: "name",
     header: "Product",
@@ -79,6 +62,16 @@ export const columns: ColumnDef<Product>[] = [
     },
     cell: ({ row }) => (
       <div className="mr-3 text-right">{formatPrice(row.original.price)}</div>
+    ),
+  },
+  {
+    id: "categories",
+    accessorKey: "categories",
+    header: "Categories",
+    cell: ({ row }) => (
+      <div className="max-w-36">
+        {row.original.categories.map((c) => c.name).join(" / ")}
+      </div>
     ),
   },
   {
@@ -135,7 +128,9 @@ export const columns: ColumnDef<Product>[] = [
       <DataTableColumnHeader column={column} title="Created at" />
     ),
     cell: ({ row }) => (
-      <div>{format(new Date(row.original.createdAt), "Pp")}</div>
+      <div className="w-36">
+        {format(new Date(row.original.createdAt), "Pp")}
+      </div>
     ),
   },
   {
@@ -147,6 +142,11 @@ export const columns: ColumnDef<Product>[] = [
       return (
         <div className="flex justify-end">
           <CopyButton text="Copy product name" content={row.original.name} />
+          <Button asChild size="icon" variant="ghost">
+            <Link href={`/products/details/${row.original.slug}`}>
+              <EyeIcon className="h-5 w-5" />
+            </Link>
+          </Button>
           <DataTableRowActions
             row={row}
             onEditAction={() =>

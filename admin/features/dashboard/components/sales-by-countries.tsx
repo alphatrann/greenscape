@@ -37,7 +37,7 @@ export const SalesByCountries = ({ data }: { data: SaleByCountry[] }) => {
       <CardHeader>
         <CardTitle className="text-base">Sales by Countries</CardTitle>
       </CardHeader>
-      <CardContent className="w-full">
+      <CardContent className="h-full w-full">
         {formattedData.length === 0 ? (
           <div className="flex h-full items-center justify-center lg:mt-16">
             <h3 className="text-center text-xl font-medium text-muted-foreground">
@@ -47,11 +47,11 @@ export const SalesByCountries = ({ data }: { data: SaleByCountry[] }) => {
             </h3>
           </div>
         ) : (
-          <>
+          <div>
             <svg
               viewBox="0 0 100 100"
               xmlns="http://www.w3.org/2000/svg"
-              className="mx-auto h-full w-full max-w-[200px] rounded-full"
+              className="mx-auto max-w-[250px] rounded-full"
             >
               <clipPath id="hole">
                 <path d="M 50 0 a 50 50 0 0 1 0 100 50 50 0 0 1 0 -100 v 18 a 2 2 0 0 0 0 64 2 2 0 0 0 0 -64" />
@@ -74,9 +74,9 @@ export const SalesByCountries = ({ data }: { data: SaleByCountry[] }) => {
             <ul className="mt-4 space-y-4">
               {formattedData.length === 1 &&
               formattedData.some((data) => data.value === 0) ? (
-                <div className="w-full text-center text-sm text-muted-foreground">
+                <li className="w-full text-center text-sm text-muted-foreground">
                   No data available
-                </div>
+                </li>
               ) : (
                 formattedData.map((sale) => (
                   <li
@@ -98,7 +98,7 @@ export const SalesByCountries = ({ data }: { data: SaleByCountry[] }) => {
                 ))
               )}
             </ul>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>

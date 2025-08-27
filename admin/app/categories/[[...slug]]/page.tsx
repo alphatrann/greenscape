@@ -1,22 +1,14 @@
 import { getCategories } from "@/features/categories/actions";
 import { CreateCategoryButton } from "@/features/categories/create-category";
+import { CreateCategoryModal } from "@/features/categories/create-category/modal";
+import { EditCategoryModal } from "@/features/categories/edit-category/modal";
 import { CategoriesTable } from "@/features/categories/table";
 import { generatePaths } from "@/features/categories/utils";
+import { DeleteRecordsModal } from "@/features/common/delete-records/modal";
 import { Breadcrumb } from "@/features/ui/breadcrumb";
 import { getCurrentUser } from "@/features/user/utils";
-import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import qs from "query-string";
-
-const CreateCategoryModal = dynamic(
-  () => import("@/features/categories/create-category/modal"),
-);
-const EditCategoryModal = dynamic(
-  () => import("@/features/categories/edit-category/modal"),
-);
-const DeleteRecordsModal = dynamic(
-  () => import("@/features/common/delete-records/modal"),
-);
 
 export const metadata = {
   title: "Categories",
@@ -35,10 +27,8 @@ interface CategoriesPageProps {
   };
 }
 
-export default async function CategoriesPage({
-  searchParams,
-  params,
-}: CategoriesPageProps) {
+export default async function CategoriesPage(props: CategoriesPageProps) {
+  const { searchParams, params } = await props;
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
   const query = qs.stringifyUrl({

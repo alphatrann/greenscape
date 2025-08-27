@@ -1,19 +1,15 @@
-import { Transform, Type } from 'class-transformer';
-import { FindManyDto } from '../../common/dto';
+import { Status } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsBoolean,
   IsDateString,
   IsEnum,
-  IsInt,
   IsNumber,
   IsOptional,
-  Matches,
-  Min,
 } from 'class-validator';
-import { Status } from '@prisma/client';
-import { VALID_DATE_REGEX } from '../../common/constants';
+import { FindManyDto } from '../../common/dto';
 
 export class FindManyProductsDto extends FindManyDto {
   @Transform(({ value }: { value: string }) =>
@@ -34,15 +30,11 @@ export class FindManyProductsDto extends FindManyDto {
   @IsBoolean()
   inStock?: boolean;
 
-  @Matches(VALID_DATE_REGEX, {
-    message: 'Please provide a valid date in the format of yyyy-mm-dd',
-  })
+  @IsDateString()
   @IsOptional()
   from?: string;
 
-  @Matches(VALID_DATE_REGEX, {
-    message: 'Please provide a valid date in the format of yyyy-mm-dd',
-  })
+  @IsDateString()
   @IsOptional()
   to?: string;
 }

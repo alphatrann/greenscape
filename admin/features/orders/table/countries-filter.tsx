@@ -100,7 +100,7 @@ export const CountriesFilter: React.FC<CountriesFilterProps> = ({
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Categories" />
+          <CommandInput placeholder="Search countries..." />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>

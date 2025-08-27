@@ -18,14 +18,14 @@ export const metadata: Metadata = {
 };
 
 interface DashboardPageProps {
-  searchParams: {
+  searchParams: Promise<{
     year: string;
-  };
+  }>;
 }
 
-export default async function DashboardPage({
-  searchParams: { year },
-}: DashboardPageProps) {
+export default async function DashboardPage(props: DashboardPageProps) {
+  const { searchParams } = props;
+  const { year } = await searchParams;
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
   const keyStats = await getKeyStats();

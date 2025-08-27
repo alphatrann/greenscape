@@ -15,6 +15,7 @@ import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { RolesGuard } from '../auth/guards';
 import { Role } from '@prisma/client';
 import { DeleteManyDto, FindManyDto } from '../common/dto';
+import { FindManyProductsDto } from '../products/dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -49,8 +50,10 @@ export class CategoriesController {
   }
 
   @Get('tree')
-  async findCategoriesTree() {
-    const categories = await this.categoriesService.findCategoriesTree();
+  async findCategoriesTree(@Query() findManyProductsDto: FindManyProductsDto) {
+    const categories = await this.categoriesService.findCategoriesTree(
+      findManyProductsDto,
+    );
     return { success: true, data: categories };
   }
 

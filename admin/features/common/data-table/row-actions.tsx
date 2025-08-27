@@ -32,11 +32,7 @@ export function DataTableRowActions<TData extends { id: number }>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => {
-            onEditAction(row.original);
-          }}
-        >
+        <DropdownMenuItem onClick={() => onEditAction(row.original)}>
           Edit
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onDeleteAction([row.original.id])}>

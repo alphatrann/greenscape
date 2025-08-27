@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 interface OrdersPageProps {
-  searchParams: {
+  searchParams: Promise<{
     limit?: string;
     offset?: string;
     q?: string;
@@ -20,11 +20,12 @@ interface OrdersPageProps {
     countries?: string;
     shippingCost?: string;
     status?: "pending" | "delivered";
-  };
+  }>;
 }
 
-export default async function OrdersPage({
-  searchParams: {
+export default async function OrdersPage(props: OrdersPageProps) {
+  const { searchParams } = props;
+  const {
     limit = "10",
     offset = "0",
     q,
@@ -34,8 +35,7 @@ export default async function OrdersPage({
     countries,
     shippingCost,
     status,
-  },
-}: OrdersPageProps) {
+  } = await searchParams;
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
 

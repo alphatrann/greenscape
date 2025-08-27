@@ -31,11 +31,11 @@ export const ProductOverview: React.FC<ProductOverviewProps> = ({
   loading,
 }) => {
   return (
-    <Card x-chunk="dashboard-07-chunk-0">
+    <Card>
       <CardHeader>
         <CardTitle>Product Details</CardTitle>
         <CardDescription>
-          Lipsum dolor sit amet, consectetur adipiscing elit
+          Enter the main details customers will see when viewing this product.
         </CardDescription>
       </CardHeader>
       <CardContent>

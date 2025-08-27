@@ -12,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, FindManyProductsDto, UpdateProductDto } from './dto';
 import { endOfDay, startOfDay } from 'date-fns';
 import { LocalFilesService } from '../files/local-files.service';
+import { formProductQueries } from './utils';
 
 @Injectable()
 export class ProductsService {
@@ -119,44 +120,11 @@ export class ProductsService {
     return recommendedProducts;
   }
 
-  private formQueries(
-    { q, status, price, inStock, from, to, sortBy, order }: FindManyProductsDto,
-    slug?: string,
-  ) {
-    const where: Prisma.ProductWhereInput = {};
-    where.name = {
-      contains: q,
-      mode: 'insensitive',
-    };
-    if (status) where.status = status;
-    if (slug) where.categories = { some: { slug } };
-    if (price) {
-      where.price = {};
-      if (price[0]) where.price.gte = price[0];
-      if (price[1]) where.price.lte = price[1];
-    }
-    if (inStock !== undefined)
-      where.inStock = inStock ? { gt: 0 } : { equals: 0 };
-    let start: Date, end: Date;
-    if (from) start = startOfDay(new Date(from));
-    if (to) end = endOfDay(new Date(to));
-
-    where.createdAt = {
-      gte: start,
-      lte: end,
-    };
-
-    let orderBy: Prisma.ProductOrderByWithRelationAndSearchRelevanceInput = {};
-    if (sortBy === 'orders') orderBy = { orders: { _count: order } };
-    else orderBy = { [sortBy]: order };
-    return { where, orderBy };
-  }
-
   async paginate(
     dto: Omit<FindManyProductsDto, 'limit' | 'offset' | 'sortBy' | 'order'>,
     slug: string = '',
   ) {
-    const { where } = this.formQueries(dto, slug);
+    const { where } = formProductQueries(dto, slug);
     return this.prisma.product.count({ where });
   }
 
@@ -165,7 +133,7 @@ export class ProductsService {
     slug?: string,
   ) {
     try {
-      const { where, orderBy } = this.formQueries(findManyProductsDto, slug);
+      const { where, orderBy } = formProductQueries(findManyProductsDto, slug);
       const products = await this.prisma.product.findMany({
         take: limit,
         skip: offset,
@@ -179,6 +147,10 @@ export class ProductsService {
           price: true,
           createdAt: true,
           status: true,
+          categories: {
+            select: { id: true, name: true },
+            orderBy: { id: 'asc' },
+          },
           images: {
             select: { file: { select: { id: true, url: true } } },
             take: 1,
@@ -200,7 +172,7 @@ export class ProductsService {
     dto: FindManyProductsDto,
     slug: string = null,
   ) {
-    const { where } = this.formQueries(dto, slug);
+    const { where } = formProductQueries(dto, slug);
     delete where[field];
     return this.prisma.product.groupBy({
       by: field,

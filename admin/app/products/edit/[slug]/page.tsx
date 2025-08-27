@@ -31,7 +31,7 @@ export default async function ProductSettingsPage({
   if (!product) redirect("/not-found");
 
   return (
-    <div className="container max-w-7xl">
+    <div className="container max-w-5xl">
       <div className="mb-8">
         <Breadcrumb
           links={[

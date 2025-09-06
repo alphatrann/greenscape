@@ -1,5 +1,3 @@
-'use client'
-
 import { Category } from '@renderer/features/categories/types'
 import { Form } from '@renderer/features/ui/form'
 import React, { useEffect } from 'react'

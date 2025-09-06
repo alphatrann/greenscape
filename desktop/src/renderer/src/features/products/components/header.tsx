@@ -1,7 +1,8 @@
 import { Button } from '@renderer/features/ui/button'
-import { ChevronLeft, Link } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { ProductFormSubmit } from './submit'
 import { AppRoute } from '@renderer/common/app-route'
+import { Link } from 'react-router-dom'
 
 interface ProductFormHeaderProps {
   heading: string

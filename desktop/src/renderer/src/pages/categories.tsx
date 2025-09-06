@@ -11,6 +11,7 @@ import { Category } from '../features/categories/types'
 import { useParams } from 'react-router-dom'
 import { useFiltersContext } from '../common/contexts/filters-context'
 import qs from 'query-string'
+import { AppRoute } from '../common/app-route'
 
 export default function CategoriesPage() {
   useUserGuard()
@@ -37,12 +38,10 @@ export default function CategoriesPage() {
   }, [slug, q, pagination, sortBy, order])
 
   const generateBreadcrumb = () => {
-    let route = '/categories'
-    const links = [{ name: 'Categories', href: route }]
+    const links = [{ name: 'Categories', href: `${AppRoute.Categories}` }]
     const paths = generatePaths(parents)
     paths.forEach((path) => {
-      route += '/' + path.slug
-      links.push({ name: path.name, href: route })
+      links.push({ name: path.name, href: `${AppRoute.Categories}/${path.slug}` })
     })
     return links
   }

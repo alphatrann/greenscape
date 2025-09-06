@@ -38,10 +38,7 @@ export const uploadImages = async (productId: number, formData: FormData) => {
     await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}/upload-images`, {
       credentials: 'include',
       body: formData,
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+      method: 'PATCH'
     })
   } catch (error: any) {
     throw new Error(error.message)
@@ -79,7 +76,7 @@ export const deleteImages = async (productId: number, deletedImageIds: number[])
       `${import.meta.env.VITE_API_URL}/products/${
         productId
       }/remove-images?ids=${deletedImageIds.join(',')}`,
-      { credentials: 'include' }
+      { credentials: 'include', method: 'DELETE' }
     )
   } catch (error: any) {
     throw new Error(error.message)

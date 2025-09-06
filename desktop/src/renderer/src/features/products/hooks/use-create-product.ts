@@ -32,7 +32,7 @@ export const useCreateProduct = () => {
       form.reset()
       clearFiles()
       toast.success('Product created')
-      navigate(AppRoute.Products)
+      navigate(`${AppRoute.Products}/${newProduct.slug}`)
     } catch (error: any) {
       toast.error(error.message)
     } finally {

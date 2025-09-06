@@ -201,13 +201,7 @@ export class ProductsController {
       dto,
       slug,
     );
-    const statusGroups = await this.productsService.aggregate(
-      'status',
-      dto,
-      slug,
-    );
-
-    return { inStockGroups, statusGroups, success: true };
+    return { inStockGroups, success: true };
   }
 
   @Delete(':productId/remove-images')

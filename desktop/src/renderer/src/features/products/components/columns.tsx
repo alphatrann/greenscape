@@ -1,16 +1,16 @@
 'use client'
+import { EyeIcon } from '@heroicons/react/24/outline'
 import { CopyButton } from '@renderer/common/components/copy-button'
 import { DataTableColumnHeader, DataTableRowActions } from '@renderer/common/data-table'
 import { useDeleteRecordsModal } from '@renderer/common/delete-records'
 import { formatPrice } from '@renderer/common/utils'
 import { Badge } from '@renderer/features/ui/badge'
 import { Checkbox } from '@renderer/features/ui/checkbox'
-import { EyeIcon } from '@heroicons/react/24/outline'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../ui/button'
 import { Product } from '../types'
-import { Link, redirect } from 'react-router-dom'
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -101,18 +101,19 @@ export const columns: ColumnDef<Product>[] = [
     id: 'actions',
     header: () => <div className="text-right">Actions</div>,
     cell: ({ row }) => {
+      const navigate = useNavigate()
       const { onOpen: onDeleteOpen } = useDeleteRecordsModal()
       return (
         <div className="flex justify-end">
           <CopyButton text="Copy product name" content={row.original.name} />
           <Button asChild size="icon" variant="ghost">
-            <Link to={`/products/details/${row.original.slug}`}>
+            <Link to={`/products/${row.original.slug}`}>
               <EyeIcon className="h-5 w-5" />
             </Link>
           </Button>
           <DataTableRowActions
             row={row}
-            onEditAction={() => redirect(`/products/edit/${row.original.slug}`)}
+            onEditAction={() => navigate(`/products/edit/${row.original.slug}`)}
             onDeleteAction={onDeleteOpen}
           />
         </div>

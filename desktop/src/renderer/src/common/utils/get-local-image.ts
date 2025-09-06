@@ -1,3 +1,3 @@
 export const getLocalImage = (id: number) => {
-  return `${process.env.NEXT_PUBLIC_API_URL}/files/${id}`
+  return `${import.meta.env.VITE_API_URL}/files/${id}`
 }

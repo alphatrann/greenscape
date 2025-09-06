@@ -9,6 +9,9 @@ import CategoriesPage from './pages/categories'
 import ProductsPage from './pages/products'
 import { FiltersProvider } from './common/contexts/filters-context'
 import { ProductFiltersProvider } from './features/products/contexts/product-filters-context'
+import CreateProductPage from './pages/create-product'
+import ProductPage from './pages/product-detail'
+import ProductSettingsPage from './pages/edit-product'
 
 function App(): React.JSX.Element {
   return (
@@ -39,6 +42,9 @@ function App(): React.JSX.Element {
                 </FiltersProvider>
               }
             />
+            <Route path={AppRoute.CreateProduct} element={<CreateProductPage />} />
+            <Route path={AppRoute.ProductDetail} element={<ProductPage />} />
+            <Route path={AppRoute.EditProduct} element={<ProductSettingsPage />} />
           </Routes>
         </div>
       </HashRouter>

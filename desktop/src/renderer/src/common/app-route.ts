@@ -4,8 +4,9 @@ export enum AppRoute {
   Categories = '/categories',
   Products = '/products',
   NotFound = '*',
+  ProductDetail = '/products/:slug',
   CreateProduct = '/products/create',
-  EditProduct = '/products/edit/:id',
+  EditProduct = '/products/edit/:slug',
   Orders = '/orders',
   Order = '/orders/:id',
   Error = '/error'

@@ -77,7 +77,7 @@ export const useEditProduct = (product: Product) => {
         slug: '',
         status: Status.Draft
       })
-      navigate(AppRoute.Products)
+      navigate(`${AppRoute.Products}/${product.slug}`)
       clearFiles()
     } catch (error: any) {
       toast.error(error.response.data.message)

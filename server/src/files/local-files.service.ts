@@ -40,7 +40,9 @@ export class LocalFilesService implements FilesService {
       where: { id: { in: keys } },
     });
     for (const file of toDeleteFiles) {
-      await rm(join(process.cwd(), file.filename));
+      try {
+        await rm(file.path);
+      } catch {}
     }
     await this.prisma.file.deleteMany({ where: { id: { in: keys } } });
   }

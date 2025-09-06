@@ -1,43 +1,39 @@
-import { formatPrice } from "@/features/common/utils";
-import { getProduct } from "@/features/products/actions";
-import {
-  AddToBag,
-  ImagesGallery,
-  ProductDescription,
-} from "@/features/products/details";
-import { Breadcrumb } from "@/features/ui/breadcrumb";
-import { redirect } from "next/navigation";
+import { formatPrice } from '@renderer/common/utils'
+import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
+import { redirect, useParams } from 'react-router-dom'
+import { Product } from '../features/products/types'
+import { useEffect, useState } from 'react'
+import { getProduct } from '../features/products/api'
+import { ImagesGallery } from '../features/products/components/images-gallery'
+import { ProductDescription } from '../features/products/components/product-description'
+import { AddToBag } from '../features/products/components/add-to-bag'
 
-interface ProductPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-}
+export default function ProductPage() {
+  const { slug } = useParams()
 
-export const generateMetadata = async ({ params }: ProductPageProps) => {
-  const { slug } = await params;
-  const { data: product } = await getProduct(slug);
-  if (!product) return { title: "Product not found" };
-  return { title: "Products - " + product.name };
-};
+  const [product, setProduct] = useState<Product | null>(null)
+  useEffect(() => {
+    if (!slug) return
+    getProduct(slug!).then(setProduct)
+  }, [slug])
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = await params;
-  const { data: product } = await getProduct(slug);
-  if (!product) redirect("/not-found");
+  if (!product) {
+    redirect('/not-found')
+    return null
+  }
 
   return (
     <>
-      <main className="container max-w-7xl px-4 pb-10 pt-16 sm:px-6 lg:px-8">
+      <main className="container max-w-7xl mx-auto px-4 pb-10 pt-16 sm:px-6 lg:px-8">
         <Breadcrumb
           links={[
-            { name: "Products", href: "/products" },
-            { name: product.name, href: "#" },
+            { name: 'Products', href: '/products' },
+            { name: product.name, href: '#' }
           ]}
         />
         <section className="relative mt-6 grid gap-x-8 sm:grid-cols-2">
           <div className="h-fit sm:sticky sm:top-6">
-            <ImagesGallery product={product} />
+            {product.images.length > 0 && <ImagesGallery product={product} />}
           </div>
           <div className="mt-6">
             <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
@@ -52,5 +48,5 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </section>
       </main>
     </>
-  );
+  )
 }

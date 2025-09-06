@@ -15,6 +15,13 @@ export class FindManyProductsDto extends FindManyDto {
   @Transform(({ value }: { value: string }) =>
     value.split(',').map((val) => +val),
   )
+  @IsNumber({ allowInfinity: false, allowNaN: false }, { each: true })
+  @IsOptional()
+  ids?: number[];
+
+  @Transform(({ value }: { value: string }) =>
+    value.split(',').map((val) => +val),
+  )
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
   @IsNumber({ allowInfinity: false, allowNaN: false }, { each: true })

@@ -15,7 +15,7 @@
     "utils": "src/renderer/src/lib/utils",
     "ui": "src/renderer/src/features/ui",
     "lib": "src/renderer/src/lib",
-    "hooks": "src/renderer/src/hooks"
+    "hooks": "src/renderer/src/common/hooks"
   },
   "iconLibrary": "lucide"
 }

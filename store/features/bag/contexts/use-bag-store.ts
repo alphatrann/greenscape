@@ -5,12 +5,13 @@ import { toast } from "react-hot-toast";
 
 interface BagStore {
   bag: BagItem[];
+  totalPrice: number;
   getTotalQty: () => number;
-  getTotalPrice: () => number;
   findBagItem: (id: number) => BagItem | undefined;
   addToBag: (bagItem: BagItem) => void;
   updateQty: (id: number, qty: number) => void;
   removeBagItem: (id: number) => void;
+
   clearBag: () => void;
 }
 
@@ -18,13 +19,9 @@ export const useBagStore = create(
   persist<BagStore>(
     (set, get) => ({
       bag: [],
+      totalPrice: 0,
       findBagItem: (id) => get().bag.find((item) => item.id === id),
       getTotalQty: () => get().bag.reduce((sum, item) => (sum += item.qty), 0),
-      getTotalPrice: () =>
-        get().bag.reduce(
-          (totalPrice, item) => (totalPrice += item.qty * item.price),
-          0
-        ),
       addToBag: (bagItem) => {
         set({ bag: [...get().bag, bagItem] });
         toast.success("Item added to bag");

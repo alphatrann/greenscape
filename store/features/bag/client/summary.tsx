@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 export const BagSummary = () => {
   const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
-  const { bag, getTotalPrice, clearBag } = useBagStore();
+  const { bag, clearBag, totalPrice } = useBagStore();
 
   useEffect(() => {
     setMounted(true);
@@ -53,7 +53,7 @@ export const BagSummary = () => {
         <div className="flex justify-between pt-4 items-center">
           <dt className="text-gray-700 text-sm">Subtotal</dt>
           <dd className="text-gray-900 font-medium text-sm">
-            {formatPrice(getTotalPrice())}
+            {formatPrice(totalPrice)}
           </dd>
         </div>
         <div className="flex justify-between pt-4 border-t border-gray-200 items-center">
@@ -65,7 +65,7 @@ export const BagSummary = () => {
         <div className="flex justify-between pt-4 border-t border-gray-200 items-center">
           <dt className="text-gray-900 font-medium text-base">Order total</dt>
           <dd className="text-gray-900 font-medium text-base">
-            {formatPrice(getTotalPrice())}
+            {formatPrice(totalPrice)}
           </dd>
         </div>
       </dl>

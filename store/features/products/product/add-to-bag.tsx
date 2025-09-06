@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Button } from "@/features/ui/button";
 import { useBagStore } from "@/features/bag/contexts";
 import { Product } from "../types";
@@ -12,15 +12,7 @@ export const AddToBag = ({ product }: { product: Product }) => {
   );
 
   const onAddToBag = () => {
-    const toBeAddedProduct = {
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      imageUrl: product.images[0].file.url,
-      price: product.price,
-      inStock: product.inStock,
-    };
-    addToBag({ ...toBeAddedProduct, qty: 1 });
+    addToBag({ id: product.id, qty: 1 });
   };
 
   const rem = useMemo(

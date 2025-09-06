@@ -36,3 +36,15 @@ export const getCategories = async (query = '', slug: string = '') => {
   })
   return (await response.json()) as CategoriesResponse
 }
+
+export const getCategoriesTree = async (query?: string) => {
+  const url = `${import.meta.env.VITE_API_URL}/categories/tree${query ?? ''}`
+
+  const response = await fetch(url, {
+    credentials: 'include'
+  })
+
+  const data = await response.json()
+
+  return data.data as Category[]
+}

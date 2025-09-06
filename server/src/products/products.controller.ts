@@ -200,7 +200,7 @@ export class ProductsController {
   @UseGuards(RolesGuard(Role.Admin))
   async aggregateProductsBySlug(
     @Query() dto: FindManyProductsDto,
-    @Param('slug') slug,
+    @Param('slug') slug: string,
   ) {
     const inStockGroups = await this.productsService.aggregate(
       'inStock',

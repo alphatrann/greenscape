@@ -11,9 +11,11 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/features/ui/select";
+import { getLocalImage } from "@/features/categories/utils";
+import { Product } from "@/features/products/types";
 
 interface BagItemProps {
-  item: IBagItem;
+  item: Product & IBagItem;
 }
 
 export const BagItem: React.FC<BagItemProps> = ({ item }) => {
@@ -22,7 +24,7 @@ export const BagItem: React.FC<BagItemProps> = ({ item }) => {
   return (
     <li className="flex items-center py-6">
       <Image
-        src={item.imageUrl}
+        src={item.images[0].file.url || getLocalImage(item.images[0].file.id)}
         alt={item.name}
         width={300}
         height={300}

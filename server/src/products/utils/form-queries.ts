@@ -3,14 +3,27 @@ import { startOfDay, endOfDay } from 'date-fns';
 import { FindManyProductsDto } from '../dto';
 
 export function formProductQueries(
-  { q, status, price, inStock, from, to, sortBy, order }: FindManyProductsDto,
+  {
+    ids,
+    q,
+    status,
+    price,
+    inStock,
+    from,
+    to,
+    sortBy,
+    order,
+  }: FindManyProductsDto,
   slug?: string,
 ) {
   const where: Prisma.ProductWhereInput = {};
-  where.name = {
-    contains: q,
-    mode: 'insensitive',
-  };
+
+  if (ids?.length > 0) where.id = { in: ids };
+  if (q)
+    where.name = {
+      contains: q,
+      mode: 'insensitive',
+    };
   if (status) where.status = status;
   if (slug) where.categories = { some: { slug } };
   if (price) {
@@ -32,5 +45,6 @@ export function formProductQueries(
   let orderBy: Prisma.ProductOrderByWithRelationAndSearchRelevanceInput = {};
   if (sortBy === 'orders') orderBy = { orders: { _count: order } };
   else orderBy = { [sortBy]: order };
+
   return { where, orderBy };
 }

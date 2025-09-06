@@ -5,12 +5,11 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Status } from '@prisma/client';
 import { UploadFileDto } from '../files/dto';
 import { PrismaError } from '../prisma/prisma-error';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, FindManyProductsDto, UpdateProductDto } from './dto';
-import { endOfDay, startOfDay } from 'date-fns';
 import { LocalFilesService } from '../files/local-files.service';
 import { formProductQueries } from './utils';
 
@@ -70,7 +69,7 @@ export class ProductsService {
   }
 
   async search(term: string) {
-    const keywords = term.split(' ').join(' & ');
+    const keywords = term.split(' ').join(' | ');
     return this.prisma.product.findMany({
       take: 10,
       where: {
@@ -105,13 +104,14 @@ export class ProductsService {
         categories: {
           every: { id: { in: categories.map((c) => c.id) } },
         },
+        status: Status.Active,
       },
       select: {
         id: true,
         name: true,
         slug: true,
         images: {
-          select: { file: { select: { url: true } } },
+          select: { file: { select: { id: true, url: true } } },
           take: 1,
         },
         price: true,
@@ -158,6 +158,7 @@ export class ProductsService {
           _count: { select: { orders: true } },
         },
       });
+
       return products;
     } catch (error) {
       throw new InternalServerErrorException({

@@ -1,4 +1,3 @@
-'use client'
 import { Badge } from '@renderer/features/ui/badge'
 import { Button } from '@renderer/features/ui/button'
 import {
@@ -11,42 +10,16 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/popover'
 import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
-import { EllipsisIcon, PlusCircleIcon } from 'lucide-react'
-import { Table } from '@tanstack/react-table'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import qs from 'query-string'
-import { useEffect, useState } from 'react'
-import { Product, Status, StatusGroup } from '../types'
+import { CircleIcon, PlusCircleIcon } from 'lucide-react'
+import { useProductFiltersContext } from '../contexts/product-filters-context'
+import { Status, StatusGroup } from '../types'
 
 interface StatusFilterProps {
-  table: Table<Product>
   statusGroups: StatusGroup[]
 }
 
-export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups, table }) => {
-  const [status, setStatus] = useState<Status | null>(null)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-
-  useEffect(() => {
-    const currentStatus = searchParams.get('status')
-    if (!currentStatus) setStatus(null)
-    else setStatus(currentStatus as Status)
-  }, [searchParams.get('status')])
-
-  useEffect(() => {
-    const currentQuery = qs.parse(searchParams.toString())
-    if (status) {
-      currentQuery.status = status
-    } else delete currentQuery.status
-    table.resetPageIndex()
-    const urlWithStatusQuery = qs.stringifyUrl({
-      url: location.pathname,
-      query: currentQuery
-    })
-    navigate(urlWithStatusQuery, { replace: false })
-  }, [status])
+export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
+  const { status, setStatus } = useProductFiltersContext()
 
   return (
     <Popover>
@@ -76,7 +49,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups, table 
                       status === s ? 'text-primary' : 'opacity-50 [&_svg]:invisible'
                     )}
                   >
-                    <EllipsisIcon className="h-4 w-4" />
+                    <CircleIcon className="fill-current" />
                   </div>
                   <span>{s}</span>
                   {statusGroups.find((group) => group.status === s)?._count && (
@@ -92,7 +65,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups, table 
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => setStatus(null)}
+                    onSelect={() => setStatus(undefined)}
                     className="justify-center text-center"
                   >
                     Clear filters

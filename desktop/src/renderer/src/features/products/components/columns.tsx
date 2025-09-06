@@ -38,9 +38,7 @@ export const columns: ColumnDef<Product>[] = [
     id: 'name',
     accessorKey: 'name',
     header: 'Product',
-    cell: ({ row }) => (
-      <div className="line-clamp-3 whitespace-pre-wrap font-medium">{row.getValue('name')}</div>
-    )
+    cell: ({ row }) => <div>{row.getValue('name')}</div>
   },
   {
     id: 'price',
@@ -55,9 +53,7 @@ export const columns: ColumnDef<Product>[] = [
     accessorKey: 'categories',
     header: 'Categories',
     cell: ({ row }) => (
-      <div className="max-w-36 text-wrap">
-        {row.original.categories.map((c) => c.name).join(' / ')}
-      </div>
+      <div className="text-muted-foreground">{row.original.categories.at(-1)?.name}</div>
     )
   },
   {

@@ -3,22 +3,11 @@ import { startOfDay, endOfDay } from 'date-fns';
 import { FindManyProductsDto } from '../dto';
 
 export function formProductQueries(
-  {
-    ids,
-    q,
-    status,
-    price,
-    inStock,
-    from,
-    to,
-    sortBy,
-    order,
-  }: FindManyProductsDto,
+  { q, status, price, inStock, from, to, sortBy, order }: FindManyProductsDto,
   slug?: string,
 ) {
   const where: Prisma.ProductWhereInput = {};
 
-  if (ids?.length > 0) where.id = { in: ids };
   if (q)
     where.name = {
       contains: q,
@@ -31,8 +20,13 @@ export function formProductQueries(
     if (price[0]) where.price.gte = price[0];
     if (price[1]) where.price.lte = price[1];
   }
-  if (inStock !== undefined)
-    where.inStock = inStock ? { gt: 0 } : { equals: 0 };
+
+  if (inStock) {
+    where.inStock = {};
+    if (inStock[0]) where.inStock.gte = inStock[0];
+    if (inStock[1]) where.inStock.lte = inStock[1];
+  }
+
   let start: Date, end: Date;
   if (from) start = startOfDay(new Date(from));
   if (to) end = endOfDay(new Date(to));

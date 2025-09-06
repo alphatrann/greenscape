@@ -68,28 +68,6 @@ export class ProductsService {
     return product;
   }
 
-  async search(term: string) {
-    const keywords = term.split(' ').join(' | ');
-    return this.prisma.product.findMany({
-      take: 10,
-      where: {
-        name: { search: keywords, mode: 'insensitive' },
-        desc: { search: keywords, mode: 'insensitive' },
-      },
-      orderBy: {
-        _relevance: {
-          fields: ['name'],
-          search: keywords,
-          sort: 'desc',
-        },
-      },
-      include: {
-        categories: { take: 1, where: { parentCategory: null } },
-        images: { take: 1, include: { file: true } },
-      },
-    });
-  }
-
   async recommend(refIds: number[]) {
     const [{ categories }] = await this.prisma.product.findMany({
       where: { id: { in: refIds } },

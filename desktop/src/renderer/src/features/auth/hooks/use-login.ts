@@ -6,9 +6,10 @@ import { z } from 'zod'
 import { useUserStore } from '@renderer/features/users/store'
 import { redirect, useSearchParams } from 'react-router-dom'
 import { login } from '../api'
+
 const formSchema = z.object({
-  email: z.string().email({ message: 'Please provide a valid email' }),
-  password: z.string().min(1, { message: 'Password must not be empty' })
+  email: z.email({ error: 'Please provide a valid email' }),
+  password: z.string().min(1, { error: 'Password must not be empty' })
 })
 
 export const useLogin = () => {

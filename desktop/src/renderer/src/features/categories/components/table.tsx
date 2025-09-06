@@ -8,6 +8,7 @@ import { Input } from '@renderer/features/ui/input'
 import React from 'react'
 import { Category } from '../types'
 import { columns } from './columns'
+import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 
 interface CategoriesTableProps {
   categories: Category[]
@@ -15,7 +16,8 @@ interface CategoriesTableProps {
 }
 
 export const CategoriesTable: React.FC<CategoriesTableProps> = ({ categories, count }) => {
-  const { q, setQ, table } = useTable(columns, categories, count)
+  const { q, setQ } = useFiltersContext()
+  const table = useTable(columns, categories, count)
 
   return (
     <div className="space-y-4">

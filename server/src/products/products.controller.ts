@@ -99,7 +99,7 @@ export class ProductsController {
   @UseGuards(RolesGuard(Role.Admin))
   async paginate(@Query() dto: FindManyProductsDto) {
     const count = await this.productsService.paginate(dto);
-    return { success: true, count };
+    return { success: true, data: count };
   }
 
   @Get('paginate/category/:slug')
@@ -109,7 +109,7 @@ export class ProductsController {
     @Param('slug') slug: string,
   ) {
     const count = await this.productsService.paginate(dto, slug);
-    return { success: true, count };
+    return { success: true, data: count };
   }
 
   @Get('recommend')
@@ -134,12 +134,6 @@ export class ProductsController {
   async findOne(@Param('slug') slug: string) {
     const product = await this.productsService.findBySlug(slug);
     return { success: true, data: product };
-  }
-
-  @Get('search/:term')
-  async search(@Param('term') term: string) {
-    const products = await this.productsService.search(term);
-    return { success: true, data: products };
   }
 
   @Patch(':id/upload-images')

@@ -5,49 +5,20 @@ import { Badge } from '@renderer/features/ui/badge'
 import { Button } from '@renderer/features/ui/button'
 import { Separator } from '@renderer/features/ui/separator'
 import { PlusCircleIcon } from 'lucide-react'
-import { Table } from '@tanstack/react-table'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import qs from 'query-string'
-import { useEffect, useMemo, useState } from 'react'
-import { Product } from '../types'
+import { useMemo } from 'react'
+import { useProductFiltersContext } from '../contexts/product-filters-context'
 
 interface CategoriesFilterProps {
   categories: Category[]
-  table: Table<Product>
-  slug?: string
 }
 
-export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({ categories, table, slug }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const searchParams = useSearchParams()
-  const navigate = useNavigate()
+export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({ categories }) => {
+  const { selectedCategory, setSelectedCategory } = useProductFiltersContext()
 
   const [foundCategoryPath, foundCategory] = useMemo(() => {
     if (!selectedCategory) return []
     return searchCategory(categories, selectedCategory, 'slug')
   }, [selectedCategory, categories])
-
-  useEffect(() => {
-    if (slug) setSelectedCategory(slug)
-  }, [slug])
-
-  useEffect(() => {
-    const currentQuery = qs.parse(searchParams.toString())
-    let url = '/products'
-    if (foundCategoryPath && foundCategoryPath?.length > 0) {
-      url += '/category/' + foundCategoryPath.map((c) => c.slug).join('/')
-    }
-
-    const urlWithCategorySlug = qs.stringifyUrl({
-      url,
-      query: currentQuery
-    })
-    // prevent infinite re-rendering
-    if (urlWithCategorySlug !== window.location.pathname + window.location.search) {
-      table.resetPageIndex()
-      navigate(urlWithCategorySlug, { replace: false })
-    }
-  }, [searchParams.toString(), foundCategoryPath])
 
   return (
     <CategoriesRadioMenu

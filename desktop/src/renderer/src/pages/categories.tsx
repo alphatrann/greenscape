@@ -8,25 +8,33 @@ import { DeleteRecordsModal } from '../common/delete-records/modal'
 import { useUserGuard } from '@renderer/features/users/hooks/use-user-guard'
 import { useEffect, useState } from 'react'
 import { Category } from '../features/categories/types'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { useFiltersContext } from '../common/contexts/filters-context'
+import qs from 'query-string'
 
 export default function CategoriesPage() {
   useUserGuard()
-  const [total, setTotal] = useState(0)
+  const { total, setTotal, q, pagination, sortBy, order } = useFiltersContext()
   const [parents, setParents] = useState<Category | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
-  const [searchParams] = useSearchParams()
   const { slug } = useParams()
 
   useEffect(() => {
-    getCategories(searchParams.toString(), slug)
+    const queryString = qs.stringify({
+      q,
+      limit: pagination.pageSize,
+      offset: pagination.pageIndex * pagination.pageSize,
+      sortBy,
+      order
+    })
+    getCategories(queryString, slug)
       .then((data) => {
         setTotal(data.count)
         setParents(data.data.parents)
         setCategories(data.data.categories)
       })
       .catch((e) => console.log(e))
-  }, [searchParams.toString(), slug])
+  }, [slug, q, pagination, sortBy, order])
 
   const generateBreadcrumb = () => {
     let route = '/categories'

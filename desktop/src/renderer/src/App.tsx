@@ -7,6 +7,8 @@ import ErrorPage from './pages/error'
 import { Navbar } from './layout/navbar'
 import CategoriesPage from './pages/categories'
 import ProductsPage from './pages/products'
+import { FiltersProvider } from './common/contexts/filters-context'
+import { ProductFiltersProvider } from './features/products/contexts/product-filters-context'
 
 function App(): React.JSX.Element {
   return (
@@ -19,8 +21,24 @@ function App(): React.JSX.Element {
             <Route path={AppRoute.Home} element={<DashboardPage />} />{' '}
             <Route path={AppRoute.Login} element={<LoginPage />} />{' '}
             <Route path={AppRoute.Error} element={<ErrorPage />} />{' '}
-            <Route path={`${AppRoute.Categories}/:slug?`} element={<CategoriesPage />} />
-            <Route path={AppRoute.Products} element={<ProductsPage />} />
+            <Route
+              path={`${AppRoute.Categories}/:slug?`}
+              element={
+                <FiltersProvider>
+                  <CategoriesPage />
+                </FiltersProvider>
+              }
+            />
+            <Route
+              path={AppRoute.Products}
+              element={
+                <FiltersProvider>
+                  <ProductFiltersProvider>
+                    <ProductsPage />
+                  </ProductFiltersProvider>
+                </FiltersProvider>
+              }
+            />
           </Routes>
         </div>
       </HashRouter>

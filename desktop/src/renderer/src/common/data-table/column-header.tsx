@@ -1,4 +1,3 @@
-'use client'
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -6,8 +5,6 @@ import {
   EyeSlashIcon
 } from '@heroicons/react/24/outline'
 import { Column, SortDirection } from '@tanstack/react-table'
-import qs from 'query-string'
-
 import { Button } from '@renderer/features/ui/button'
 import {
   DropdownMenu,
@@ -17,9 +14,9 @@ import {
   DropdownMenuTrigger
 } from '@renderer/features/ui/dropdown-menu'
 import { cn } from '@renderer/lib/utils'
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
+import { useFiltersContext } from '../contexts/filters-context'
 
 interface DataTableColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>
@@ -34,32 +31,16 @@ export function DataTableColumnHeader<TData, TValue>({
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>
   }
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const { setSortBy, setOrder } = useFiltersContext()
 
   const toggleSortingServer = useDebouncedCallback(async () => {
-    const currentQuery = qs.parse(searchParams.toString())
-    currentQuery.sortBy = column.id || 'id'
-    currentQuery.order = (column.getIsSorted() as SortDirection) || 'asc'
-    const url = qs.stringifyUrl({
-      url: location.pathname,
-      query: currentQuery
-    })
-
-    navigate(url, { replace: false })
+    setSortBy(column.id || 'id')
+    setOrder((column.getIsSorted() as SortDirection) || 'asc')
   }, 500)
 
   useEffect(() => {
     if (column.getIsSorted()) toggleSortingServer()
-  }, [column.getIsSorted(), searchParams])
-
-  useEffect(() => {
-    const order = searchParams.get('order')
-    const sortBy = searchParams.get('sortBy') || 'id'
-    if (!order || !['asc', 'desc'].includes(order)) return
-    if (column.id === sortBy) column.toggleSorting(order === 'desc')
-  }, [searchParams.get('sortBy'), searchParams.get('order')])
+  }, [column.getIsSorted()])
 
   return (
     <div className={cn('flex items-center space-x-2', className)}>

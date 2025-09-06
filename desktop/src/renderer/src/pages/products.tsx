@@ -1,51 +1,62 @@
 import { getCategoriesTree } from '@renderer/features/categories/api'
 import { DeleteRecordsModal } from '@renderer/common/delete-records/modal'
 import { aggregateProducts, getProducts, paginateProducts } from '@renderer/features/products/api'
-import { ProductsTable } from '@renderer/features/products/components/products-table'
-import { InStockGroup, Product, StatusGroup } from '@renderer/features/products/types'
+import { ProductsTable } from '@renderer/features/products/components/table'
+import { Product, StatusGroup } from '@renderer/features/products/types'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
 import { Button } from '@renderer/features/ui/button'
 import { PlusIcon } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Category } from '../features/categories/types'
 import { AppRoute } from '../common/app-route'
-
-export const metadata = {
-  title: 'Products'
-}
+import { useFiltersContext } from '../common/contexts/filters-context'
+import { useProductFiltersContext } from '../features/products/contexts/product-filters-context'
+import qs from 'query-string'
 
 export default function ProductsPage() {
-  const [searchParams] = useSearchParams()
-  const [inStockGroups, setInStockGroups] = useState<InStockGroup[]>([])
   const [statusGroups, setStatusGroups] = useState<StatusGroup[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [products, setProducts] = useState<Product[]>([])
-  const [totalProductsCount, setTotalProductsCount] = useState(0)
+  const { price, selectedCategory, status, inStock, from, to } = useProductFiltersContext()
+  const { q, order, sortBy, pagination } = useFiltersContext()
+  const { total: totalProductsCount, setTotal: setTotalProductsCount } = useFiltersContext()
 
   useEffect(() => {
-    const queryString = searchParams.toString()
-    getProducts(queryString).then((data) => setProducts(data))
+    const slug = selectedCategory ?? ''
+    const query = qs.stringifyUrl({
+      url: '',
+      query: {
+        price: price.map((p) => p || '').join('-'),
+        inStock: inStock.map((i) => i || '').join('-'),
+        status,
+        from: from?.toISOString(),
+        to: to?.toISOString(),
+        q,
+        order,
+        sortBy,
+        offset: pagination.pageIndex * pagination.pageSize,
+        limit: pagination.pageSize
+      }
+    })
+    getProducts(query, slug).then((data) => setProducts(data))
 
-    paginateProducts(queryString).then((data) => setTotalProductsCount(data))
-    aggregateProducts(queryString).then((data) => {
-      setInStockGroups(data.inStockGroups)
+    paginateProducts(query, slug).then((data) => setTotalProductsCount(data))
+    aggregateProducts(query, slug).then((data) => {
       setStatusGroups(data.statusGroups)
     })
 
-    getCategoriesTree(queryString).then((data) => setCategories(data))
-  }, [searchParams])
+    getCategoriesTree(query).then((data) => setCategories(data))
+  }, [price, status, inStock, from, to, q, order, sortBy, pagination, selectedCategory])
 
   return (
     <>
-      <div className="container max-w-7xl">
+      <div className="container mx-auto max-w-7xl">
         <div className="mb-4">
           <Breadcrumb links={[{ name: 'Products', href: '#' }]} />
         </div>
         <div className="flex items-center justify-between gap-x-4">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Products ({totalProductsCount})
-          </h1>
+          <h1 className="text-xl font-bold sm:text-3xl">Products ({totalProductsCount})</h1>
 
           <Button>
             <Link to={AppRoute.CreateProduct} className="flex items-center">
@@ -60,7 +71,6 @@ export default function ProductsPage() {
             statusGroups={statusGroups}
             count={totalProductsCount}
             products={products}
-            inStockGroups={inStockGroups}
           />
         </div>
       </div>

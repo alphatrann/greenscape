@@ -34,7 +34,7 @@ export const useCreateProduct = () => {
       toast.success('Product created')
       navigate(AppRoute.Products)
     } catch (error: any) {
-      toast.error(error.response.data.message)
+      toast.error(error.message)
     } finally {
       setLoading(false)
     }

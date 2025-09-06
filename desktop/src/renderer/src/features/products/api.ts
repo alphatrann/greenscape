@@ -3,77 +3,105 @@ import { Product, ProductsResponse } from './types'
 import { formSchema } from './utils/schema'
 
 export const aggregateProducts = async (query = '', slug = ''): Promise<ProductsResponse> => {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/products/aggregate${slug ? `/${slug}` : ''}${query}`,
-    { credentials: 'include' }
-  )
-  const data = (await response.json()) as ProductsResponse
-  return data
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/products/aggregate${slug ? `/${slug}` : ''}${query}`,
+      { credentials: 'include' }
+    )
+    const data = (await response.json()) as ProductsResponse
+    return data
+  } catch {
+    return { inStockGroups: [], statusGroups: [] }
+  }
 }
 
 export const createProduct = async (dto: z.infer<typeof formSchema>) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/products`, {
-    method: 'POST',
-    credentials: 'include',
-    body: JSON.stringify(dto),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  const data = await response.json()
-  return data.data as Product
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/products`, {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify(dto),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await response.json()
+    if (!data.success) throw new Error(data.message)
+    return data.data as Product
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
 }
 
 export const uploadImages = async (productId: number, formData: FormData) => {
-  await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}/upload-images`, {
-    credentials: 'include',
-    body: formData,
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}/upload-images`, {
+      credentials: 'include',
+      body: formData,
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
 }
 
 export const getProduct = async (slug: string) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/products/details/${slug}`)
-  const data = await response.json()
-  return data.data as Product | null
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/products/details/${slug}`)
+    const data = await response.json()
+    if (!data.success) throw new Error(data.message)
+    return data.data as Product | null
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
 }
 
 export const getProducts = async (query = '', slug = ''): Promise<Product[]> => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/products/${slug ? `/category/${slug}` : slug}${query}`,
+      `${import.meta.env.VITE_API_URL}/products${slug ? `/category/${slug}` : ''}${query}`,
       { credentials: 'include' }
     )
     const data = await response.json()
+    if (!data.success) throw new Error(data.message)
     return data.data as Product[]
   } catch (error: any) {
-    return []
+    throw new Error(error.message)
   }
 }
 
 export const deleteImages = async (productId: number, deletedImageIds: number[]) => {
-  await fetch(
-    `${import.meta.env.VITE_API_URL}/products/${
-      productId
-    }/remove-images?ids=${deletedImageIds.join(',')}`,
-    { credentials: 'include' }
-  )
+  try {
+    await fetch(
+      `${import.meta.env.VITE_API_URL}/products/${
+        productId
+      }/remove-images?ids=${deletedImageIds.join(',')}`,
+      { credentials: 'include' }
+    )
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
 }
 
 export const updateProduct = async (productId: number, dto: z.infer<typeof formSchema>) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}`, {
-    method: 'PATCH',
-    credentials: 'include',
-    body: JSON.stringify(dto),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  const data = await response.json()
-  return data.data as Product
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/products/${productId}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      body: JSON.stringify(dto),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await response.json()
+    if (!data.success) throw new Error(data.message)
+    return data.data as Product
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
 }
 
 export const paginateProducts = async (query = '', slug = ''): Promise<number> => {
@@ -85,8 +113,9 @@ export const paginateProducts = async (query = '', slug = ''): Promise<number> =
       }
     )
     const data = await response.json()
-    return data.count as number
-  } catch (error) {
-    return 0
+    if (!data.success) throw new Error(data.message)
+    return data.data as number
+  } catch (error: any) {
+    throw new Error(error.message)
   }
 }

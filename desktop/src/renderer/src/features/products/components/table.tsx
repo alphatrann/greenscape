@@ -13,30 +13,31 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import qs from 'query-string'
 import React from 'react'
-import { InStockGroup, Product, StatusGroup } from '../types'
+import { Product, StatusGroup } from '../types'
 import { CategoriesFilter } from './categories-filter'
 import { columns } from './columns'
 import { InStockFilter } from './in-stock-filter'
 import { PriceFilter } from './price-filter'
 import { StatusFilter } from './status-filter'
 import { AppRoute } from '@renderer/common/app-route'
+import { useFiltersContext } from '@renderer/common/contexts/filters-context'
+import { useProductFiltersContext } from '../contexts/product-filters-context'
 
 interface ProductsTableProps {
   products: Product[]
   count: number
   categories: Category[]
   statusGroups: StatusGroup[]
-  inStockGroups: InStockGroup[]
 }
 
 export const ProductsTable: React.FC<ProductsTableProps> = ({
   count,
   products,
   categories,
-  statusGroups,
-  inStockGroups
+  statusGroups
 }) => {
-  const { q, setQ, table } = useTable(columns, products, count)
+  const { q, setQ } = useFiltersContext()
+  const table = useTable(columns, products, count)
   const [searchParams] = useSearchParams()
   const { slug } = useParams()
   const navigate = useNavigate()
@@ -55,6 +56,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
     })
     navigate(resetQuery, { replace: false })
   }
+  const { from, to, setFrom, setTo } = useProductFiltersContext()
 
   return (
     <div className="space-y-4">
@@ -67,11 +69,11 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
             className="h-8 w-[250px]"
           />
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <CategoriesFilter slug={slug?.at(-1)} categories={categories} table={table} />
-            <DateRangeFilter table={table} />
-            <StatusFilter table={table} statusGroups={statusGroups} />
-            <PriceFilter table={table} />
-            <InStockFilter table={table} inStockGroups={inStockGroups} />
+            <CategoriesFilter categories={categories} />
+            <DateRangeFilter from={from} to={to} onFromChange={setFrom} onToChange={setTo} />
+            <StatusFilter statusGroups={statusGroups} />
+            <PriceFilter />
+            <InStockFilter />
             {(slug ||
               searchParams.get('price') ||
               searchParams.get('inStock') ||

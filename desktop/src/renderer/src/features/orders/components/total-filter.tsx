@@ -4,10 +4,10 @@ import { Button } from '@renderer/features/ui/button'
 import { Label } from '@renderer/features/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/popover'
 import { PlusCircleIcon } from 'lucide-react'
-import { useProductFiltersContext } from '../contexts/product-filters-context'
+import { useOrderFiltersContext } from '../contexts/order-filters-context'
 
-export const PriceFilter = () => {
-  const { price, setPrice } = useProductFiltersContext()
+export const TotalFilter = () => {
+  const { total, setTotal } = useOrderFiltersContext()
 
   return (
     <Popover>
@@ -15,10 +15,10 @@ export const PriceFilter = () => {
         <Button variant="outline" size="sm" className="h-8 border-dashed">
           <PlusCircleIcon className="mr-2 h-4 w-4" />
           Price
-          {price[0] || price[1] ? (
+          {total[0] || total[1] ? (
             <span>
-              : {price[0] ? formatPrice(+price[0]) : 'Under '}
-              {price[1] ? (price[0] ? ' - ' : '') + formatPrice(+price[1]) : '+'}
+              : {total[0] ? formatPrice(+total[0]) : 'Under '}
+              {total[1] ? (total[0] ? ' - ' : '') + formatPrice(+total[1]) : '+'}
             </span>
           ) : (
             <></>
@@ -30,19 +30,19 @@ export const PriceFilter = () => {
           <div className="flex-1 space-y-2">
             <Label>Min</Label>
             <PriceInput
-              value={price[0] ? price[0].toString() : ''}
-              onChange={(e) => setPrice([parseFloat(e.target.value), price[1]])}
+              value={total[0] ? total[0].toString() : ''}
+              onChange={(e) => setTotal([parseFloat(e.target.value), total[1]])}
             />
           </div>
           <div className="flex-1 space-y-2">
             <Label>Max</Label>
             <PriceInput
-              value={price[1] ? price[1].toString() : ''}
-              onChange={(e) => setPrice([price[0], parseFloat(e.target.value)])}
+              value={total[1] ? total[1].toString() : ''}
+              onChange={(e) => setTotal([total[0], parseFloat(e.target.value)])}
             />
           </div>
         </div>
-        <Button onClick={() => setPrice([null, null])} className="mt-3 w-full">
+        <Button onClick={() => setTotal([null, null])} className="mt-3 w-full">
           Reset
         </Button>
       </PopoverContent>

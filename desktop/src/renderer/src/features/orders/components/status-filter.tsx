@@ -11,15 +11,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/p
 import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
 import { CircleIcon, PlusCircleIcon } from 'lucide-react'
-import { useProductFiltersContext } from '../contexts/product-filters-context'
-import { Status, StatusGroup } from '../types'
+import { DeliveryStatus, StatusGroup } from '../types'
+import { useOrderFiltersContext } from '../contexts/order-filters-context'
 
 interface StatusFilterProps {
   statusGroups: StatusGroup[]
 }
 
 export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
-  const { status, setStatus } = useProductFiltersContext()
+  const { status, setStatus } = useOrderFiltersContext()
 
   return (
     <Popover>
@@ -30,7 +30,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
           {status && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+              <Badge variant="secondary" className="rounded-sm px-1 font-normal capitalize">
                 {status}
               </Badge>
             </>
@@ -41,7 +41,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
         <Command>
           <CommandList>
             <CommandGroup>
-              {Object.values(Status).map((s) => (
+              {Object.values(DeliveryStatus).map((s) => (
                 <CommandItem key={s} onSelect={() => setStatus(s)}>
                   <div
                     className={cn(
@@ -49,12 +49,18 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
                       status === s ? 'text-primary' : 'opacity-50 [&_svg]:invisible'
                     )}
                   >
-                    <CircleIcon />
+                    <CircleIcon className="h-4 w-4" />
                   </div>
-                  <span>{s}</span>
-                  {statusGroups.find((group) => group.status === s)?._count && (
+                  <span className="capitalize">{s}</span>
+                  {statusGroups.find(
+                    (group) => (group.deliveredAt === null ? 'pending' : 'delivered') === s
+                  )?._count && (
                     <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                      {statusGroups.find((group) => group.status === s)?._count.id}
+                      {
+                        statusGroups.find(
+                          (group) => (group.deliveredAt === null ? 'pending' : 'delivered') === s
+                        )?._count.id
+                      }
                     </span>
                   )}
                 </CommandItem>

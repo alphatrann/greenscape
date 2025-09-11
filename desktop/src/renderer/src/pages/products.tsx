@@ -23,6 +23,9 @@ export default function ProductsPage() {
   const { total: totalProductsCount, setTotal: setTotalProductsCount } = useFiltersContext()
 
   useEffect(() => {
+    const validSortByColumns = ['price', 'inStock', 'orders', 'createdAt', 'id']
+    const invalidSortBy = sortBy && !validSortByColumns.includes(sortBy)
+
     const slug = selectedCategory ?? ''
     const query = qs.stringifyUrl({
       url: '',
@@ -34,7 +37,7 @@ export default function ProductsPage() {
         to: to?.toISOString(),
         q,
         order,
-        sortBy,
+        sortBy: invalidSortBy ? 'createdAt' : sortBy,
         offset: pagination.pageIndex * pagination.pageSize,
         limit: pagination.pageSize
       }

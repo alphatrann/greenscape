@@ -5,6 +5,7 @@ import {
   ArrayMinSize,
   IsDateString,
   IsEnum,
+  IsIn,
   IsNumber,
   IsOptional,
   Min,
@@ -43,4 +44,8 @@ export class FindManyProductsDto extends FindManyDto {
   @IsDateString()
   @IsOptional()
   to?: string;
+
+  @IsOptional()
+  @IsIn(['price', 'inStock', 'orders', 'createdAt', 'id'])
+  sortBy?: string;
 }

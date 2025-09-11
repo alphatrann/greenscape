@@ -21,11 +21,13 @@ export default function CategoriesPage() {
   const { slug } = useParams()
 
   useEffect(() => {
+    const validSortByColumns = ['products', 'subCategories', 'id']
+    const invalidSortBy = sortBy && !validSortByColumns.includes(sortBy)
     const queryString = qs.stringify({
       q,
       limit: pagination.pageSize,
       offset: pagination.pageIndex * pagination.pageSize,
-      sortBy,
+      sortBy: invalidSortBy ? 'id' : sortBy,
       order
     })
     getCategories(queryString, slug)

@@ -14,6 +14,7 @@ type ProductFiltersContextType = {
   setFrom: Dispatch<SetStateAction<Date | undefined>>
   setTo: Dispatch<SetStateAction<Date | undefined>>
   setSelectedCategory: Dispatch<SetStateAction<string | null>>
+  reset: () => void
 }
 
 const ProductFiltersContext = createContext<ProductFiltersContextType | null>(null)
@@ -25,6 +26,15 @@ export const ProductFiltersProvider = ({ children }: { children: ReactNode }) =>
   const [from, setFrom] = useState<Date | undefined>(undefined)
   const [to, setTo] = useState<Date | undefined>(undefined)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
+  const reset = () => {
+    setPrice([null, null])
+    setStatus(undefined)
+    setInStock([null, null])
+    setFrom(undefined)
+    setTo(undefined)
+    setSelectedCategory(null)
+  }
 
   return (
     <ProductFiltersContext.Provider
@@ -40,7 +50,8 @@ export const ProductFiltersProvider = ({ children }: { children: ReactNode }) =>
         to,
         setTo,
         selectedCategory,
-        setSelectedCategory
+        setSelectedCategory,
+        reset
       }}
     >
       {children}

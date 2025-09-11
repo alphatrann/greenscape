@@ -12,6 +12,8 @@ import { ProductFiltersProvider } from './features/products/contexts/product-fil
 import CreateProductPage from './pages/create-product'
 import ProductPage from './pages/product-detail'
 import ProductSettingsPage from './pages/edit-product'
+import { OrderFiltersProvider } from './features/orders/contexts/order-filters-context'
+import OrdersPage from './pages/orders'
 
 function App(): React.JSX.Element {
   return (
@@ -45,6 +47,16 @@ function App(): React.JSX.Element {
             <Route path={AppRoute.CreateProduct} element={<CreateProductPage />} />
             <Route path={AppRoute.ProductDetail} element={<ProductPage />} />
             <Route path={AppRoute.EditProduct} element={<ProductSettingsPage />} />
+            <Route
+              path={AppRoute.Orders}
+              element={
+                <FiltersProvider>
+                  <OrderFiltersProvider>
+                    <OrdersPage />
+                  </OrderFiltersProvider>
+                </FiltersProvider>
+              }
+            />
           </Routes>
         </div>
       </HashRouter>

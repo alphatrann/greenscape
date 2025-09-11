@@ -1,5 +1,14 @@
 import { PaginationState } from '@tanstack/react-table'
-import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  Dispatch,
+  SetStateAction,
+  useEffect
+} from 'react'
+import { useLocation } from 'react-router-dom'
 
 type FiltersContextType = {
   total: number
@@ -12,6 +21,7 @@ type FiltersContextType = {
   setOrder: Dispatch<SetStateAction<'asc' | 'desc'>>
   setPagination: Dispatch<SetStateAction<PaginationState>>
   setTotal: Dispatch<SetStateAction<number>>
+  reset: () => void
 }
 
 const FiltersContext = createContext<FiltersContextType | null>(null)
@@ -22,9 +32,19 @@ export const FiltersProvider = ({ children }: { children: ReactNode }) => {
     pageIndex: 0,
     pageSize: 10
   })
+  const location = useLocation()
   const [sortBy, setSortBy] = useState<string>('id')
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')
   const [total, setTotal] = useState(0)
+  const reset = () => {
+    setQ('')
+    setSortBy('id')
+    setOrder('asc')
+  }
+
+  useEffect(() => {
+    reset()
+  }, [location.pathname])
 
   return (
     <FiltersContext.Provider
@@ -38,7 +58,8 @@ export const FiltersProvider = ({ children }: { children: ReactNode }) => {
         sortBy,
         order,
         setSortBy,
-        setOrder
+        setOrder,
+        reset
       }}
     >
       {children}

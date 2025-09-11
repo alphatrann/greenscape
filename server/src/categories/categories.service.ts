@@ -8,10 +8,15 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaError } from '../prisma/prisma-error';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import {
+  CreateCategoryDto,
+  FindManyCategoriesDto,
+  UpdateCategoryDto,
+} from './dto';
 import { FindManyDto } from '../common/dto';
 import { FindManyProductsDto } from '../products/dto';
 import { formProductQueries } from '../products/utils';
+import { formQueries } from './utils';
 
 @Injectable()
 export class CategoriesService {
@@ -38,27 +43,9 @@ export class CategoriesService {
     }
   }
 
-  private formQueries(
-    { q, sortBy = 'id', order = 'asc' }: FindManyDto,
-    slug: string = null,
-  ) {
-    const where: Prisma.CategoryWhereInput = {
-      parentCategory: q ? undefined : slug ? { slug } : null,
-      name: {
-        contains: q,
-        mode: 'insensitive',
-      },
-    };
-    let orderBy = {};
-    if (sortBy === 'products' || sortBy === 'subCategories')
-      orderBy = { [sortBy]: { _count: order } };
-    else orderBy = { [sortBy]: order };
-    return { where, orderBy };
-  }
-
   async findParentsBySlug(slug: string) {
     return this.prisma.category.findUnique({
-      where: { slug: slug },
+      where: { slug },
       include: {
         parentCategory: {
           select: {
@@ -72,7 +59,7 @@ export class CategoriesService {
   }
 
   async paginate(dto: Omit<FindManyDto, 'limit' | 'offset'>, slug?: string) {
-    const { where } = this.formQueries(dto, slug);
+    const { where } = formQueries(dto, slug);
     const count = await this.prisma.category.count({
       where,
     });
@@ -80,10 +67,10 @@ export class CategoriesService {
   }
 
   async findAll(
-    { limit, offset = 0, ...findManyCategoriesDto }: FindManyDto,
+    { limit, offset = 0, ...findManyCategoriesDto }: FindManyCategoriesDto,
     slug: string = null,
   ) {
-    const { where, orderBy } = this.formQueries(findManyCategoriesDto, slug);
+    const { where, orderBy } = formQueries(findManyCategoriesDto, slug);
 
     try {
       const categories = await this.prisma.category.findMany({
@@ -108,7 +95,7 @@ export class CategoriesService {
     } catch (error) {
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Something went wrong',
       });
     }
   }
@@ -161,7 +148,7 @@ export class CategoriesService {
       }
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Something went wrong',
       });
     }
   }

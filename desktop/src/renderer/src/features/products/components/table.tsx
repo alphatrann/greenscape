@@ -1,5 +1,6 @@
 'use client'
-import { Category } from '@renderer/features/categories/types'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 import {
   DataTable,
   DataTablePagination,
@@ -7,21 +8,18 @@ import {
   DateRangeFilter,
   useTable
 } from '@renderer/common/data-table'
+import { Category } from '@renderer/features/categories/types'
 import { Button } from '@renderer/features/ui/button'
 import { Input } from '@renderer/features/ui/input'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import qs from 'query-string'
 import React from 'react'
+import { useParams } from 'react-router-dom'
+import { useProductFiltersContext } from '../contexts/product-filters-context'
 import { Product, StatusGroup } from '../types'
 import { CategoriesFilter } from './categories-filter'
 import { columns } from './columns'
 import { InStockFilter } from './in-stock-filter'
 import { PriceFilter } from './price-filter'
 import { StatusFilter } from './status-filter'
-import { AppRoute } from '@renderer/common/app-route'
-import { useFiltersContext } from '@renderer/common/contexts/filters-context'
-import { useProductFiltersContext } from '../contexts/product-filters-context'
 
 interface ProductsTableProps {
   products: Product[]
@@ -36,27 +34,26 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
   categories,
   statusGroups
 }) => {
-  const { q, setQ } = useFiltersContext()
+  const { q, setQ, reset: resetFilters } = useFiltersContext()
   const table = useTable(columns, products, count)
-  const [searchParams] = useSearchParams()
   const { slug } = useParams()
-  const navigate = useNavigate()
+  const {
+    price,
+    inStock,
+    selectedCategory,
+    status,
+    from,
+    to,
+    setFrom,
+    setTo,
+    reset: resetProductFilters
+  } = useProductFiltersContext()
+
   const reset = () => {
-    const currentQuery = qs.parse(searchParams.toString())
-    delete currentQuery.price
-    delete currentQuery.inStock
-    delete currentQuery.from
-    delete currentQuery.to
-    delete currentQuery.status
-    delete currentQuery.q
     table.resetPageIndex()
-    const resetQuery = qs.stringifyUrl({
-      url: AppRoute.Products,
-      query: currentQuery
-    })
-    navigate(resetQuery, { replace: false })
+    resetFilters()
+    resetProductFilters()
   }
-  const { from, to, setFrom, setTo } = useProductFiltersContext()
 
   return (
     <div className="space-y-4">
@@ -75,12 +72,13 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
             <PriceFilter />
             <InStockFilter />
             {(slug ||
-              searchParams.get('price') ||
-              searchParams.get('inStock') ||
-              searchParams.get('from') ||
-              searchParams.get('to') ||
-              searchParams.get('q') ||
-              searchParams.get('status')) && (
+              price.filter(Boolean).length > 0 ||
+              inStock.filter(Boolean).length > 0 ||
+              from ||
+              to ||
+              q ||
+              selectedCategory ||
+              status) && (
               <Button variant="ghost" onClick={reset} className="h-8 px-2 lg:px-3">
                 Reset
                 <XMarkIcon className="ml-2 h-4 w-4" />

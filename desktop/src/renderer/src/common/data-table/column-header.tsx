@@ -58,11 +58,17 @@ export function DataTableColumnHeader<TData, TValue>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
+          <DropdownMenuItem
+            className={cn(column.id && column.getIsSorted() === 'asc' && 'bg-secondary/80')}
+            onClick={() => column.toggleSorting(false)}
+          >
             <ArrowUpIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Asc
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
+          <DropdownMenuItem
+            className={cn(column.id && column.getIsSorted() === 'desc' && 'bg-secondary/80')}
+            onClick={() => column.toggleSorting(true)}
+          >
             <ArrowDownIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Desc
           </DropdownMenuItem>

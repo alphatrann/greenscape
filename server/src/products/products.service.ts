@@ -47,7 +47,7 @@ export class ProductsService {
       }
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Internal Server Error',
       });
     }
   }
@@ -141,7 +141,7 @@ export class ProductsService {
     } catch (error) {
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Internal Server Error',
       });
     }
   }
@@ -217,7 +217,7 @@ export class ProductsService {
       }
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Internal Server Error',
       });
     }
   }
@@ -268,7 +268,7 @@ export class ProductsService {
         if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Internal Server Error',
       });
     }
   }

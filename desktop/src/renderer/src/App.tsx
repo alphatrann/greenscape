@@ -14,6 +14,7 @@ import ProductPage from './pages/product-detail'
 import ProductSettingsPage from './pages/edit-product'
 import { OrderFiltersProvider } from './features/orders/contexts/order-filters-context'
 import OrdersPage from './pages/orders'
+import OrderDetailPage from './pages/order-detail'
 
 function App(): React.JSX.Element {
   return (
@@ -57,6 +58,7 @@ function App(): React.JSX.Element {
                 </FiltersProvider>
               }
             />
+            <Route path={AppRoute.Order} element={<OrderDetailPage />} />
           </Routes>
         </div>
       </HashRouter>

@@ -31,7 +31,7 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({ categories }
       }}
       selectedCategory={`${foundCategory?.slug}|${foundCategory?.name}`}
       trigger={
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button variant="outline" size="sm" className="h-8 border-dashed font-normal">
           <PlusCircleIcon className="mr-2 h-4 w-4" />
           Categories
           {foundCategoryPath && foundCategoryPath?.length > 0 && (

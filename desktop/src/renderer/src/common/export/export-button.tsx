@@ -25,6 +25,7 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
   const [exportFormat, setExportFormat] = useState('')
   const [from, setFrom] = useState<Date | undefined>(new Date())
   const [to, setTo] = useState<Date | undefined>(new Date())
+  const [open, setOpen] = useState(false)
   const { total } = useFiltersContext()
 
   const exportData = async () => {
@@ -55,6 +56,7 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
       })
 
       toast.success(`Exported ${count} orders to ${exportFormat.toUpperCase()} successfully!`)
+      setOpen(false)
     }
   }
 
@@ -63,7 +65,7 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
           <DownloadIcon className="mr-2 h-4 w-4" />

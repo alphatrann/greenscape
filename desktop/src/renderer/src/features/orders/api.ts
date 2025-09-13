@@ -14,9 +14,9 @@ export const getOrder = async (id: string) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/orders/details/${id}`, {
     credentials: 'include'
   })
-  const data = (await response.json()) as Order | undefined
+  const data = await response.json()
 
-  return data
+  return data.data as Order | undefined
 }
 
 export const getOrders = async (query = ''): Promise<OrdersResponse> => {

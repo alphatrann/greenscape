@@ -4,19 +4,18 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import linuxIcon from '../../resources/logo.png?asset'
 import winIcon from '../../resources/logo.ico?asset'
-import {
-  exportOrdersToCSV,
-  exportOrdersToExcel,
-  exportProductsToCSV,
-  exportProductsToExcel,
-  exportToJSON,
-  getDateOnly
-} from './utils'
+import darwinIcon from '../../resources/logo.icns?asset'
+import { exportOrdersToCSV, exportOrdersToExcel, getDateOnly } from './utils/export-orders'
+import { exportProductsToCSV, exportProductsToExcel } from './utils/export-products'
+import { exportToJSON } from './utils/export-json'
+import { exportInvoice } from './utils/export-invoice'
 
 const getOSIcon = () => {
   switch (process.platform) {
     case 'win32':
       return winIcon
+    case 'darwin':
+      return darwinIcon
     default:
       return linuxIcon
   }
@@ -98,6 +97,10 @@ interface ExportDataPayload {
   data: any[]
 }
 
+ipcMain.on('export-invoice', async (_event, order) => {
+  await exportInvoice(order)
+})
+
 ipcMain.on('export-data', async (_event, { type, format, from, to, data }: ExportDataPayload) => {
   const { canceled, filePath } = await dialog.showSaveDialog({
     title: `Export ${type} as ${format.toUpperCase()}`,
@@ -123,6 +126,4 @@ ipcMain.on('export-data', async (_event, { type, format, from, to, data }: Expor
       ) // buffer
     }
   }
-
-  return filePath
 })

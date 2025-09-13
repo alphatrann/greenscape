@@ -27,7 +27,7 @@ export const ShippingOptionFilter: React.FC<ShippingOptionFilterProps> = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button variant="outline" size="sm" className="h-8 border-dashed font-normal">
           <PlusCircleIcon className="mr-2 h-4 w-4" />
           Shipping option
           {shippingCost !== undefined && (
@@ -52,7 +52,7 @@ export const ShippingOptionFilter: React.FC<ShippingOptionFilterProps> = ({
                       shippingCost === option ? 'text-primary' : 'opacity-50 [&_svg]:invisible'
                     )}
                   >
-                    <CircleIcon className="h-4 w-4" />
+                    <CircleIcon className="h-2 w-2 fill-current" />
                   </div>
                   <span>{getShippingOption(option)}</span>
                   {shippingOptionGroups.find((group) => +group.shippingCost === option)?._count !==

@@ -23,7 +23,7 @@ export function DateRangeFilter({
     <div className="grid gap-2">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="h-8 border-dashed">
+          <Button variant="outline" size="sm" className="h-8 border-dashed font-normal">
             <CalendarIcon className="mr-2 h-4 w-4" />
 
             {from ? (

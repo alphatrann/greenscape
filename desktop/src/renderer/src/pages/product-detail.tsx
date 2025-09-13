@@ -1,24 +1,38 @@
 import { formatPrice } from '@renderer/common/utils'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
-import { redirect, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Product } from '../features/products/types'
 import { useEffect, useState } from 'react'
 import { getProduct } from '../features/products/api'
 import { ImagesGallery } from '../features/products/components/images-gallery'
 import { ProductDescription } from '../features/products/components/product-description'
 import { AddToBag } from '../features/products/components/add-to-bag'
+import { useNavigate } from 'react-router-dom'
+import { Loading } from '../common/components/loading'
 
 export default function ProductPage() {
   const { slug } = useParams()
 
+  const [loading, setLoading] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
+  const navigate = useNavigate()
+
   useEffect(() => {
     if (!slug) return
-    getProduct(slug!).then(setProduct)
+    setLoading(true)
+    getProduct(slug!)
+      .then((data) => {
+        if (!data) {
+          navigate('/404')
+          return
+        }
+        setProduct(data)
+      })
+      .finally(() => setLoading(false))
   }, [slug])
 
+  if (loading) return <Loading />
   if (!product) {
-    redirect('/not-found')
     return null
   }
 

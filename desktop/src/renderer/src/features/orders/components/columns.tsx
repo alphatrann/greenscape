@@ -13,7 +13,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { Order } from '../types'
 import { getCountryName, getShippingOption } from '../utils'
-import { redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { AppRoute } from '@renderer/common/app-route'
 import { DataTableColumnHeader } from '@renderer/common/data-table'
 
@@ -94,12 +94,10 @@ export const columns: ColumnDef<Order>[] = [
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  onClick={() => redirect(`${AppRoute.Orders}/${row.original.id}`)}
-                  variant="ghost"
-                >
-                  <ViewfinderCircleIcon className="h-5 w-5" />
+                <Button asChild size="icon" variant="ghost">
+                  <Link to={`${AppRoute.Orders}/${row.original.id}`}>
+                    <ViewfinderCircleIcon className="h-5 w-5" />
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>View order details</TooltipContent>

@@ -24,7 +24,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button variant="outline" size="sm" className="h-8 border-dashed font-normal">
           <PlusCircleIcon className="mr-2 h-4 w-4" />
           Status
           {status && (
@@ -49,7 +49,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
                       status === s ? 'text-primary' : 'opacity-50 [&_svg]:invisible'
                     )}
                   >
-                    <CircleIcon className="h-4 w-4" />
+                    <CircleIcon className="h-2 w-2 fill-current" />
                   </div>
                   <span className="capitalize">{s}</span>
                   {statusGroups.find(

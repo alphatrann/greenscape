@@ -1,7 +1,26 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import fs from 'fs/promises'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import linuxIcon from '../../resources/logo.png?asset'
+import winIcon from '../../resources/logo.ico?asset'
+import {
+  exportOrdersToCSV,
+  exportOrdersToExcel,
+  exportProductsToCSV,
+  exportProductsToExcel,
+  exportToJSON,
+  getDateOnly
+} from './utils'
+
+const getOSIcon = () => {
+  switch (process.platform) {
+    case 'win32':
+      return winIcon
+    default:
+      return linuxIcon
+  }
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -9,11 +28,12 @@ function createWindow(): void {
     width: 900,
     height: 670,
     show: false,
+    icon: getOSIcon(),
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      nodeIntegration: false
     }
   })
 
@@ -68,4 +88,41 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+interface ExportDataPayload {
+  type: 'products' | 'orders'
+  format: 'csv' | 'json' | 'xlsx'
+  from?: Date
+  to?: Date
+  data: any[]
+}
+
+ipcMain.on('export-data', async (_event, { type, format, from, to, data }: ExportDataPayload) => {
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: `Export ${type} as ${format.toUpperCase()}`,
+    defaultPath: `${type}${from && to ? `_${getDateOnly(from)}_${getDateOnly(to)}` : ''}.${format}`,
+    filters: [{ name: format.toUpperCase(), extensions: [format] }]
+  })
+
+  if (canceled || !filePath) return
+
+  if (format === 'json') {
+    await fs.writeFile(filePath, exportToJSON(data), 'utf8')
+  } else {
+    if (format === 'csv') {
+      await fs.writeFile(
+        filePath,
+        type === 'products' ? exportProductsToCSV(data) : exportOrdersToCSV(data),
+        'utf8'
+      )
+    } else if (format === 'xlsx') {
+      await fs.writeFile(
+        filePath,
+        type === 'products' ? exportProductsToExcel(data) : exportOrdersToExcel(data)
+      ) // buffer
+    }
+  }
+
+  return filePath
 })

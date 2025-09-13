@@ -1,12 +1,13 @@
-'use client'
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDeleteRecordsModal } from './use-modal'
 import { deleteRecords } from './api'
+import { useFiltersContext } from '../contexts/filters-context'
 
 export const useDeleteRecords = () => {
   const { onClose, ids } = useDeleteRecordsModal()
   const [loading, setLoading] = useState(false)
+  const { setTotal } = useFiltersContext()
   const onDeleteRecords = async (
     entityName: 'categories' | 'products',
     deleteInUI: (ids: (string | number)[]) => void
@@ -14,6 +15,7 @@ export const useDeleteRecords = () => {
     try {
       setLoading(true)
       await deleteRecords(ids, entityName)
+      setTotal((t) => t - ids.length)
       deleteInUI(ids)
       onClose()
 

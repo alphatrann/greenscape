@@ -8,6 +8,7 @@ import { useFiltersContext } from '../common/contexts/filters-context'
 import qs from 'query-string'
 import { useTable } from '../common/data-table'
 import { columns } from '../features/orders/components/columns'
+import { ExportButton } from '../common/export/export-button'
 
 export default function OrdersPage() {
   const { total, from, to, selectedCountries, status, shippingCost } = useOrderFiltersContext()
@@ -63,7 +64,10 @@ export default function OrdersPage() {
           <Breadcrumb links={[{ name: 'Orders', href: '#' }]} />
         </div>
 
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Orders ({totalCount})</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Orders ({totalCount})</h1>
+          <ExportButton entityType="orders" />
+        </div>
         <div className="mt-6 space-y-3">
           <OrdersTable
             table={table}

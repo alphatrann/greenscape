@@ -68,7 +68,7 @@ export const columns: ColumnDef<Product>[] = [
     id: 'orders',
     accessorKey: 'orders',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Sales" className="justify-end" />
+      <DataTableColumnHeader column={column} title="Orders" className="justify-end" />
     ),
     cell: ({ row }) => <div className="mr-3 text-right">{row.original._count.orders}</div>
   },

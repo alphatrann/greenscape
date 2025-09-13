@@ -13,6 +13,7 @@ import { AppRoute } from '../common/app-route'
 import { useFiltersContext } from '../common/contexts/filters-context'
 import { useProductFiltersContext } from '../features/products/contexts/product-filters-context'
 import qs from 'query-string'
+import { ExportButton } from '../common/export/export-button'
 
 export default function ProductsPage() {
   const [statusGroups, setStatusGroups] = useState<StatusGroup[]>([])
@@ -60,13 +61,15 @@ export default function ProductsPage() {
         </div>
         <div className="flex items-center justify-between gap-x-4">
           <h1 className="text-xl font-bold sm:text-3xl">Products ({totalProductsCount})</h1>
-
-          <Button>
-            <Link to={AppRoute.CreateProduct} className="flex items-center">
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Add
-            </Link>
-          </Button>
+          <div className="flex items-center gap-x-3">
+            <ExportButton entityType="products" />
+            <Button>
+              <Link to={AppRoute.CreateProduct} className="flex items-center">
+                <PlusIcon className="mr-2 h-4 w-4" />
+                Add
+              </Link>
+            </Button>
+          </div>
         </div>
         <div className="mt-6 space-y-3">
           <ProductsTable

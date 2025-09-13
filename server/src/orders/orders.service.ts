@@ -28,6 +28,16 @@ export class OrdersService {
       take: limit,
       skip: offset,
       where,
+      select: {
+        id: true,
+        total: true,
+        phone: true,
+        email: true,
+        country: true,
+        shippingCost: true,
+        createdAt: true,
+        deliveredAt: true,
+      },
       orderBy,
     });
     const count = await this.prisma.order.count({ where });

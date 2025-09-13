@@ -9,9 +9,16 @@ interface DateRangeFilterProps {
   to?: Date
   onFromChange: (date?: Date) => void
   onToChange: (date?: Date) => void
+  placeholder?: string
 }
 
-export function DateRangeFilter({ from, to, onFromChange, onToChange }: DateRangeFilterProps) {
+export function DateRangeFilter({
+  from,
+  to,
+  onFromChange,
+  onToChange,
+  placeholder
+}: DateRangeFilterProps) {
   return (
     <div className="grid gap-2">
       <Popover>
@@ -28,7 +35,7 @@ export function DateRangeFilter({ from, to, onFromChange, onToChange }: DateRang
                 format(from, 'dd/MM/yyyy')
               )
             ) : (
-              <span>Date</span>
+              <span>{placeholder ?? 'Date'}</span>
             )}
           </Button>
         </PopoverTrigger>

@@ -73,11 +73,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
         <div className="flex items-center space-x-2">
           <Switch
             checked={delivered}
-            onCheckedChange={() =>
-              setDelivered(
-                confirm('Do you want to set this order to delivered? This cannot be undone')
-              )
-            }
+            onCheckedChange={() => setDelivered(true)}
             disabled={delivered}
             id="delivered"
           />

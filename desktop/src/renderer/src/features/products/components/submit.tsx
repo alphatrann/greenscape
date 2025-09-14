@@ -1,6 +1,6 @@
 import { Button } from '@renderer/features/ui/button'
 import { cn } from '@renderer/lib/utils'
-import { redirect } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { AppRoute } from '@renderer/common/app-route'
 
 interface ProductFormSubmitProps {
@@ -8,8 +8,9 @@ interface ProductFormSubmitProps {
   loading: boolean
 }
 export const ProductFormSubmit = ({ className, loading }: ProductFormSubmitProps) => {
-  const onDiscard = () => {
-    if (confirm('Are you sure you want to discard the product?')) redirect(AppRoute.Products)
+  const navigate = useNavigate()
+  const onDiscard = async () => {
+    navigate(AppRoute.Products)
   }
   return (
     <div className={cn('items-center gap-2', className)}>

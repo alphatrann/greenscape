@@ -55,11 +55,10 @@ export const getCategoriesTree = async (query?: string): Promise<Category[]> => 
   try {
     const url = `${import.meta.env.VITE_API_URL}/categories/tree${query ?? ''}`
 
-    const response = await fetch(url, {
-      credentials: 'include'
-    })
+    const response = await fetch(url)
 
     const data = await response.json()
+
     if (!data.success) throw new Error(data.message)
     return data.data as Category[]
   } catch (error: any) {

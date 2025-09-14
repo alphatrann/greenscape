@@ -107,11 +107,11 @@ export class ProductsService {
   }
 
   async findAll(
-    { limit = 10, offset = 0, ...findManyProductsDto }: FindManyProductsDto,
+    { limit = 10, offset = 0, ...dto }: FindManyProductsDto,
     slug?: string,
   ) {
     try {
-      const { where, orderBy } = formProductQueries(findManyProductsDto, slug);
+      const { where, orderBy } = formProductQueries(dto, slug);
       const products = await this.prisma.product.findMany({
         take: limit,
         skip: offset,
@@ -146,15 +146,10 @@ export class ProductsService {
     }
   }
 
-  async aggregate(
-    field: 'status' | 'inStock',
-    dto: FindManyProductsDto,
-    slug: string = null,
-  ) {
+  async aggregateStatus(dto: FindManyProductsDto, slug: string = null) {
     const { where } = formProductQueries(dto, slug);
-    delete where[field];
     return this.prisma.product.groupBy({
-      by: field,
+      by: 'status',
       _count: { id: true },
       where,
     });

@@ -5,7 +5,9 @@ export interface Category {
   parentCategory: Category | null
   subCategories?: Category[]
   parentCategoryId?: number
-  _count: { products: number; subCategories: number }
+  _count: { products: number }
+  productCount: number
+  sales: number
 }
 
 export interface CategoryFormDto {
@@ -18,6 +20,8 @@ export interface CategoriesResponse {
   count: number
   data: {
     categories: Category[]
-    parents: Category | null
+    parent: Category | null
   }
 }
+
+export type CategorySortBy = 'id' | 'sales' | 'productCount'

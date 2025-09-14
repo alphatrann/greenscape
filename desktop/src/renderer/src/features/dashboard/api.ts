@@ -1,6 +1,6 @@
 import { KeyStats, SaleByCountry, YearRevenuesResponse } from './types'
 
-export const getKeyStats = async () => {
+export const getKeyStats = async (): Promise<KeyStats> => {
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/key`, {
       credentials: 'include'
@@ -9,7 +9,16 @@ export const getKeyStats = async () => {
 
     return data.data as KeyStats
   } catch {
-    return []
+    return {
+      lastMonthAvgOrderValue: 0,
+      lastMonthCustomers: 0,
+      lastMonthRevenue: 0,
+      lastMonthSales: 0,
+      thisMonthAvgOrderValue: 0,
+      thisMonthCustomers: 0,
+      thisMonthRevenue: 0,
+      thisMonthSales: 0
+    }
   }
 }
 

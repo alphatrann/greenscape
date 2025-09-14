@@ -1,57 +1,15 @@
-import { getCategoriesTree } from '@renderer/features/categories/api'
 import { DeleteRecordsModal } from '@renderer/common/delete-records/modal'
-import { aggregateProducts, getProducts, paginateProducts } from '@renderer/features/products/api'
 import { ProductsTable } from '@renderer/features/products/components/table'
-import { Product, StatusGroup } from '@renderer/features/products/types'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
 import { Button } from '@renderer/features/ui/button'
 import { PlusIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { Category } from '../features/categories/types'
 import { AppRoute } from '../common/app-route'
-import { useFiltersContext } from '../common/contexts/filters-context'
-import { useProductFiltersContext } from '../features/products/contexts/product-filters-context'
-import qs from 'query-string'
 import { ExportButton } from '../common/export/export-button'
+import { useFetchProducts } from '../features/products/hooks/use-fetch-products'
 
 export default function ProductsPage() {
-  const [statusGroups, setStatusGroups] = useState<StatusGroup[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [products, setProducts] = useState<Product[]>([])
-  const { price, selectedCategory, status, inStock, from, to } = useProductFiltersContext()
-  const { q, order, sortBy, pagination } = useFiltersContext()
-  const { total: totalProductsCount, setTotal: setTotalProductsCount } = useFiltersContext()
-
-  useEffect(() => {
-    const validSortByColumns = ['price', 'inStock', 'orders', 'createdAt', 'id']
-    const invalidSortBy = sortBy && !validSortByColumns.includes(sortBy)
-
-    const slug = selectedCategory ?? ''
-    const query = qs.stringifyUrl({
-      url: '',
-      query: {
-        price: price.map((p) => p || '').join('-'),
-        inStock: inStock.map((i) => i || '').join('-'),
-        status,
-        from: from?.toISOString(),
-        to: to?.toISOString(),
-        q,
-        order,
-        sortBy: invalidSortBy ? 'createdAt' : sortBy,
-        offset: pagination.pageIndex * pagination.pageSize,
-        limit: pagination.pageSize
-      }
-    })
-    getProducts(query, slug).then((data) => setProducts(data))
-
-    paginateProducts(query, slug).then((data) => setTotalProductsCount(data))
-    aggregateProducts(query, slug).then((data) => {
-      setStatusGroups(data.statusGroups)
-    })
-
-    getCategoriesTree(query).then((data) => setCategories(data))
-  }, [price, status, inStock, from, to, q, order, sortBy, pagination, selectedCategory])
+  const { totalProductsCount, categories, statusGroups, products, setProducts } = useFetchProducts()
 
   return (
     <>

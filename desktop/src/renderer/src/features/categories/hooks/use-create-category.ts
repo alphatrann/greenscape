@@ -16,7 +16,10 @@ export const useCreateCategory = (
   const { setTotal } = useFiltersContext()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', slug: '' }
+    defaultValues: {
+      name: '',
+      slug: ''
+    }
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -26,7 +29,7 @@ export const useCreateCategory = (
       toast.success('Category created')
       form.reset()
       setTotal((t) => t + 1)
-      addCategory({ ...newCategory, _count: { products: 0, subCategories: 0 } })
+      addCategory({ ...newCategory, productCount: 0, sales: 0, subCategories: [] })
     } catch (error: any) {
       const message: string = error.message
       if (message.includes('slug')) form.setError('slug', { message }, { shouldFocus: true })

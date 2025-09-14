@@ -14,8 +14,6 @@ import {
   UpdateCategoryDto,
 } from './dto';
 import { FindManyDto } from '../common/dto';
-import { FindManyProductsDto } from '../products/dto';
-import { formProductQueries } from '../products/utils';
 import { formQueries } from './utils';
 
 @Injectable()
@@ -41,21 +39,6 @@ export class CategoriesService {
         message: 'Something went wrong',
       });
     }
-  }
-
-  async findParentsBySlug(slug: string) {
-    return this.prisma.category.findUnique({
-      where: { slug },
-      include: {
-        parentCategory: {
-          select: {
-            slug: true,
-            name: true,
-            parentCategory: { select: { slug: true, name: true } },
-          },
-        },
-      },
-    });
   }
 
   async paginate(dto: Omit<FindManyDto, 'limit' | 'offset'>, slug?: string) {
@@ -100,29 +83,50 @@ export class CategoriesService {
     }
   }
 
-  async findCategoriesTree(dto: FindManyProductsDto) {
-    const productQueries = formProductQueries(dto);
+  async getCategoryTree(parentId?: number) {
     const categories = await this.prisma.category.findMany({
-      where: { parentCategory: null },
+      where: { parentCategoryId: parentId ?? null },
       include: {
-        subCategories: {
+        products: {
           include: {
-            subCategories: {
-              include: {
-                _count: {
-                  select: {
-                    products: {
-                      where: productQueries.where,
-                    },
-                  },
-                },
-              },
-            },
+            orders: true, // OrdersOnProducts (qty)
           },
         },
       },
     });
-    return categories;
+
+    return Promise.all(
+      categories.map(async (cat) => {
+        // count direct products
+        const productCount = cat.products.length;
+
+        // sales from this category’s products
+        const sales = cat.products.reduce(
+          (sum, p) => sum + p.orders.reduce((s, o) => s + o.qty * p.price, 0),
+          0,
+        );
+
+        // recursively fetch subcategories
+        const subCategories = await this.getCategoryTree(cat.id);
+
+        // roll up stats from children
+        const childProductCount = subCategories.reduce(
+          (sum, sc) => sum + sc.productCount,
+          0,
+        );
+        const childSales = subCategories.reduce((sum, sc) => sum + sc.sales, 0);
+
+        return {
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug,
+          parentCategoryId: cat.parentCategoryId,
+          productCount: productCount + childProductCount,
+          sales: sales + childSales,
+          subCategories,
+        };
+      }),
+    );
   }
 
   async update(id: number, dto: UpdateCategoryDto) {

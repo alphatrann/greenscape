@@ -9,12 +9,10 @@ import { ReactNode } from 'react'
 import { Category } from '../types'
 import { CategorySubmenu } from './submenu'
 
-type CategoryRadioOption = `${string}|${string}`
-
 interface CategoriesRadioMenuProps {
   categories: Category[]
   trigger: ReactNode
-  selectedCategory?: CategoryRadioOption
+  selectedCategory?: string
   onChange: (selectedCategory: string) => void
   field: 'id' | 'slug'
 }

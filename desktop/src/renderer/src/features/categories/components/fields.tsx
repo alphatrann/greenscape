@@ -8,10 +8,10 @@ import {
 } from '@renderer/features/ui/form'
 import { Input } from '@renderer/features/ui/input'
 import { UseFormReturn } from 'react-hook-form'
-import { CategoryFormDto } from '../types'
+import { CategoryFormSchema } from '../utils'
 
 interface CategoryFormProps {
-  form: UseFormReturn<CategoryFormDto, any, CategoryFormDto>
+  form: UseFormReturn<CategoryFormSchema, any, CategoryFormSchema>
   loading: boolean
 }
 

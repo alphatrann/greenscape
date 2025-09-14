@@ -2,6 +2,35 @@ import PDFDocument from 'pdfkit'
 import * as fs from 'fs'
 import { dialog } from 'electron'
 import path from 'path'
+import { formatAddress } from 'localized-address-format'
+
+interface Address {
+  line1: string
+  line2?: string
+  city?: string
+  state?: string
+  postalCode?: string
+  country?: string
+  customer?: string
+}
+
+export const getPostalAddress = ({
+  line1,
+  line2,
+  city,
+  state,
+  postalCode,
+  country,
+  customer
+}: Address) =>
+  formatAddress({
+    name: customer,
+    postalCountry: country,
+    postalCode,
+    administrativeArea: state,
+    addressLines: line2 ? [line1, line2] : [line1],
+    locality: city
+  }).join('\n')
 
 export const formatPrice = (price: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price)
@@ -48,7 +77,15 @@ export async function exportInvoice(order: any) {
   doc.text(order.email)
   doc.text(order.phone)
   doc.text(
-    `${order.line1 || ''} ${order.line2 || ''}, ${order.city}, ${order.state} ${order.postalCode}, ${order.country}`
+    getPostalAddress({
+      line1: order.line1,
+      line2: order.line2,
+      city: order.city,
+      state: order.state,
+      postalCode: order.postalCode,
+      country: order.country,
+      customer: order.customer
+    })
   )
 
   // Products table

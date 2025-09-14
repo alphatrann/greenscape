@@ -2,11 +2,6 @@ import { Category } from '@renderer/features/categories/types'
 
 export type FilePreview = File & { preview: string }
 
-export interface ProductsResponse {
-  statusGroups: StatusGroup[]
-  inStockGroups: InStockGroup[]
-}
-
 export enum Status {
   Active = 'Active',
   Draft = 'Draft',
@@ -33,6 +28,7 @@ export interface ProductImage {
     url?: string
   }
 }
+
 export interface ProductFormDto {
   name: string
   slug: string
@@ -46,9 +42,4 @@ export interface ProductFormDto {
 export interface StatusGroup {
   _count: { id: number }
   status: Status
-}
-
-export interface InStockGroup {
-  _count: { id: number }
-  inStock: number
 }

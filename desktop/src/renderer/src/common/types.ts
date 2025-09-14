@@ -9,3 +9,5 @@ export interface ErrorApiResponse {
 export type ApiResponse<T> = (SuccessApiResponse<T> | ErrorApiResponse) & {
   status: number
 }
+
+export type SortOrder = 'asc' | 'desc'

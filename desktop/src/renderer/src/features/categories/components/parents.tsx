@@ -3,22 +3,22 @@ import { useMemo } from 'react'
 import { Category } from '../types'
 import { generatePaths } from '../utils'
 
-interface CategoryParentsProps {
-  parents: Category | null
+interface CategoryParentProps {
+  parent: Category | null
 }
 
-export const CategoryParents = ({ parents }: CategoryParentsProps) => {
+export const CategoryParent = ({ parent }: CategoryParentProps) => {
   const directory = useMemo(() => {
-    const paths = generatePaths(parents)
+    const paths = generatePaths(parent)
     return paths.map((p) => p.name).join('/')
-  }, [parents])
+  }, [parent])
 
   return (
     <div className="py-4">
       <div className="grid grid-cols-4 items-center">
-        <Label className="flex-1">Parents</Label>
+        <Label className="flex-1">Parent</Label>
 
-        <span className="col-span-3 w-full text-sm text-muted-foreground">{directory + '/'}</span>
+        <span className="col-span-3 w-full text-sm text-muted-foreground">{directory}</span>
       </div>
     </div>
   )

@@ -184,10 +184,9 @@ export class ProductsController {
   @Get('aggregate')
   @UseGuards(RolesGuard(Role.Admin))
   async aggregateProducts(@Query() dto: FindManyProductsDto) {
-    const inStockGroups = await this.productsService.aggregate('inStock', dto);
-    const statusGroups = await this.productsService.aggregate('status', dto);
+    const statusGroups = await this.productsService.aggregateStatus(dto);
 
-    return { inStockGroups, statusGroups, success: true };
+    return { statusGroups, success: true };
   }
 
   @Get('aggregate/:slug')
@@ -196,12 +195,8 @@ export class ProductsController {
     @Query() dto: FindManyProductsDto,
     @Param('slug') slug: string,
   ) {
-    const inStockGroups = await this.productsService.aggregate(
-      'inStock',
-      dto,
-      slug,
-    );
-    return { inStockGroups, success: true };
+    const statusGroups = await this.productsService.aggregateStatus(dto, slug);
+    return { statusGroups, success: true };
   }
 
   @Delete(':productId/remove-images')

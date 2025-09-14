@@ -14,8 +14,7 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { RolesGuard } from '../auth/guards';
 import { Role } from '@prisma/client';
-import { DeleteManyDto, FindManyDto } from '../common/dto';
-import { FindManyProductsDto } from '../products/dto';
+import { DeleteManyDto } from '../common/dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -31,29 +30,9 @@ export class CategoriesController {
     };
   }
 
-  @Get('subs')
-  async findRootCategories(@Query() findManyDto: FindManyDto) {
-    const categories = await this.categoriesService.findAll(findManyDto);
-    const count = await this.categoriesService.paginate(findManyDto);
-    return { success: true, data: { categories, parents: null }, count };
-  }
-
-  @Get(':slug/subs')
-  async findBySlug(
-    @Query() findManyDto: FindManyDto,
-    @Param('slug') slug: string,
-  ) {
-    const categories = await this.categoriesService.findAll(findManyDto, slug);
-    const parents = await this.categoriesService.findParentsBySlug(slug);
-    const count = await this.categoriesService.paginate(findManyDto, slug);
-    return { success: true, count, data: { categories, parents } };
-  }
-
   @Get('tree')
-  async findCategoriesTree(@Query() findManyProductsDto: FindManyProductsDto) {
-    const categories = await this.categoriesService.findCategoriesTree(
-      findManyProductsDto,
-    );
+  async findCategoriesTree() {
+    const categories = await this.categoriesService.getCategoryTree();
     return { success: true, data: categories };
   }
 

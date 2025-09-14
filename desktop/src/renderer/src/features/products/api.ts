@@ -1,17 +1,17 @@
 import z from 'zod'
-import { Product, ProductsResponse } from './types'
+import { Product, StatusGroup } from './types'
 import { formSchema } from './utils/schema'
 
-export const aggregateProducts = async (query = '', slug = ''): Promise<ProductsResponse> => {
+export const aggregateProducts = async (query = '', slug = ''): Promise<StatusGroup[]> => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/products/aggregate${slug ? `/${slug}` : ''}${query}`,
       { credentials: 'include' }
     )
-    const data = (await response.json()) as ProductsResponse
-    return data
+    const data = (await response.json()) as { statusGroups: StatusGroup[]; success: boolean }
+    return data.statusGroups
   } catch {
-    return { inStockGroups: [], statusGroups: [] }
+    return []
   }
 }
 

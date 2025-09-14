@@ -12,3 +12,5 @@ export const formSchema = z.object({
     .max(60, { message: 'Slug must be between 1 and 60 characters' })
     .regex(VALID_SLUG_REGEX, { message: 'Invalid slug provided' })
 })
+
+export type CategoryFormSchema = z.infer<typeof formSchema>

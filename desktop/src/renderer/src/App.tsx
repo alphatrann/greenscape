@@ -15,6 +15,7 @@ import ProductSettingsPage from './pages/edit-product'
 import { OrderFiltersProvider } from './features/orders/contexts/order-filters-context'
 import OrdersPage from './pages/orders'
 import OrderDetailPage from './pages/order-detail'
+import { OfflineBanner } from './common/components/offline-banner'
 
 function App(): React.JSX.Element {
   return (
@@ -22,6 +23,7 @@ function App(): React.JSX.Element {
       <HashRouter>
         <Toaster />
         <Navbar />
+        <OfflineBanner />
         <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
           <Routes>
             <Route path={AppRoute.Home} element={<DashboardPage />} />{' '}

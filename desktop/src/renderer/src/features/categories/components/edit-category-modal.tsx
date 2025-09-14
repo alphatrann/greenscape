@@ -9,16 +9,14 @@ import {
 import { Form } from '@renderer/features/ui/form'
 import { Loader2 } from 'lucide-react'
 import { CategoryFormFields } from './fields'
-import { CategoryParents } from './parents'
 import { Category } from '../types'
 import { useEditCategory, useEditCategoryModal } from '../hooks'
 
 interface EditCategoryModalProps {
-  parents: Category | null
   editCategory: (category: Category) => void
 }
 
-export function EditCategoryModal({ parents, editCategory }: EditCategoryModalProps) {
+export function EditCategoryModal({ editCategory }: EditCategoryModalProps) {
   const { isOpen, onClose, currentCategory } = useEditCategoryModal()
   const { loading, handleSubmit, form } = useEditCategory(currentCategory, editCategory)
 
@@ -31,7 +29,6 @@ export function EditCategoryModal({ parents, editCategory }: EditCategoryModalPr
         <Form {...form}>
           <form onSubmit={handleSubmit}>
             <CategoryFormFields form={form} loading={loading} />
-            <CategoryParents parents={parents} />
             <DialogFooter>
               <div className="flex items-center gap-x-4">
                 <Button onClick={onClose} disabled={loading} type="button" variant="outline">

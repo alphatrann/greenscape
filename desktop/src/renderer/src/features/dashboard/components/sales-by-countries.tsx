@@ -22,9 +22,9 @@ export const SalesByCountries = () => {
       <CardHeader>
         <CardTitle className="text-base">Sales by Countries</CardTitle>
       </CardHeader>
-      <CardContent className="w-full">
+      <CardContent className="w-full h-full">
         {chartData.length === 0 ? (
-          <div className="flex h-full items-center justify-center lg:mt-16">
+          <div className="flex h-full items-center justify-center">
             <h3 className="text-center text-xl font-medium text-muted-foreground">
               No data available
               <br />

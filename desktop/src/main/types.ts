@@ -19,7 +19,7 @@ export interface Product {
 }
 export interface ProductImage {
   file: {
-    id: number
+    id: string
     url?: string
   }
 }
@@ -64,4 +64,14 @@ interface OrdersOnProducts {
 export interface StatusGroup {
   _count: { id: number }
   status: Status
+}
+
+export interface File {
+  buffer: Buffer
+  filename: string
+}
+
+export interface SaveImagesOfflineDto {
+  files: File[]
+  imagesDir: string
 }

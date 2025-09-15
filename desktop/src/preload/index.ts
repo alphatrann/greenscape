@@ -8,6 +8,11 @@ try {
     upsertCategories: (categories: any[]) => ipcRenderer.send('upsert-categories', categories),
     upsertProducts: (products: any[]) => ipcRenderer.send('upsert-products', products),
     upsertOrders: (orders: any[]) => ipcRenderer.send('upsert-orders', orders),
+    uploadProductImages: (productId: number, files: File[]) =>
+      ipcRenderer.send('upload-product-images', productId, files),
+    deleteProductImages: (productId: number, imageIds: string[]) =>
+      ipcRenderer.send('delete-product-images', productId, imageIds),
+    deleteProduct: (productId: number) => ipcRenderer.send('delete-product', productId),
 
     getProducts: (query: Record<string, any>) => ipcRenderer.invoke('get-products', query),
     getOrders: (query: Record<string, any>) => ipcRenderer.invoke('get-orders', query),

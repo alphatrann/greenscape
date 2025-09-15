@@ -1,5 +1,8 @@
+import path from 'path'
 import db from '../db'
-import { Product, Status, StatusGroup } from '../types'
+import { v4 } from 'uuid'
+import { File, Product, ProductImage, Status, StatusGroup } from '../types'
+import { deleteImagesOffline, saveImagesOffline } from './files'
 
 export async function upsertProducts(newProducts: Product[]) {
   await db.read()
@@ -94,4 +97,42 @@ export async function getProducts(
     products = products.slice(query.offset, query.offset + query.limit)
   }
   return { data: products, count, statusGroups }
+}
+
+export async function deleteProduct(productId: number) {
+  await db.read()
+  const productIndex = db.data!.products.findIndex((prod) => prod.id === productId)
+  if (productIndex >= 0) db.data!.products.splice(productIndex, 1)
+  await db.write()
+}
+
+export async function detachImages(productId: number, imageIds: string[]) {
+  await db.read()
+  const productIndex = db.data!.products.findIndex((prod) => prod.id === productId)
+  if (productIndex >= 0) {
+    const product = db.data!.products[productIndex]
+    const paths = product.images.map((i) => i.file.url).filter(Boolean) as string[]
+    deleteImagesOffline(paths)
+    product.images = product.images.filter((i) => !imageIds.includes(i.file.id))
+  }
+
+  await db.write()
+}
+
+export async function attachImages(productId: number, imagesDir: string, files: File[]) {
+  const paths = saveImagesOffline({ files, imagesDir: path.join(imagesDir, 'products') })
+  await db.read()
+  const idx = db.data!.products.findIndex((prod) => prod.id === productId)
+  if (idx >= 0) {
+    const product = db.data!.products[idx]
+    const newImages: ProductImage[] = paths.map((p) => ({
+      file: {
+        id: v4(),
+        url: p
+      }
+    }))
+    db.data!.products[idx].images = [...product.images, ...newImages]
+  }
+
+  await db.write()
 }

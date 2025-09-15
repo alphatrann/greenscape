@@ -7,12 +7,14 @@ import { formSchema } from '../utils'
 import { Category } from '../types'
 import { useEditCategoryModal } from './use-edit-category-modal'
 import { updateCategory } from '../api'
+import { useOnlineStatus } from '../../../common/hooks/use-online-status'
 
 export const useEditCategory = (
   category: Category | null,
   editCategory: (updated: Category) => void
 ) => {
   const [loading, setLoading] = useState(false)
+  const online = useOnlineStatus()
   const { onClose } = useEditCategoryModal()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -30,8 +32,18 @@ export const useEditCategory = (
     if (!category) return
     try {
       setLoading(true)
-      const updated = await updateCategory(category.id, values)
-      editCategory(updated)
+      if (online) {
+        const updated = await updateCategory(category.id, values)
+        editCategory(updated)
+      } else {
+        const updated: Category = {
+          ...category,
+          name: values.name,
+          slug: values.slug
+        }
+        /** @todo store pending writes */
+        editCategory(updated)
+      }
       toast.success('Category updated')
       onClose()
     } catch (error: any) {

@@ -97,32 +97,25 @@ export class CategoriesService {
 
     return Promise.all(
       categories.map(async (cat) => {
-        // count direct products
-        const productCount = cat.products.length;
-
         // sales from this category’s products
-        const sales = cat.products.reduce(
-          (sum, p) => sum + p.orders.reduce((s, o) => s + o.qty * p.price, 0),
-          0,
+        const metrics = cat.products.reduce(
+          (acc, p) => ({
+            unitsSold: acc.unitsSold + p.orders.reduce((s, o) => s + o.qty, 0),
+            sales:
+              acc.sales + p.orders.reduce((s, o) => s + o.qty * p.price, 0),
+          }),
+          { unitsSold: 0, sales: 0 },
         );
 
         // recursively fetch subcategories
         const subCategories = await this.getCategoryTree(cat.id);
-
-        // roll up stats from children
-        const childProductCount = subCategories.reduce(
-          (sum, sc) => sum + sc.productCount,
-          0,
-        );
-        const childSales = subCategories.reduce((sum, sc) => sum + sc.sales, 0);
 
         return {
           id: cat.id,
           name: cat.name,
           slug: cat.slug,
           parentCategoryId: cat.parentCategoryId,
-          productCount: productCount + childProductCount,
-          sales: sales + childSales,
+          ...metrics,
           subCategories,
         };
       }),

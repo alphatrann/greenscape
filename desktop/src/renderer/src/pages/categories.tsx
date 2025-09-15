@@ -6,28 +6,35 @@ import { useEffect, useState } from 'react'
 import { AppRoute } from '../common/app-route'
 import { DeleteRecordsModal } from '../common/delete-records/modal'
 import { CategoryTree } from '../features/categories/components/tree'
-import { useCategoryTree } from '../features/categories/hooks/use-category-tree'
+import { useCategoryTreeStore } from '../features/categories/hooks/use-category-tree'
 import { CategorySortDropdown } from '../features/categories/components/sort-dropdown'
 import { CategorySortBy } from '../features/categories/types'
 import { SortOrder } from '../common/types'
 import { Button } from '../features/ui/button'
 import { PlusIcon } from '@heroicons/react/24/outline'
+import { useOnlineStatus } from '../common/hooks/use-online-status'
 
 export default function CategoriesPage() {
   useUserGuard()
   const {
     categories,
-    order,
-    sortBy,
-    setOrder,
-    setSortBy,
+    sortCategories,
     fetchCategories,
     addCategory,
     editCategory,
-    deleteCategory
-  } = useCategoryTree()
+    deleteCategory,
+    fetchCategoriesOffline
+  } = useCategoryTreeStore()
+  const online = useOnlineStatus()
   const [selectedParentId, setSelectedParentId] = useState<number | undefined>()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+  const [sortBy, setSortBy] = useState<CategorySortBy>('id')
+  const [order, setOrder] = useState<SortOrder>('asc')
+
+  useEffect(() => {
+    sortCategories({ sortBy, order })
+  }, [sortBy, order])
 
   const sortByField = (field: CategorySortBy, order: SortOrder) => {
     setSortBy(field)
@@ -35,8 +42,9 @@ export default function CategoriesPage() {
   }
 
   useEffect(() => {
-    fetchCategories()
-  }, [])
+    if (!online) fetchCategoriesOffline()
+    else fetchCategories()
+  }, [online, fetchCategoriesOffline, fetchCategories])
 
   return (
     <>
@@ -50,8 +58,8 @@ export default function CategoriesPage() {
 
         <div className="mt-6">
           <div className="flex justify-between items-center gap-x-3">
-            <div className="grid grid-cols-6 font-medium items-center w-full py-2 pr-3 rounded-md">
-              <div className="flex gap-x-2 items-center col-span-4">
+            <div className="grid grid-cols-4 md:grid-cols-6 font-medium items-center w-full py-2 pr-3 rounded-md">
+              <div className="flex gap-x-2 items-center col-span-2 md:col-span-4">
                 <div>Category</div>
                 <Button
                   variant="outline"
@@ -66,8 +74,8 @@ export default function CategoriesPage() {
                 </Button>
               </div>
               <CategorySortDropdown
-                title="Products"
-                field="productCount"
+                title="Units Sold"
+                field="unitsSold"
                 sortBy={sortBy}
                 order={order}
                 sortByField={sortByField}

@@ -1,4 +1,5 @@
-import { Category, CategorySortBy, SortOrder } from '../types'
+import { SortOrder } from '../../../common/types'
+import { Category, CategorySortBy } from '../types'
 
 export const sortCategories = (
   categories: Category[],

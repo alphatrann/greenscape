@@ -6,15 +6,19 @@ import { getProducts, paginateProducts, aggregateProducts } from '../api'
 import { useProductFiltersContext } from '../contexts/product-filters-context'
 import { StatusGroup } from '../types'
 import qs from 'query-string'
-import { useCategoryTree } from '../../categories/hooks/use-category-tree'
+import { useCategoryTreeStore } from '../../categories/hooks/use-category-tree'
 
 export const useFetchProducts = () => {
   const [statusGroups, setStatusGroups] = useState<StatusGroup[]>([])
   const [products, setProducts] = useState<Product[]>([])
-  const { categories, fetchCategories } = useCategoryTree()
+  const { categories, fetchCategories } = useCategoryTreeStore()
   const { price, selectedCategory, status, inStock, from, to } = useProductFiltersContext()
   const { q, order, sortBy, pagination } = useFiltersContext()
-  const { total: totalProductsCount, setTotal: setTotalProductsCount } = useFiltersContext()
+  const { total: totalProductsCount, setTotal: setTotalProductsCount, reset } = useFiltersContext()
+
+  useEffect(() => {
+    reset()
+  }, [])
 
   const query = useMemo(() => {
     const validSortByColumns = ['price', 'inStock', 'orders', 'createdAt', 'id']

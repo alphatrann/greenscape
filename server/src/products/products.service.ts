@@ -123,12 +123,9 @@ export class ProductsService {
           name: true,
           inStock: true,
           price: true,
+          categories: { select: { id: true } },
           createdAt: true,
           status: true,
-          categories: {
-            select: { id: true, name: true },
-            orderBy: { id: 'asc' },
-          },
           images: {
             select: { file: { select: { id: true, url: true } } },
             take: 1,

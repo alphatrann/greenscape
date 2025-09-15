@@ -1,4 +1,4 @@
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { AppRoute } from './common/app-route'
 import { DashboardPage } from './pages/dashboard'
 import LoginPage from './pages/login'
@@ -19,52 +19,58 @@ import { OfflineBanner } from './common/components/offline-banner'
 
 function App(): React.JSX.Element {
   return (
-    <>
-      <HashRouter>
-        <Toaster />
-        <Navbar />
-        <OfflineBanner />
-        <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
-          <Routes>
-            <Route path={AppRoute.Home} element={<DashboardPage />} />{' '}
-            <Route path={AppRoute.Login} element={<LoginPage />} />{' '}
-            <Route path={AppRoute.Error} element={<ErrorPage />} />{' '}
-            <Route
-              path={`${AppRoute.Categories}/:slug?`}
-              element={
-                <FiltersProvider>
-                  <CategoriesPage />
-                </FiltersProvider>
-              }
-            />
-            <Route
-              path={AppRoute.Products}
-              element={
-                <FiltersProvider>
-                  <ProductFiltersProvider>
-                    <ProductsPage />
-                  </ProductFiltersProvider>
-                </FiltersProvider>
-              }
-            />
-            <Route path={AppRoute.CreateProduct} element={<CreateProductPage />} />
-            <Route path={AppRoute.ProductDetail} element={<ProductPage />} />
-            <Route path={AppRoute.EditProduct} element={<ProductSettingsPage />} />
-            <Route
-              path={AppRoute.Orders}
-              element={
-                <FiltersProvider>
-                  <OrderFiltersProvider>
-                    <OrdersPage />
-                  </OrderFiltersProvider>
-                </FiltersProvider>
-              }
-            />
-            <Route path={AppRoute.Order} element={<OrderDetailPage />} />
-          </Routes>
-        </div>
-      </HashRouter>
-    </>
+    <HashRouter>
+      <Toaster />
+      <Navbar />
+      <OfflineBanner />
+      <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+        <AppRoutes />
+      </div>
+    </HashRouter>
+  )
+}
+
+function AppRoutes() {
+  const location = useLocation()
+
+  return (
+    <Routes>
+      <Route path={AppRoute.Home} element={<DashboardPage />} />
+      <Route path={AppRoute.Login} element={<LoginPage />} />
+      <Route path={AppRoute.Error} element={<ErrorPage />} />
+      <Route
+        path={`${AppRoute.Categories}/:slug?`}
+        element={
+          <FiltersProvider key={location.pathname}>
+            <CategoriesPage />
+          </FiltersProvider>
+        }
+      />
+      <Route
+        path={AppRoute.Products}
+        element={
+          <FiltersProvider key={location.pathname}>
+            <ProductFiltersProvider>
+              <ProductsPage />
+            </ProductFiltersProvider>
+          </FiltersProvider>
+        }
+      />
+      <Route path={AppRoute.CreateProduct} element={<CreateProductPage />} />
+      <Route path={AppRoute.ProductDetail} element={<ProductPage />} />
+      <Route path={AppRoute.EditProduct} element={<ProductSettingsPage />} />
+      <Route
+        path={AppRoute.Orders}
+        element={
+          <FiltersProvider key={location.pathname}>
+            <OrderFiltersProvider>
+              <OrdersPage />
+            </OrderFiltersProvider>
+          </FiltersProvider>
+        }
+      />
+      <Route path={AppRoute.Order} element={<OrderDetailPage />} />
+    </Routes>
   )
 }
 

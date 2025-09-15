@@ -16,7 +16,7 @@ export interface Product {
   price: number
   status: Status
   inStock: number
-  categories: Category[]
+  categories: Pick<Category, 'id'>[]
   createdAt: Date
   updatedAt: Date
   images: ProductImage[]

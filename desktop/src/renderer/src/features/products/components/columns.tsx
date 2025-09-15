@@ -1,4 +1,3 @@
-'use client'
 import { EyeIcon } from '@heroicons/react/24/outline'
 import { CopyButton } from '@renderer/common/components/copy-button'
 import { DataTableColumnHeader, DataTableRowActions } from '@renderer/common/data-table'
@@ -9,6 +8,8 @@ import { Checkbox } from '@renderer/features/ui/checkbox'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { Link, useNavigate } from 'react-router-dom'
+import { useCategoryTreeStore } from '../../categories/hooks/use-category-tree'
+import { generatePaths } from '../../categories/utils'
 import { Button } from '../../ui/button'
 import { Product } from '../types'
 
@@ -52,9 +53,19 @@ export const columns: ColumnDef<Product>[] = [
     id: 'categories',
     accessorKey: 'categories',
     header: 'Categories',
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">{row.original.categories.at(-1)?.name}</div>
-    )
+    cell: ({ row }) => {
+      const { categories } = useCategoryTreeStore()
+      const productCategories = generatePaths(
+        categories,
+        row.original.categories.map((c) => c.id)
+      )
+
+      return productCategories.map((c) => (
+        <div key={c.id} className="text-muted-foreground">
+          {c.name}
+        </div>
+      ))
+    }
   },
   {
     id: 'inStock',
@@ -68,7 +79,7 @@ export const columns: ColumnDef<Product>[] = [
     id: 'orders',
     accessorKey: 'orders',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Sales" className="justify-end" />
+      <DataTableColumnHeader column={column} title="Orders" className="justify-end" />
     ),
     cell: ({ row }) => <div className="mr-3 text-right">{row.original._count.orders}</div>
   },

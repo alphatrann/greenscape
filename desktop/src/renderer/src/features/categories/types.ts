@@ -6,7 +6,7 @@ export interface Category {
   subCategories?: Category[]
   parentCategoryId?: number
   _count: { products: number }
-  productCount: number
+  unitsSold: number
   sales: number
 }
 
@@ -24,4 +24,4 @@ export interface CategoriesResponse {
   }
 }
 
-export type CategorySortBy = 'id' | 'sales' | 'productCount'
+export type CategorySortBy = 'id' | 'sales' | 'unitsSold'

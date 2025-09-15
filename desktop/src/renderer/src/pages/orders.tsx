@@ -18,7 +18,8 @@ export default function OrdersPage() {
     total: totalCount,
     setTotal: setTotalCount,
     sortBy,
-    order
+    order,
+    reset
   } = useFiltersContext()
   const [orders, setOrders] = useState<Order[]>([])
   const [groups, setGroups] = useState<OrdersAggregate>({
@@ -27,6 +28,10 @@ export default function OrdersPage() {
     statusGroups: []
   })
   const table = useTable(columns, orders, totalCount)
+
+  useEffect(() => {
+    reset()
+  }, [])
 
   useEffect(() => {
     const validSortByColumns = ['total', 'shippingCost', 'createdAt', 'deliveredAt', 'id']

@@ -3,9 +3,11 @@ import { toast } from 'react-hot-toast'
 import { useDeleteRecordsModal } from './use-modal'
 import { deleteRecords } from './api'
 import { useFiltersContext } from '../contexts/filters-context'
+import { useOnlineStatus } from '../hooks/use-online-status'
 
 export const useDeleteRecords = () => {
   const { onClose, ids } = useDeleteRecordsModal()
+  const online = useOnlineStatus()
   const [loading, setLoading] = useState(false)
   const { setTotal } = useFiltersContext()
   const onDeleteRecords = async (
@@ -14,7 +16,8 @@ export const useDeleteRecords = () => {
   ) => {
     try {
       setLoading(true)
-      await deleteRecords(ids, entityName)
+      if (online) await deleteRecords(ids, entityName)
+      /** @todo store pending delete operations */
       setTotal((t) => t - ids.length)
       deleteInUI(ids)
       onClose()

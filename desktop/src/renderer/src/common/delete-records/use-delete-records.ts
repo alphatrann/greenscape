@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast'
 import { useDeleteRecordsModal } from './use-modal'
 import { deleteRecords } from './api'
 import { useFiltersContext } from '../contexts/filters-context'
-import { useOnlineStatus } from '../hooks/use-online-status'
+import { useOnlineStatus } from '../contexts/online-context'
 
 export const useDeleteRecords = () => {
   const { onClose, ids } = useDeleteRecordsModal()
@@ -17,6 +17,9 @@ export const useDeleteRecords = () => {
     try {
       setLoading(true)
       if (online) await deleteRecords(ids, entityName)
+      if (entityName === 'products') {
+        await window.electronAPI.deleteProducts(ids)
+      }
       /** @todo store pending delete operations */
       setTotal((t) => t - ids.length)
       deleteInUI(ids)

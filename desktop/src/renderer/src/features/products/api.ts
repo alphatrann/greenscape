@@ -70,7 +70,7 @@ export const getProducts = async (query = '', slug = ''): Promise<Product[]> => 
   }
 }
 
-export const deleteImages = async (productId: number, deletedImageIds: number[]) => {
+export const deleteImages = async (productId: number, deletedImageIds: string[]) => {
   try {
     await fetch(
       `${import.meta.env.VITE_API_URL}/products/${
@@ -114,5 +114,17 @@ export const paginateProducts = async (query = '', slug = ''): Promise<number> =
     return data.data as number
   } catch (error: any) {
     throw new Error(error.message)
+  }
+}
+
+export async function fetchProductImage(url: string, filename?: string) {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.statusText}`)
+
+  const buffer = await res.arrayBuffer()
+
+  return {
+    filename: filename ?? url.split('/').pop() ?? 'image.jpg',
+    buffer
   }
 }

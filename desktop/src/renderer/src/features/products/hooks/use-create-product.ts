@@ -8,7 +8,7 @@ import { AppRoute } from '@renderer/common/app-route'
 import { createProduct, uploadImages } from '../api'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useImagesUpload } from './use-images-upload'
-import { useOnlineStatus } from '@renderer/common/hooks/use-online-status'
+import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 import { Product, Status } from '../types'
 
 export const useCreateProduct = () => {
@@ -29,13 +29,17 @@ export const useCreateProduct = () => {
         return
       }
       const formData = createFilesFormData()
+      const productId = -Date.now()
       let newProduct: Product
       if (online) {
         newProduct = await createProduct(values)
         await uploadImages(newProduct.id, formData)
       } else {
-        const productId = -Math.floor(Math.random() * (2 ** 32 - 1))
-        // do something
+        const isUniqueSlug = await window.electronAPI.checkUniqueSlug(values.slug)
+        if (!isUniqueSlug) {
+          form.setError('slug', { message: 'Duplicate slug' })
+          return
+        }
         newProduct = {
           id: productId,
           _count: { orders: 0 },
@@ -46,15 +50,19 @@ export const useCreateProduct = () => {
           images: [],
           status: values.status as Status
         }
-        const filesPayload = await Promise.all(
-          files.map(async (f) => ({
-            filename: f.name,
-            buffer: Buffer.from(await f.arrayBuffer())
-          }))
-        )
-        //@ts-ignore
-        window.electronAPI.uploadProductImages(productId, filesPayload)
       }
+      const filesPayload = await Promise.all(
+        files.map(async (f) => ({
+          filename: f.name,
+          buffer: await f.arrayBuffer()
+        }))
+      )
+
+      //@ts-ignore
+      await window.electronAPI.upsertProducts([newProduct])
+
+      //@ts-ignore
+      await window.electronAPI.uploadProductImages(newProduct.id, filesPayload)
       setLoading(true)
       form.reset()
       clearFiles()

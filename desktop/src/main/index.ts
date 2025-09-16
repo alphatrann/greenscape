@@ -2,26 +2,26 @@ import { exportInvoice } from './utils/export-invoice'
 
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
-import { join } from 'path'
 import fs from 'fs'
+import { join } from 'path'
 import darwinIcon from '../../resources/logo.icns?asset'
 import winIcon from '../../resources/logo.ico?asset'
 import linuxIcon from '../../resources/logo.png?asset'
-import { exportData } from './utils/export-data'
-import { Category, File, Order, Product } from './types'
-import { CategoryQuery, getCategories, upsertCategories } from './local-store/categories'
+import { getOrderDetail, getOrders, OrderQuery, upsertOrders } from './local-store/orders'
 import {
   attachImages,
-  deleteProduct,
+  checkUniqueSlug,
+  deleteProducts,
   detachImages,
-  getProductDetali,
+  getProductDetail,
   getProducts,
-  ProductQuery,
   upsertProducts
 } from './local-store/products'
-import { getOrderDetail, getOrders, OrderQuery, upsertOrders } from './local-store/orders'
+import { File, Order, Product, ProductQuery } from './types'
+import { exportData } from './utils/export-data'
 
 const imagesDir = join(app.getPath('userData'), 'images')
+console.log({ userDataPath: app.getPath('userData') })
 
 if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir, { recursive: true })
@@ -98,21 +98,20 @@ app.on('window-all-closed', () => {
 ipcMain.on('export-invoice', (_event, order) => exportInvoice(order))
 ipcMain.on('export-data', (_event, payload) => exportData(payload))
 
-ipcMain.on('upsert-categories', (_event, categories: Category[]) => upsertCategories(categories))
-ipcMain.on('upsert-products', (_event, products: Product[]) => upsertProducts(products))
-ipcMain.on('upsert-orders', (_event, orders: Order[]) => upsertOrders(orders))
-ipcMain.on('delete-product', (_event, productId: number) => deleteProduct(productId))
+ipcMain.handle('upsert-products', (_event, products: Product[]) => upsertProducts(products))
+ipcMain.handle('upsert-orders', (_event, orders: Order[]) => upsertOrders(orders))
+ipcMain.handle('delete-products', (_event, productIds: number[]) => deleteProducts(productIds))
 
-ipcMain.handle('get-categories', (_event, query: CategoryQuery) => getCategories(query))
 ipcMain.handle('get-products', (_event, query: ProductQuery) => getProducts(query))
-ipcMain.handle('get-product-detail', (_event, id: number) => getProductDetali(id))
+ipcMain.handle('get-product-detail', (_event, slug: string) => getProductDetail(slug))
 
 ipcMain.handle('get-orders', (_event, query: OrderQuery) => getOrders(query))
 ipcMain.handle('get-order-detail', (_event, id: string) => getOrderDetail(id))
 
-ipcMain.on('upload-product-images', (_event, productId: number, files: File[]) =>
+ipcMain.handle('upload-product-images', (_event, productId: number, files: File[]) =>
   attachImages(productId, imagesDir, files)
 )
-ipcMain.on('delete-product-images', (_event, productId: number, imageIds: string[]) =>
+ipcMain.handle('delete-product-images', (_event, productId: number, imageIds: string[]) =>
   detachImages(productId, imageIds)
 )
+ipcMain.handle('check-unique-slug', (_event, slug: string) => checkUniqueSlug(slug))

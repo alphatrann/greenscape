@@ -24,7 +24,7 @@ export interface Product {
 }
 export interface ProductImage {
   file: {
-    id: number
+    id: string
     url?: string
   }
 }

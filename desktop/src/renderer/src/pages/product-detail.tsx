@@ -1,35 +1,70 @@
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice, getLocalImage } from '@renderer/common/utils'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
 import { useParams } from 'react-router-dom'
 import { Product } from '../features/products/types'
 import { useEffect, useState } from 'react'
-import { getProduct } from '../features/products/api'
+import { fetchProductImage, getProduct } from '../features/products/api'
 import { ImagesGallery } from '../features/products/components/images-gallery'
 import { ProductDescription } from '../features/products/components/product-description'
 import { AddToBag } from '../features/products/components/add-to-bag'
-import { useNavigate } from 'react-router-dom'
 import { Loading } from '../common/components/loading'
+import { useOnlineStatus } from '../common/contexts/online-context'
 
 export default function ProductPage() {
   const { slug } = useParams()
 
   const [loading, setLoading] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
-  const navigate = useNavigate()
+  const online = useOnlineStatus()
+
+  const fetchProductDetailOffline = async () => {
+    const productDetail = (await window.electronAPI.getProductDetail(
+      slug
+    )) as Promise<Product | null>
+    return productDetail
+  }
 
   useEffect(() => {
     if (!slug) return
     setLoading(true)
-    getProduct(slug!)
-      .then((data) => {
-        if (!data) {
-          navigate('/404')
-          return
-        }
-        setProduct(data)
-      })
-      .finally(() => setLoading(false))
-  }, [slug])
+    if (online) {
+      getProduct(slug!)
+        .then((data) => {
+          if (!data) {
+            return
+          }
+
+          window.electronAPI.deleteProductImages(
+            data.id,
+            data.images.map((i) => i.file.id)
+          )
+          const images = Promise.all(
+            data.images.map((i) => fetchProductImage(i.file.url || getLocalImage(i.file.id)!))
+          )
+          images.then((imagePayload) =>
+            window.electronAPI.uploadProductImages(data.id, imagePayload)
+          )
+
+          fetchProductDetailOffline().then((detail) =>
+            window.electronAPI.upsertProducts([{ ...detail, ...data }])
+          )
+
+          setProduct(data)
+        })
+        .finally(() => setLoading(false))
+    } else {
+      fetchProductDetailOffline()
+        .then((data) => {
+          console.log({ data })
+
+          if (!data) {
+            return
+          }
+          setProduct(data)
+        })
+        .finally(() => setLoading(false))
+    }
+  }, [slug, online])
 
   if (loading) return <Loading />
   if (!product) {

@@ -16,7 +16,7 @@ export const formSchema = z.object({
     .number<number>({ message: 'Price must be a number' })
     .gte(0.01, { message: 'Price cannot be less than 0.01' }),
   inStock: z.coerce
-    .number<number>()
+    .number<number>({ message: 'In stock must not be empty' })
     .nonnegative({
       message: 'The number of products in stock must be non-negative'
     })

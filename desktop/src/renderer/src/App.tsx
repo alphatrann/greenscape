@@ -16,17 +16,20 @@ import { OrderFiltersProvider } from './features/orders/contexts/order-filters-c
 import OrdersPage from './pages/orders'
 import OrderDetailPage from './pages/order-detail'
 import { OfflineBanner } from './common/components/offline-banner'
+import { OnlineStatusProvider } from './common/contexts/online-context'
 
 function App(): React.JSX.Element {
   return (
-    <HashRouter>
-      <Toaster />
-      <Navbar />
-      <OfflineBanner />
-      <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
-        <AppRoutes />
-      </div>
-    </HashRouter>
+    <OnlineStatusProvider>
+      <HashRouter>
+        <Toaster />
+        <Navbar />
+        <OfflineBanner />
+        <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+          <AppRoutes />
+        </div>
+      </HashRouter>
+    </OnlineStatusProvider>
   )
 }
 

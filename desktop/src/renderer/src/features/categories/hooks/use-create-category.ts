@@ -7,7 +7,7 @@ import { formSchema } from '../utils'
 import { createCategory } from '../api'
 import { Category } from '../types'
 import { useFiltersContext } from '@renderer/common/contexts/filters-context'
-import { useOnlineStatus } from '@renderer/common/hooks/use-online-status'
+import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 
 export const useCreateCategory = (
   addCategory: (newCategory: Category) => void,

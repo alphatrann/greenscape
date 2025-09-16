@@ -75,3 +75,17 @@ export interface SaveImagesOfflineDto {
   files: File[]
   imagesDir: string
 }
+
+export interface ProductQuery {
+  q?: string
+  price?: [number?, number?]
+  inStock?: [number?, number?]
+  status?: string
+  selectedCategory?: string
+  from?: Date
+  to?: Date
+  sortBy?: 'price' | 'inStock' | 'orders' | 'createdAt' | 'id'
+  order?: 'asc' | 'desc'
+  offset?: number
+  limit?: number
+}

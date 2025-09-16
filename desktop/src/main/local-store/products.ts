@@ -1,37 +1,39 @@
 import path from 'path'
 import db from '../db'
 import { v4 } from 'uuid'
-import { File, Product, ProductImage, Status, StatusGroup } from '../types'
+import { File, Product, ProductImage, ProductQuery, Status, StatusGroup } from '../types'
 import { deleteImagesOffline, saveImagesOffline } from './files'
+
+export async function checkUniqueSlug(slug: string) {
+  await db.read()
+  const slugExisted = db.data!.products.some((prod) => prod.slug === slug)
+  return !slugExisted
+}
 
 export async function upsertProducts(newProducts: Product[]) {
   await db.read()
   for (const p of newProducts) {
     const idx = db.data!.products.findIndex((prod) => prod.id === p.id)
-    if (idx >= 0) db.data!.products[idx] = p
-    else db.data!.products.push(p)
+    if (idx >= 0) {
+      db.data!.products[idx] = { ...db.data!.products[idx], ...p }
+    } else {
+      db.data!.products.push(p)
+    }
   }
-
   await db.write()
 }
 
-export type ProductQuery = {
-  q?: string
-  price?: [number?, number?]
-  inStock?: [number?, number?]
-  status?: string
-  selectedCategory?: string
-  from?: Date
-  to?: Date
-  sortBy?: 'price' | 'inStock' | 'orders' | 'createdAt' | 'id'
-  order?: 'asc' | 'desc'
-  offset?: number
-  limit?: number
-}
-
-export async function getProductDetali(id: number) {
+export async function getProductDetail(slug: string) {
   await db.read()
-  return db.data.products.find((p) => p.id === id)
+  const product = db.data.products.find((p) => p.slug === slug)
+
+  if (product?.images) {
+    product.images = product.images.map((i) => ({
+      file: { id: i.file.id, url: i.file.url ? `file://${i.file.url}` : undefined }
+    }))
+  }
+
+  return product
 }
 
 export async function getProducts(
@@ -99,39 +101,70 @@ export async function getProducts(
   return { data: products, count, statusGroups }
 }
 
-export async function deleteProduct(productId: number) {
+export async function deleteProducts(productIds: number[]) {
   await db.read()
-  const productIndex = db.data!.products.findIndex((prod) => prod.id === productId)
-  if (productIndex >= 0) db.data!.products.splice(productIndex, 1)
+  const toDelete = db.data.products.filter((p) => !productIds.includes(p.id))
+
+  for (const product of toDelete) {
+    await detachImages(
+      product.id,
+      product.images.map((i) => i.file.id)
+    )
+  }
+  db.data.products = toDelete
   await db.write()
 }
 
 export async function detachImages(productId: number, imageIds: string[]) {
   await db.read()
   const productIndex = db.data!.products.findIndex((prod) => prod.id === productId)
+
   if (productIndex >= 0) {
     const product = db.data!.products[productIndex]
-    const paths = product.images.map((i) => i.file.url).filter(Boolean) as string[]
-    deleteImagesOffline(paths)
-    product.images = product.images.filter((i) => !imageIds.includes(i.file.id))
+    if (!product.images) {
+      product.images = []
+    }
+
+    const pathsToDelete = product.images
+      .filter((i) => imageIds.includes(i.file.id))
+      .map((i) => i.file.url)
+      .filter(Boolean) as string[]
+
+    await deleteImagesOffline(pathsToDelete)
+
+    db.data.products[productIndex].images = product.images.filter(
+      (i) => !imageIds.includes(i.file.id)
+    )
   }
 
   await db.write()
 }
 
 export async function attachImages(productId: number, imagesDir: string, files: File[]) {
-  const paths = saveImagesOffline({ files, imagesDir: path.join(imagesDir, 'products') })
   await db.read()
   const idx = db.data!.products.findIndex((prod) => prod.id === productId)
+
   if (idx >= 0) {
-    const product = db.data!.products[idx]
+    const product = { ...db.data!.products[idx] }
+
+    const paths = saveImagesOffline({
+      files,
+      imagesDir: path.join(imagesDir, 'products')
+    })
+
     const newImages: ProductImage[] = paths.map((p) => ({
       file: {
         id: v4(),
         url: p
       }
     }))
-    db.data!.products[idx].images = [...product.images, ...newImages]
+
+    if (!product.images) {
+      product.images = []
+    }
+
+    product.images.push(...newImages)
+    db.data.products[idx] = product
   }
 
   await db.write()

@@ -1,19 +1,14 @@
-import { getCategoriesTree } from '@renderer/features/categories/api'
 import { getProduct } from '@renderer/features/products/api'
 import { EditProduct } from '@renderer/features/products/components/edit-product'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
-import { Product } from '../features/products/types'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { redirect, useParams } from 'react-router-dom'
-import { Category } from '../features/categories/types'
 import { AppRoute } from '../common/app-route'
+import { useCategoryTreeStore } from '../features/categories/hooks/use-category-tree'
+import { useFetchCategories } from '../features/categories/hooks/use-fetch-categories'
+import { Product } from '../features/products/types'
 
 export default function ProductSettingsPage() {
-  const [categories, setCategories] = useState<Category[]>([])
-  useEffect(() => {
-    getCategoriesTree().then(setCategories)
-  }, [])
-
   const { slug } = useParams()
 
   const [product, setProduct] = useState<Product | null>(null)
@@ -23,6 +18,8 @@ export default function ProductSettingsPage() {
 
     getProduct(slug!).then(setProduct)
   }, [slug])
+  useFetchCategories()
+  const categories = useCategoryTreeStore((state) => state.categories)
 
   if (!product) {
     redirect('/not-found')

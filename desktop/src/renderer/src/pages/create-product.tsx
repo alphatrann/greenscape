@@ -1,14 +1,11 @@
-import { getCategoriesTree } from '@renderer/features/categories/api'
 import { CreateProduct } from '@renderer/features/products/components/create-product'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
-import { useEffect, useState } from 'react'
-import { Category } from '../features/categories/types'
+import { useFetchCategories } from '../features/categories/hooks/use-fetch-categories'
+import { useCategoryTreeStore } from '../features/categories/hooks/use-category-tree'
 
 export default function CreateProductPage() {
-  const [categories, setCategories] = useState<Category[]>([])
-  useEffect(() => {
-    getCategoriesTree().then(setCategories)
-  }, [])
+  useFetchCategories()
+  const categories = useCategoryTreeStore((state) => state.categories)
 
   return (
     <div className="container mx-auto max-w-5xl">

@@ -87,6 +87,7 @@ export class CategoriesService {
     const categories = await this.prisma.category.findMany({
       where: { parentCategoryId: parentId ?? null },
       include: {
+        _count: { select: { products: true } },
         products: {
           include: {
             orders: true, // OrdersOnProducts (qty)
@@ -114,6 +115,7 @@ export class CategoriesService {
           id: cat.id,
           name: cat.name,
           slug: cat.slug,
+          _count: cat._count,
           parentCategoryId: cat.parentCategoryId,
           ...metrics,
           subCategories,

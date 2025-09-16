@@ -1,5 +1,5 @@
 import { TriangleAlertIcon } from 'lucide-react'
-import { useOnlineStatus } from '../hooks/use-online-status'
+import { useOnlineStatus } from '../contexts/online-context'
 
 export function OfflineBanner() {
   const online = useOnlineStatus()

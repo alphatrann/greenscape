@@ -12,20 +12,13 @@ import { CategorySortBy } from '../features/categories/types'
 import { SortOrder } from '../common/types'
 import { Button } from '../features/ui/button'
 import { PlusIcon } from '@heroicons/react/24/outline'
-import { useOnlineStatus } from '../common/hooks/use-online-status'
+import { useFetchCategories } from '../features/categories/hooks/use-fetch-categories'
 
 export default function CategoriesPage() {
   useUserGuard()
-  const {
-    categories,
-    sortCategories,
-    fetchCategories,
-    addCategory,
-    editCategory,
-    deleteCategory,
-    fetchCategoriesOffline
-  } = useCategoryTreeStore()
-  const online = useOnlineStatus()
+  useFetchCategories()
+  const { categories, sortCategories, addCategory, editCategory, deleteCategory } =
+    useCategoryTreeStore()
   const [selectedParentId, setSelectedParentId] = useState<number | undefined>()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
@@ -40,11 +33,6 @@ export default function CategoriesPage() {
     setSortBy(field)
     setOrder(order)
   }
-
-  useEffect(() => {
-    if (!online) fetchCategoriesOffline()
-    else fetchCategories()
-  }, [online, fetchCategoriesOffline, fetchCategories])
 
   return (
     <>

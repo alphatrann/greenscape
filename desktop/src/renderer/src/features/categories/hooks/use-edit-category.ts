@@ -7,7 +7,7 @@ import { formSchema } from '../utils'
 import { Category } from '../types'
 import { useEditCategoryModal } from './use-edit-category-modal'
 import { updateCategory } from '../api'
-import { useOnlineStatus } from '../../../common/hooks/use-online-status'
+import { useOnlineStatus } from '../../../common/contexts/online-context'
 
 export const useEditCategory = (
   category: Category | null,

@@ -40,10 +40,10 @@ export const FiltersProvider = ({ children }: { children: ReactNode }) => {
     setQ('')
     setSortBy('id')
     setOrder('asc')
-    setPagination({
+    setPagination((prev) => ({
       pageIndex: 0,
-      pageSize: 10
-    })
+      pageSize: prev.pageSize
+    }))
   }
 
   useEffect(() => {

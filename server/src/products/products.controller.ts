@@ -45,7 +45,14 @@ export class ProductsController {
   @UseGuards(RolesGuard(Role.Admin))
   async findAll(@Query() findManyProductsDto: FindManyProductsDto) {
     const products = await this.productsService.findAll(findManyProductsDto);
-    return { success: true, data: products };
+    const statusGroups = await this.productsService.aggregateStatus(
+      findManyProductsDto,
+    );
+    return {
+      success: true,
+      data: products,
+      statusGroups,
+    };
   }
 
   @Get('category/:slug')
@@ -58,7 +65,11 @@ export class ProductsController {
       findManyProductsDto,
       slug,
     );
-    return { success: true, data: products };
+    const statusGroups = await this.productsService.aggregateStatus(
+      findManyProductsDto,
+      slug,
+    );
+    return { success: true, data: products, statusGroups };
   }
 
   @Get('store')
@@ -179,24 +190,6 @@ export class ProductsController {
       })),
     );
     return { success: true };
-  }
-
-  @Get('aggregate')
-  @UseGuards(RolesGuard(Role.Admin))
-  async aggregateProducts(@Query() dto: FindManyProductsDto) {
-    const statusGroups = await this.productsService.aggregateStatus(dto);
-
-    return { statusGroups, success: true };
-  }
-
-  @Get('aggregate/:slug')
-  @UseGuards(RolesGuard(Role.Admin))
-  async aggregateProductsBySlug(
-    @Query() dto: FindManyProductsDto,
-    @Param('slug') slug: string,
-  ) {
-    const statusGroups = await this.productsService.aggregateStatus(dto, slug);
-    return { statusGroups, success: true };
   }
 
   @Delete(':productId/remove-images')

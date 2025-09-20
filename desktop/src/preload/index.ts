@@ -15,7 +15,6 @@ try {
 
     getProducts: (query: Record<string, any>) => ipcRenderer.invoke('get-products', query),
     getOrders: (query: Record<string, any>) => ipcRenderer.invoke('get-orders', query),
-    getCategories: (query: Record<string, any>) => ipcRenderer.invoke('get-categories', query),
     checkUniqueSlug: (slug: string) => ipcRenderer.invoke('check-unique-slug', slug),
 
     getProductDetail: (slug: string) => ipcRenderer.invoke('get-product-detail', slug),

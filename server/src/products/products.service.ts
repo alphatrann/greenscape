@@ -145,11 +145,16 @@ export class ProductsService {
 
   async aggregateStatus(dto: FindManyProductsDto, slug: string = null) {
     const { where } = formProductQueries(dto, slug);
-    return this.prisma.product.groupBy({
+    delete where['status'];
+    const groups = await this.prisma.product.groupBy({
       by: 'status',
       _count: { id: true },
       where,
     });
+    return groups.map((g) => ({
+      count: g._count.id,
+      status: g.status,
+    }));
   }
 
   async findBySlug(slug: string) {

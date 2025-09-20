@@ -2,7 +2,7 @@ import { Product } from '../types'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useFiltersContext } from '../../../common/contexts/filters-context'
 import { useOnlineStatus } from '../../../common/contexts/online-context'
-import { getProducts, paginateProducts, aggregateProducts } from '../api'
+import { getProducts, paginateProducts } from '../api'
 import { useProductFiltersContext } from '../contexts/product-filters-context'
 import { StatusGroup } from '../types'
 import qs from 'query-string'
@@ -66,13 +66,13 @@ export const useFetchProducts = () => {
       }
     })
     getProducts(queryString, selectedCategory).then((data) => {
-      setProducts(data)
+      setProducts(data.data)
+      setStatusGroups(data.statusGroups)
       // @ts-ignore
-      window.electronAPI.upsertProducts(data)
+      window.electronAPI.upsertProducts(data.data)
     })
 
     paginateProducts(queryString, selectedCategory).then((data) => setTotalProductsCount(data))
-    aggregateProducts(queryString, selectedCategory).then(setStatusGroups)
     fetchCategories(queryString)
   }, [query])
 

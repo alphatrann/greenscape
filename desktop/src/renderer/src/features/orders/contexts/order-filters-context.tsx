@@ -15,6 +15,7 @@ type OrderFiltersContextType = {
   setTo: Dispatch<SetStateAction<Date | undefined>>
   setShippingCost: Dispatch<SetStateAction<number | undefined>>
   setSelectedCountries: Dispatch<SetStateAction<string[]>>
+  reset: () => void
 }
 
 const OrderFiltersContext = createContext<OrderFiltersContextType | null>(null)
@@ -26,6 +27,15 @@ export const OrderFiltersProvider = ({ children }: { children: ReactNode }) => {
   const [to, setTo] = useState<Date | undefined>(undefined)
   const [shippingCost, setShippingCost] = useState<number | undefined>()
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
+
+  const reset = () => {
+    setTotal([null, null])
+    setStatus(undefined)
+    setFrom(undefined)
+    setTo(undefined)
+    setShippingCost(undefined)
+    setSelectedCountries([])
+  }
 
   return (
     <OrderFiltersContext.Provider
@@ -41,7 +51,8 @@ export const OrderFiltersProvider = ({ children }: { children: ReactNode }) => {
         selectedCountries,
         setSelectedCountries,
         shippingCost,
-        setShippingCost
+        setShippingCost,
+        reset
       }}
     >
       {children}

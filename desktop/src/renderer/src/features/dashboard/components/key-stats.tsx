@@ -8,85 +8,112 @@ import {
   CurrencyDollarIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { KeyStats as IKeyStats } from '../types'
 import { getGrowthRate } from '@renderer/features/dashboard/utils'
+import { startOfMonth } from 'date-fns'
+import { getKeyStats } from '../api'
+import { DateRangeSelect } from '@renderer/common/components'
+import { useDateRange } from '../hooks/use-date-range'
 
-export const KeyStats = ({
-  keyStats: {
-    thisMonthRevenue,
-    lastMonthRevenue,
-    thisMonthAvgOrderValue,
-    lastMonthAvgOrderValue,
-    lastMonthCustomers,
-    thisMonthCustomers,
-    thisMonthSales,
-    lastMonthSales
-  }
-}: {
-  keyStats: IKeyStats
-}) => {
+export const KeyStats = () => {
+  const [
+    {
+      thisUnitsSold,
+      thisSales,
+      lastUnitsSold,
+      lastSales,
+      thisCustomers,
+      thisAvgOrderValue,
+      lastCustomers,
+      lastAvgOrderValue
+    },
+    setKeyStats
+  ] = useState<IKeyStats>({
+    lastAvgOrderValue: 0,
+    lastCustomers: 0,
+    lastSales: 0,
+    lastUnitsSold: 0,
+    thisAvgOrderValue: 0,
+    thisCustomers: 0,
+    thisSales: 0,
+    thisUnitsSold: 0
+  })
+
+  const { from, to, onFromChange, onToChange } = useDateRange({
+    start: startOfMonth(new Date()),
+    end: new Date()
+  })
+
+  useEffect(() => {
+    if (!from || !to) return
+    getKeyStats(from, to).then(setKeyStats)
+  }, [from, to])
+
   const revenueGrowthRate = useMemo(
-    () => getGrowthRate(thisMonthRevenue, lastMonthRevenue),
-    [lastMonthRevenue, thisMonthRevenue]
+    () => getGrowthRate(thisSales, lastSales),
+    [lastSales, thisSales]
   )
-  const salesGrowthRate = useMemo(
-    () => getGrowthRate(thisMonthSales, lastMonthSales),
-    [thisMonthSales, lastMonthSales]
+  const unitsSoldGrowthRate = useMemo(
+    () => getGrowthRate(thisUnitsSold, lastUnitsSold),
+    [thisUnitsSold, lastUnitsSold]
   )
   const avgOrderGrowthRate = useMemo(
-    () => getGrowthRate(thisMonthAvgOrderValue, lastMonthAvgOrderValue),
-    [thisMonthAvgOrderValue, lastMonthAvgOrderValue]
+    () => getGrowthRate(thisAvgOrderValue, lastAvgOrderValue),
+    [thisAvgOrderValue, lastAvgOrderValue]
   )
   const customersGrowthRate = useMemo(
-    () => getGrowthRate(thisMonthCustomers, lastMonthCustomers),
-    [thisMonthCustomers, lastMonthCustomers]
+    () => getGrowthRate(thisCustomers, lastCustomers),
+    [thisCustomers, lastCustomers]
   )
 
   const stats = useMemo(
     () => [
       {
-        term: 'Total Revenue',
-        curMonth: formatPrice(thisMonthRevenue),
-        prevMonth: formatPrice(lastMonthRevenue),
+        term: 'Sales',
+        cur: formatPrice(thisSales),
+        prev: formatPrice(lastSales),
         rate: revenueGrowthRate,
         icon: CurrencyDollarIcon
       },
       {
-        term: 'Total Sales',
-        curMonth: thisMonthSales,
-        prevMonth: lastMonthSales,
-        rate: salesGrowthRate,
+        term: 'Units Sold',
+        cur: thisUnitsSold,
+        prev: lastUnitsSold,
+        rate: unitsSoldGrowthRate,
         icon: CreditCardIcon
       },
       {
         term: 'Avg. Order Price',
-        curMonth: formatPrice(thisMonthAvgOrderValue),
-        prevMonth: formatPrice(lastMonthAvgOrderValue),
+        cur: formatPrice(thisAvgOrderValue),
+        prev: formatPrice(lastAvgOrderValue),
         rate: avgOrderGrowthRate,
         icon: BanknotesIcon
       },
       {
         term: 'Customers',
-        curMonth: thisMonthCustomers,
-        prevMonth: lastMonthCustomers,
+        cur: thisCustomers,
+        prev: lastCustomers,
         rate: customersGrowthRate,
         icon: UserGroupIcon
       }
     ],
     [
-      thisMonthAvgOrderValue,
-      lastMonthAvgOrderValue,
-      thisMonthCustomers,
-      lastMonthCustomers,
-      thisMonthSales,
-      lastMonthSales
+      thisAvgOrderValue,
+      lastAvgOrderValue,
+      thisCustomers,
+      lastCustomers,
+      thisUnitsSold,
+      lastUnitsSold
     ]
   )
 
   return (
     <div>
-      <h3 className="text-base font-semibold leading-6 text-gray-900">This month</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">Key Metrics</h3>
+        <DateRangeSelect from={from} to={to} onFromChange={onFromChange} onToChange={onToChange} />
+      </div>
       <dl className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.term}>
@@ -96,7 +123,7 @@ export const KeyStats = ({
             </CardHeader>
             <CardContent className="mt-1">
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-semibold text-gray-900">{stat.curMonth}</span>
+                <span className="text-2xl font-semibold text-gray-900">{stat.cur}</span>
                 <div className="ml-2">
                   {isFinite(stat.rate) && (
                     <>
@@ -119,9 +146,7 @@ export const KeyStats = ({
                   )}
                 </div>
               </div>
-              <div className="mt-1 text-sm font-medium text-muted-foreground">
-                from {stat.prevMonth}
-              </div>
+              <div className="mt-1 text-sm font-medium text-muted-foreground">from {stat.prev}</div>
             </CardContent>
           </Card>
         ))}

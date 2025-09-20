@@ -4,6 +4,7 @@ import { useUserStore } from '../store'
 import { getCurrentUser } from '../api'
 import { AppRoute } from '@renderer/common/app-route'
 import { Loading } from '@renderer/common/components/loading'
+import { useOnlineStatus } from '../../../common/contexts/online-context'
 
 export const useUserGuard = () => {
   const navigate = useNavigate()
@@ -11,6 +12,7 @@ export const useUserGuard = () => {
 
   const user = useUserStore((state) => state.user)
   const setCurrentUser = useUserStore((state) => state.setCurrentUser)
+  const online = useOnlineStatus()
 
   const [checking, setChecking] = useState(false)
 
@@ -19,15 +21,7 @@ export const useUserGuard = () => {
   }
 
   useEffect(() => {
-    if (user) {
-      // Already logged in, block access to login page
-      if (location.pathname === AppRoute.Login) {
-        navigate(AppRoute.Home, { replace: true })
-      }
-      return
-    }
-
-    // If no user, check from API
+    if (!online) return
     setChecking(true)
     getCurrentUser()
       .then((data) => {
@@ -45,7 +39,7 @@ export const useUserGuard = () => {
         if (location.pathname !== AppRoute.Login) redirectToLogin()
       })
       .finally(() => setChecking(false))
-  }, [user, location.pathname])
+  }, [online, location.pathname])
 
   // Optional: block rendering until check finishes
   if (checking && !user) return <Loading />

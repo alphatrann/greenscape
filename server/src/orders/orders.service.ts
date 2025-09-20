@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrderDto, FindManyOrdersDto, UpdateOrderDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { formQueries } from './utils';
+import { allowedCountries } from '../common/utils';
 
 @Injectable()
 export class OrdersService {
@@ -24,6 +25,8 @@ export class OrdersService {
     ...findManyOrdersDto
   }: FindManyOrdersDto) {
     const { where, orderBy } = formQueries(findManyOrdersDto);
+
+    // --- Paginated data
     const orders = await this.prisma.order.findMany({
       take: limit,
       skip: offset,
@@ -40,25 +43,70 @@ export class OrdersService {
       },
       orderBy,
     });
+
+    // --- Aggregates (ignoring pagination)
     const count = await this.prisma.order.count({ where });
+    const delivered = await this.prisma.order.aggregate({
+      _sum: { total: true },
+      _count: { _all: true },
+      where: { ...where, deliveredAt: { not: null } },
+    });
+
+    const pending = await this.prisma.order.aggregate({
+      _sum: { total: true },
+      _count: { _all: true },
+      where: { ...where, deliveredAt: null },
+    });
+
+    const shippingGroups = await this.prisma.order.groupBy({
+      by: ['shippingCost'],
+      _sum: { total: true },
+      _count: { _all: true },
+      where: { ...where, shippingCost: undefined },
+    });
+
+    const countryGroups = await this.prisma.order.groupBy({
+      by: ['country'],
+      _sum: { total: true },
+      _count: { _all: true },
+      where: { ...where, country: undefined },
+    });
+
+    const sales = await this.prisma.order.aggregate({
+      _sum: { total: true },
+      _count: { _all: true },
+      where,
+    });
+
+    const noOrderCountryGroups = allowedCountries
+      .filter((c) => !countryGroups.some((g) => g.country === c))
+      .map((c) => ({ country: c, _sum: { total: 0 }, _count: { _all: 0 } }));
 
     return {
       data: orders,
       count,
+      sales: sales._sum.total,
+      deliveryStatusGroups: {
+        delivered: {
+          count: delivered._count._all,
+          total: delivered._sum.total,
+        },
+        pending: {
+          count: pending._count._all,
+          total: pending._sum.total,
+        },
+      },
+      shippingGroups: shippingGroups.map((g) => ({
+        shippingCost: g.shippingCost,
+        total: g._sum.total,
+        count: g._count._all,
+      })),
+      countryGroups: [...countryGroups, ...noOrderCountryGroups].map((g) => ({
+        country: g.country,
+        total: g._sum.total,
+        count: g._count._all,
+      })),
     };
-  }
-
-  async aggregate(
-    field: 'deliveredAt' | 'country' | 'shippingCost',
-    findManyOrdersDto: FindManyOrdersDto,
-  ) {
-    const { where } = formQueries(findManyOrdersDto);
-    delete where[field];
-    return this.prisma.order.groupBy({
-      by: field,
-      _count: { id: true },
-      where,
-    });
   }
 
   findOne(id: string) {

@@ -8,6 +8,12 @@ export enum Status {
   Archived = 'Archived'
 }
 
+export interface GetProductsResponse {
+  success: boolean
+  data: Product[]
+  statusGroups: StatusGroup[]
+}
+
 export interface Product {
   id: number
   name: string
@@ -40,6 +46,6 @@ export interface ProductFormDto {
 }
 
 export interface StatusGroup {
-  _count: { id: number }
+  count: number
   status: Status
 }

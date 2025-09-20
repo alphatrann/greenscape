@@ -14,7 +14,7 @@ export const TotalFilter = () => {
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 border-dashed font-normal">
           <PlusCircleIcon className="mr-2 h-4 w-4" />
-          Price
+          Total
           {total[0] || total[1] ? (
             <span>
               : {total[0] ? formatPrice(+total[0]) : 'Under '}

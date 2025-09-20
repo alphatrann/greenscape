@@ -1,4 +1,4 @@
-import { CopyButton } from '@renderer/common/components'
+import { CopyButton, CountryFlag } from '@renderer/common/components'
 import { formatPrice } from '@renderer/common/utils'
 import { Badge } from '@renderer/features/ui/badge'
 import { Button } from '@renderer/features/ui/button'
@@ -52,16 +52,23 @@ export const columns: ColumnDef<Order>[] = [
     id: 'country',
     accessorKey: 'country',
     header: 'Country',
-    cell: ({ row }) => <div>{getCountryName(row.original.country || '')}</div>
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center gap-x-3">
+          {row.original.country && <CountryFlag code={row.original.country} />}
+          {getCountryName(row.original.country ?? '')}
+        </div>
+      )
+    }
   },
   {
     id: 'shippingCost',
     accessorKey: 'shippingCost',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Shipping Option" />,
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
+      <Badge variant={row.original.shippingCost === 0 ? 'secondary' : 'default'}>
         {getShippingOption(+row.original.shippingCost)}
-      </div>
+      </Badge>
     )
   },
   {

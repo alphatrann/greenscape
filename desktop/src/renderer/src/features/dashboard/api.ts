@@ -1,49 +1,60 @@
-import { KeyStats, SaleByCountry, YearRevenuesResponse } from './types'
+import { KeyStats, SalesByCountry, YearSalesResponse } from './types'
+import { getDateString } from './utils'
 
-export const getKeyStats = async (): Promise<KeyStats> => {
+export const getKeyStats = async (start: Date, end: Date): Promise<KeyStats> => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/key`, {
-      credentials: 'include'
-    })
+    const startStr = getDateString(start)
+    const endStr = getDateString(end)
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/stats/key?start=${startStr}&end=${endStr}`,
+      {
+        credentials: 'include'
+      }
+    )
     const data = await response.json()
 
     return data.data as KeyStats
   } catch {
     return {
-      lastMonthAvgOrderValue: 0,
-      lastMonthCustomers: 0,
-      lastMonthRevenue: 0,
-      lastMonthSales: 0,
-      thisMonthAvgOrderValue: 0,
-      thisMonthCustomers: 0,
-      thisMonthRevenue: 0,
-      thisMonthSales: 0
+      lastAvgOrderValue: 0,
+      lastCustomers: 0,
+      lastSales: 0,
+      lastUnitsSold: 0,
+      thisAvgOrderValue: 0,
+      thisCustomers: 0,
+      thisSales: 0,
+      thisUnitsSold: 0
     }
   }
 }
 
-export const getMonthlyRevenuesInYear = async (year: number): Promise<YearRevenuesResponse> => {
+export const getMonthlySalesInYear = async (year: number): Promise<YearSalesResponse> => {
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/year/${year}`, {
       credentials: 'include'
     })
     const data = await response.json()
 
-    return data.data as YearRevenuesResponse
+    return data.data as YearSalesResponse
   } catch {
     const currentYear = new Date().getFullYear()
-    return { startYear: currentYear, endYear: currentYear, monthlyRevenues: [] }
+    return { startYear: currentYear, monthlySales: [] }
   }
 }
 
-export const getSalesByCountries = async () => {
+export const getSalesByCountries = async (start: Date, end: Date) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/countries`, {
-      credentials: 'include'
-    })
+    const startStr = getDateString(start)
+    const endStr = getDateString(end)
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/stats/countries?start=${startStr}&end=${endStr}`,
+      {
+        credentials: 'include'
+      }
+    )
     const data = await response.json()
 
-    return data.data as SaleByCountry[]
+    return data.data as SalesByCountry[]
   } catch {
     return []
   }

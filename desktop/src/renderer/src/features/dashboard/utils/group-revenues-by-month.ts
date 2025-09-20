@@ -1,24 +1,25 @@
-import { MonthlyRevenue } from '../types'
+import { MonthlySales } from '../types'
 
-export const groupRevenuesByMonths = (monthlyRevenues: MonthlyRevenue[]) => {
+export const groupSalesByMonths = (monthlySales: MonthlySales[]) => {
   const revenuesEveryMonth = [
-    { month: 'Jan', revenue: 0 },
-    { month: 'Feb', revenue: 0 },
-    { month: 'Mar', revenue: 0 },
-    { month: 'Apr', revenue: 0 },
-    { month: 'May', revenue: 0 },
-    { month: 'Jun', revenue: 0 },
-    { month: 'Jul', revenue: 0 },
-    { month: 'Aug', revenue: 0 },
-    { month: 'Sep', revenue: 0 },
-    { month: 'Oct', revenue: 0 },
-    { month: 'Nov', revenue: 0 },
-    { month: 'Dec', revenue: 0 }
+    { month: 'Jan', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Feb', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Mar', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Apr', freeShipping: 0, nextDayAir: 0 },
+    { month: 'May', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Jun', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Jul', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Aug', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Sep', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Oct', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Nov', freeShipping: 0, nextDayAir: 0 },
+    { month: 'Dec', freeShipping: 0, nextDayAir: 0 }
   ]
 
-  monthlyRevenues.forEach((revenue) => {
-    const revenueMonth = new Date(revenue.createdAt).getMonth()
-    revenuesEveryMonth[revenueMonth].revenue += revenue.total
+  monthlySales.forEach((revenue) => {
+    const revenueMonthIndex = revenue.month - 1
+    const shippingOption = revenue.shippingCost === 0 ? 'freeShipping' : 'nextDayAir'
+    revenuesEveryMonth[revenueMonthIndex][shippingOption] += revenue.total
   })
   return revenuesEveryMonth
 }

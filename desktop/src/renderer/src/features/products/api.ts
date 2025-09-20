@@ -1,19 +1,6 @@
 import z from 'zod'
-import { Product, StatusGroup } from './types'
+import { GetProductsResponse, Product } from './types'
 import { formSchema } from './utils/schema'
-
-export const aggregateProducts = async (query = '', slug = ''): Promise<StatusGroup[]> => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/products/aggregate${slug ? `/${slug}` : ''}${query}`,
-      { credentials: 'include' }
-    )
-    const data = (await response.json()) as { statusGroups: StatusGroup[]; success: boolean }
-    return data.statusGroups
-  } catch {
-    return []
-  }
-}
 
 export const createProduct = async (dto: z.infer<typeof formSchema>) => {
   try {
@@ -56,15 +43,15 @@ export const getProduct = async (slug: string) => {
   }
 }
 
-export const getProducts = async (query = '', slug = ''): Promise<Product[]> => {
+export const getProducts = async (query = '', slug = ''): Promise<GetProductsResponse> => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/products${slug ? `/category/${slug}` : ''}${query}`,
       { credentials: 'include' }
     )
-    const data = await response.json()
-    if (!data.success) throw new Error(data.message)
-    return data.data as Product[]
+    const data = (await response.json()) as GetProductsResponse
+    if (!data.success) throw new Error('Error fetching products')
+    return data
   } catch (error: any) {
     throw new Error(error.message)
   }

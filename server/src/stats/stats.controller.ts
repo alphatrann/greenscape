@@ -23,8 +23,8 @@ export class StatsController {
   }
 
   @Get('yr-revenues')
-  async getMonthlyRevenues(@Query('year', ParseIntPipe) year?: number) {
-    const stats = await this.statsService.getMonthlyRevenues(
+  async getMonthlySales(@Query('year', ParseIntPipe) year?: number) {
+    const stats = await this.statsService.getMonthlySales(
       year || new Date().getFullYear(),
     );
     return { data: stats, success: true };

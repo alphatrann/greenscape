@@ -15,8 +15,6 @@ interface CategoriesSelectProps {
   loading: boolean
 }
 
-const MAX_CATEGORY_DEPTH = 3
-
 export const CategoriesSelect = ({ form, categories, loading }: CategoriesSelectProps) => {
   return (
     <Card>
@@ -51,12 +49,7 @@ export const CategoriesSelect = ({ form, categories, loading }: CategoriesSelect
                     })
                   }
 
-                  form.setValue(
-                    'categoryIds',
-                    categoryIdsWithParents.size < MAX_CATEGORY_DEPTH
-                      ? []
-                      : Array.from(categoryIdsWithParents)
-                  )
+                  form.setValue('categoryIds', Array.from(categoryIdsWithParents))
                 }}
                 field="id"
               />

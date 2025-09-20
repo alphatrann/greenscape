@@ -1,26 +1,26 @@
 export interface KeyStats {
-  thisMonthRevenue: number
-  lastMonthRevenue: number
-  thisMonthAvgOrderValue: number
-  lastMonthAvgOrderValue: number
-  thisMonthSales: number
-  lastMonthSales: number
-  thisMonthCustomers: number
-  lastMonthCustomers: number
+  thisSales: number
+  lastSales: number
+  thisAvgOrderValue: number
+  lastAvgOrderValue: number
+  thisUnitsSold: number
+  lastUnitsSold: number
+  thisCustomers: number
+  lastCustomers: number
 }
 
-export interface MonthlyRevenue {
-  createdAt: Date
+export interface MonthlySales {
+  month: number
+  shippingCost: number
   total: number
 }
 
-export interface SaleByCountry {
+export interface SalesByCountry {
   country: string
-  _sum: number
+  sales: number
 }
 
-export interface YearRevenuesResponse {
+export interface YearSalesResponse {
   startYear: number
-  endYear: number
-  monthlyRevenues: MonthlyRevenue[]
+  monthlySales: MonthlySales[]
 }

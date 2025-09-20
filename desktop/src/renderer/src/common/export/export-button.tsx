@@ -15,7 +15,7 @@ import { getOrders } from '../../features/orders/api'
 import { getShippingOption } from '../../features/orders/utils'
 import { getProducts } from '../../features/products/api'
 import { useFiltersContext } from '../contexts/filters-context'
-import { DateRangeFilter } from '../data-table'
+import { DateRangeSelect } from '../components'
 
 interface ExportButtonProps {
   entityType: 'products' | 'orders'
@@ -32,14 +32,14 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
     if (!exportFormat) return
     const queryString = `?limit=${total}`
     if (entityType === 'products') {
-      const products = await getProducts(queryString)
+      const data = await getProducts(queryString)
       // @ts-ignore
       window.electronAPI.exportData({
         type: entityType,
         format: exportFormat,
-        data: products
+        data: data
       })
-      toast.success(`Exported ${products.length} products successfully!`)
+      toast.success(`Exported ${data.data.length} products successfully!`)
     } else {
       if (!from || !to) return
       const { count, data } = await getOrders(
@@ -89,7 +89,7 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
         {entityType === 'orders' && (
           <>
             <DropdownMenuLabel>Date range</DropdownMenuLabel>
-            <DateRangeFilter
+            <DateRangeSelect
               placeholder="Select date range"
               from={from}
               to={to}

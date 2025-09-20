@@ -11,17 +11,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/p
 import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
 import { CircleIcon, PlusCircleIcon } from 'lucide-react'
-import { ShippingOptionGroup } from '../types'
+import { ShippingGroup } from '../types'
 import { getShippingOption } from '../utils'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
 
 interface ShippingOptionFilterProps {
-  shippingOptionGroups: ShippingOptionGroup[]
+  shippingGroups: ShippingGroup[]
 }
 
-export const ShippingOptionFilter: React.FC<ShippingOptionFilterProps> = ({
-  shippingOptionGroups
-}) => {
+export const ShippingOptionFilter: React.FC<ShippingOptionFilterProps> = ({ shippingGroups }) => {
   const { shippingCost, setShippingCost } = useOrderFiltersContext()
 
   return (
@@ -55,19 +53,16 @@ export const ShippingOptionFilter: React.FC<ShippingOptionFilterProps> = ({
                     <CircleIcon className="h-2 w-2 fill-current" />
                   </div>
                   <span>{getShippingOption(option)}</span>
-                  {shippingOptionGroups.find((group) => +group.shippingCost === option)?._count !==
+                  {shippingGroups.find((group) => +group.shippingCost === option)?.count !==
                     null && (
                     <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                      {
-                        shippingOptionGroups.find((group) => +group.shippingCost === option)?._count
-                          .id
-                      }
+                      {shippingGroups.find((group) => +group.shippingCost === option)?.count}
                     </span>
                   )}
                 </CommandItem>
               ))}
             </CommandGroup>
-            {shippingCost !== null && (
+            {shippingCost !== undefined && (
               <>
                 <CommandSeparator />
                 <CommandGroup>

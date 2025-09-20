@@ -17,12 +17,11 @@ import { CheckIcon } from 'lucide-react'
 import { CountryGroup } from '../types'
 import { getCountryName } from '../utils'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
+import { CountryFlag } from '../../../common/components/country-flag'
 
 interface CountriesFilterProps {
   countryGroups: CountryGroup[]
 }
-
-const allowedCountries = ['US', 'CA', 'GB', 'AU', 'SG', 'JP', 'VN']
 
 export const CountriesFilter: React.FC<CountriesFilterProps> = ({ countryGroups }) => {
   const { selectedCountries, setSelectedCountries } = useOrderFiltersContext()
@@ -42,13 +41,11 @@ export const CountriesFilter: React.FC<CountriesFilterProps> = ({ countryGroups 
                     {selectedCountries.length} selected
                   </Badge>
                 ) : (
-                  allowedCountries
-                    .filter((c) => selectedCountries.includes(c))
-                    .map((c) => (
-                      <Badge variant="secondary" key={c} className="rounded-sm px-1 font-normal">
-                        {getCountryName(c)}
-                      </Badge>
-                    ))
+                  selectedCountries.map((c) => (
+                    <Badge variant="secondary" key={c} className="rounded-sm px-1 font-normal">
+                      {getCountryName(c)}
+                    </Badge>
+                  ))
                 )}
               </div>
             </>
@@ -61,22 +58,22 @@ export const CountriesFilter: React.FC<CountriesFilterProps> = ({ countryGroups 
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
-              {allowedCountries.map((c) => {
-                const isSelected = selectedCountries.includes(c)
+              {countryGroups.map((c) => {
+                const isSelected = selectedCountries.includes(c.country)
                 return (
                   <CommandItem
-                    key={c}
+                    key={c.country}
                     onSelect={() => {
                       if (isSelected) {
-                        setSelectedCountries(selectedCountries.filter((sc) => sc !== c))
+                        setSelectedCountries(selectedCountries.filter((sc) => sc !== c.country))
                       } else {
-                        setSelectedCountries([...selectedCountries, c])
+                        setSelectedCountries([...selectedCountries, c.country])
                       }
                     }}
                   >
                     <div
                       className={cn(
-                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                        'mr-2 flex h-4.5 w-4.5 items-center justify-center rounded-sm border border-primary',
                         isSelected
                           ? 'bg-primary text-primary-foreground'
                           : 'opacity-50 [&_svg]:invisible'
@@ -84,10 +81,13 @@ export const CountriesFilter: React.FC<CountriesFilterProps> = ({ countryGroups 
                     >
                       <CheckIcon className={'h-4 w-4 text-white'} />
                     </div>
-                    <span>{getCountryName(c)}</span>
-                    {countryGroups.find((group) => group.country === c)?._count && (
+                    <div className="flex items-center gap-x-3">
+                      <CountryFlag code={c.country} />
+                      <span>{getCountryName(c.country)}</span>
+                    </div>
+                    {c.count > 0 && (
                       <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {countryGroups.find((group) => group.country === c)?._count.id}
+                        {c.count}
                       </span>
                     )}
                   </CommandItem>

@@ -1,11 +1,9 @@
-'use client'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 import {
   DataTable,
   DataTablePagination,
   DataTableViewOptions,
-  DateRangeFilter,
   useTable
 } from '@renderer/common/data-table'
 import { Category } from '@renderer/features/categories/types'
@@ -20,6 +18,7 @@ import { columns } from './columns'
 import { InStockFilter } from './in-stock-filter'
 import { PriceFilter } from './price-filter'
 import { StatusFilter } from './status-filter'
+import { DateRangeSelect } from '@renderer/common/components'
 
 interface ProductsTableProps {
   products: Product[]
@@ -67,7 +66,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
           />
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <CategoriesFilter categories={categories} />
-            <DateRangeFilter from={from} to={to} onFromChange={setFrom} onToChange={setTo} />
+            <DateRangeSelect from={from} to={to} onFromChange={setFrom} onToChange={setTo} />
             <StatusFilter statusGroups={statusGroups} />
             <PriceFilter />
             <InStockFilter />

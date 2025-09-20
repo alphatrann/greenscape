@@ -49,12 +49,12 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
                       status === s ? 'text-primary' : 'opacity-50 [&_svg]:invisible'
                     )}
                   >
-                    <CircleIcon />
+                    <CircleIcon className="fill-current h-2 w-2" />
                   </div>
                   <span>{s}</span>
-                  {statusGroups.find((group) => group.status === s)?._count && (
+                  {statusGroups.find((group) => group.status === s)?.count && (
                     <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                      {statusGroups.find((group) => group.status === s)?._count.id}
+                      {statusGroups.find((group) => group.status === s)?.count}
                     </span>
                   )}
                 </CommandItem>

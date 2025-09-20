@@ -11,14 +11,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/p
 import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
 import { CircleIcon, PlusCircleIcon } from 'lucide-react'
-import { DeliveryStatus, StatusGroup } from '../types'
+import { DeliveryStatus, OrdersResponse } from '../types'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
 
 interface StatusFilterProps {
-  statusGroups: StatusGroup[]
+  deliveryStatusGroup: OrdersResponse['deliveryStatusGroups']
 }
 
-export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
+export const StatusFilter: React.FC<StatusFilterProps> = ({ deliveryStatusGroup }) => {
   const { status, setStatus } = useOrderFiltersContext()
 
   return (
@@ -52,17 +52,11 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
                     <CircleIcon className="h-2 w-2 fill-current" />
                   </div>
                   <span className="capitalize">{s}</span>
-                  {statusGroups.find(
-                    (group) => (group.deliveredAt === null ? 'pending' : 'delivered') === s
-                  )?._count && (
-                    <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                      {
-                        statusGroups.find(
-                          (group) => (group.deliveredAt === null ? 'pending' : 'delivered') === s
-                        )?._count.id
-                      }
-                    </span>
-                  )}
+                  <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+                    {s === DeliveryStatus.Pending
+                      ? deliveryStatusGroup.pending.count
+                      : deliveryStatusGroup.delivered.count}
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -1,14 +1,4 @@
-import { Order, OrdersResponse, OrdersAggregate } from './types'
-
-export const aggregateOrders = async (query = '') => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/orders/aggregate${query}`, {
-    credentials: 'include'
-  })
-  const data = await response.json()
-  if (!data.success) throw new Error(data.message || 'Failed to fetch order aggregates')
-
-  return data.data as OrdersAggregate
-}
+import { Order, OrdersResponse } from './types'
 
 export const getOrder = async (id: string) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/orders/details/${id}`, {

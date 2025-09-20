@@ -1,9 +1,9 @@
-import { aggregateOrders, getOrders } from '@renderer/features/orders/api'
+import { getOrders } from '@renderer/features/orders/api'
 import { OrdersTable } from '@renderer/features/orders/components/orders-table'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
 import { useOrderFiltersContext } from '../features/orders/contexts/order-filters-context'
 import { useEffect, useState } from 'react'
-import { Order, OrdersAggregate } from '../features/orders/types'
+import { Order, OrdersResponse } from '../features/orders/types'
 import { useFiltersContext } from '../common/contexts/filters-context'
 import qs from 'query-string'
 import { useTable } from '../common/data-table'
@@ -22,10 +22,11 @@ export default function OrdersPage() {
     reset
   } = useFiltersContext()
   const [orders, setOrders] = useState<Order[]>([])
-  const [groups, setGroups] = useState<OrdersAggregate>({
+  const [sales, setSales] = useState(0)
+  const [groups, setGroups] = useState<Omit<OrdersResponse, 'sales' | 'data' | 'count'>>({
     countryGroups: [],
-    shippingOptionGroups: [],
-    statusGroups: []
+    shippingGroups: [],
+    deliveryStatusGroups: { delivered: { count: 0, total: 0 }, pending: { count: 0, total: 0 } }
   })
   const table = useTable(columns, orders, totalCount)
 
@@ -53,9 +54,10 @@ export default function OrdersPage() {
           order
         }
       })
-      const { data, count } = await getOrders(query)
+      const { data, count, sales, ...groups } = await getOrders(query)
+      setGroups(groups)
+      setSales(sales)
       setTotalCount(count)
-      const groups = await aggregateOrders(query)
       setGroups(groups)
       setOrders(data)
     }
@@ -76,9 +78,10 @@ export default function OrdersPage() {
         <div className="mt-6 space-y-3">
           <OrdersTable
             table={table}
+            sales={sales}
             countryGroups={groups.countryGroups}
-            shippingOptionGroups={groups.shippingOptionGroups}
-            statusGroups={groups.statusGroups}
+            shippingGroups={groups.shippingGroups}
+            deliveryStatusGroups={groups.deliveryStatusGroups}
           />
         </div>
       </div>

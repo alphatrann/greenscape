@@ -28,29 +28,36 @@ interface OrdersOnProducts {
   }
 }
 
-export interface StatusGroup {
-  _count: { id: number }
-  deliveredAt: null | Date
+export interface ShippingGroup {
+  shippingCost: number
+  count: number
+  total: number
 }
 
 export interface CountryGroup {
-  _count: { id: number }
   country: string
-}
-export interface ShippingOptionGroup {
-  _count: { id: number }
-  shippingCost: number
+  count: number
+  total: number
 }
 
-export interface OrdersAggregate {
-  statusGroups: StatusGroup[]
-  countryGroups: CountryGroup[]
-  shippingOptionGroups: ShippingOptionGroup[]
+export interface DeliveryStatusGroups {
+  delivered: {
+    count: number
+    total: number
+  }
+  pending: {
+    count: number
+    total: number
+  }
 }
 
 export interface OrdersResponse {
   data: Order[]
   count: number
+  sales: number
+  deliveryStatusGroups: DeliveryStatusGroups
+  shippingGroups: ShippingGroup[]
+  countryGroups: CountryGroup[]
 }
 
 export enum DeliveryStatus {

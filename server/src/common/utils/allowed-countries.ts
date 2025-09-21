@@ -23,5 +23,4 @@ export const allowedCountries: Stripe.Checkout.SessionCreateParams.ShippingAddre
     'IE',
     'AT',
     'PT',
-    'NZ',
   ];

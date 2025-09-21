@@ -1,19 +1,17 @@
 "use client";
 
-import qs from "query-string";
 import { Category } from "@/features/categories/types";
+import { useParams, useRouter } from "next/navigation";
+import qs from "query-string";
+import { useEffect, useRef } from "react";
+import { searchCategory } from "../categories/utils";
 import { Breadcrumb } from "../ui/breadcrumb";
 import { DesktopFilter, MobileFilter } from "./filter";
+import { useHydrateQueryStore, useQueryStore } from "./hooks";
 import { Pagination } from "./pagination";
 import { ProductList } from "./product-list";
 import { SortSelect } from "./sort";
 import { Product } from "./types";
-import { useQueryStore } from "./hooks";
-import { useEffect } from "react";
-import { searchCategory } from "../categories/utils";
-import { useRouter } from "next/navigation";
-import { useDebouncedCallback } from "use-debounce";
-import { PAGE_SIZE } from "../../constants";
 
 interface ProductsClientProps {
   count: number;
@@ -26,6 +24,7 @@ export const ProductsClient = ({
   categories,
   products,
 }: ProductsClientProps) => {
+  useHydrateQueryStore();
   const router = useRouter();
   const minPrice = useQueryStore((state) => state.minPrice);
   const page = useQueryStore((state) => state.page);
@@ -34,32 +33,48 @@ export const ProductsClient = ({
   const order = useQueryStore((state) => state.order);
   const outOfStockIncluded = useQueryStore((state) => state.outOfStockIncluded);
   const selectedCategory = useQueryStore((state) => state.selectedCategory);
+  const params = useParams();
 
-  const applyQuery = useDebouncedCallback(() => {
-    const offset = (page - 1) * PAGE_SIZE;
+  const hydrated = useRef(false);
+
+  useEffect(() => {
+    if (!hydrated.current) {
+      hydrated.current = true;
+      return; // skip first run
+    }
+
+    if (params?.slug && selectedCategory !== params.slug.at(-1)) {
+      return;
+    }
+
     let url = "/products";
+
     if (selectedCategory) {
       const [path] = searchCategory(categories, selectedCategory, "slug");
       if (!path || path.length === 0) return;
       url += "/category/" + path.map((c) => c.slug).join("/");
     }
-    const inStock = outOfStockIncluded ? undefined : "true";
+
+    const inStock = outOfStockIncluded ? undefined : "1";
 
     const urlWithQueries = qs.stringifyUrl({
       url,
       query: {
-        price: `${minPrice || ""},${maxPrice || ""}`,
-        offset: offset > count ? 0 : offset,
-        inStock, // undefined to remove the key-value pair from the URL
-        sortBy,
-        order,
+        price:
+          minPrice !== null || maxPrice !== null
+            ? `${minPrice || ""}-${maxPrice || ""}`
+            : undefined,
+        page: page === 1 ? undefined : page,
+        inStock,
+        sortBy: sortBy || undefined,
+        order: order || undefined,
       },
     });
-    router.push(urlWithQueries, { scroll: false });
-  }, 500);
 
-  useEffect(() => {
-    applyQuery();
+    const currentUrl = window.location.pathname + window.location.search;
+    if (currentUrl !== urlWithQueries) {
+      router.push(urlWithQueries, { scroll: false });
+    }
   }, [
     minPrice,
     maxPrice,
@@ -68,7 +83,7 @@ export const ProductsClient = ({
     order,
     outOfStockIncluded,
     selectedCategory,
-    categories,
+    count,
   ]);
 
   return (
@@ -91,7 +106,7 @@ export const ProductsClient = ({
           </div>
 
           {products.length === 0 ? (
-            <div className="h-1/4 flex flex-col justify-center">
+            <div className="h-1/4 px-4 flex flex-col justify-center">
               <h2 className="text-2xl font-bold tracking-tight mt-4 text-gray-900 sm:text-3xl">
                 No products found
               </h2>

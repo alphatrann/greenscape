@@ -56,10 +56,28 @@ export class ProductsService {
     productId: number,
     imagesUploadDto: UploadFileDto[],
   ) {
-    const keys = await this.filesService.createMany(imagesUploadDto);
-    await this.prisma.image.createMany({
-      data: keys.map((key) => ({ fileId: key, productId })),
-    });
+    try {
+      const keys = await this.filesService.createMany(imagesUploadDto);
+      await this.prisma.image.createMany({
+        data: keys.map((key) => ({ fileId: key, productId })),
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === PrismaError.RecordNotFound) {
+          throw new NotFoundException('Product not found');
+        }
+        if (error.code === PrismaError.ForeignViolation) {
+          throw new BadRequestException({
+            success: false,
+            message: 'Some files are not found',
+          });
+        }
+      }
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Internal Server Error',
+      });
+    }
   }
 
   async findOne(id: number) {
@@ -106,6 +124,25 @@ export class ProductsService {
     return this.prisma.product.count({ where });
   }
 
+  async findCartProducts(ids: number[]) {
+    if (ids.length === 0) return [];
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: ids } },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        inStock: true,
+        price: true,
+        images: {
+          select: { file: { select: { id: true, url: true } } },
+          take: 1,
+        },
+      },
+    });
+    return products;
+  }
+
   async findAll(
     { limit = 10, offset = 0, ...dto }: FindManyProductsDto,
     slug?: string,
@@ -123,7 +160,7 @@ export class ProductsService {
           name: true,
           inStock: true,
           price: true,
-          categories: { select: { id: true } },
+          categories: { select: { id: true, slug: true } },
           createdAt: true,
           status: true,
           images: {

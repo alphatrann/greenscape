@@ -20,8 +20,28 @@ export const useUserGuard = () => {
     navigate(`${AppRoute.Login}?callback=${location.pathname}`)
   }
 
+  const loadFromLocalStorage = () => {
+    const storedUser = localStorage.getItem('currentUser')
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser)
+        setCurrentUser(parsedUser)
+        navigate(location.pathname === AppRoute.Login ? AppRoute.Home : location.pathname, {
+          replace: true
+        })
+      } catch {
+        navigate(`${AppRoute.Login}?callback=${location.pathname}`, { replace: true })
+        return false
+      }
+    }
+    return false
+  }
+
   useEffect(() => {
-    if (!online) return
+    if (!online) {
+      loadFromLocalStorage()
+      return
+    }
     setChecking(true)
     getCurrentUser()
       .then((data) => {

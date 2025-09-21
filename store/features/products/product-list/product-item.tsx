@@ -21,7 +21,8 @@ export const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
         height={600}
         className="rounded-md object-cover transition-opacity group-hover:opacity-75 aspect-square"
         src={
-          product.images[0].file.url || getLocalImage(product.images[0].file.id)
+          product.images[0]?.file.url ||
+          getLocalImage(product.images[0]?.file.id)
         }
       />
 

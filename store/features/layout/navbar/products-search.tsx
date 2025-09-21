@@ -16,16 +16,23 @@ import Image from "next/image";
 import { Product } from "@/features/products/types";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { getLocalImage } from "../../categories/utils";
 
 export const ProductsSearch = () => {
   const [open, setOpen] = useState(false);
   const { term, onChange, results } = useSearchProducts();
   const plants = useMemo(
-    () => results.filter((result) => result.categories[0].slug === "plants"),
+    () =>
+      results.filter((result) =>
+        result.categories.some((cat) => cat.slug === "plants")
+      ),
     [results]
   );
   const care = useMemo(
-    () => results.filter((result) => result.categories[0].slug === "care"),
+    () =>
+      results.filter((result) =>
+        result.categories.some((cat) => cat.slug === "care")
+      ),
     [results]
   );
 
@@ -99,7 +106,10 @@ const SearchResultsGroup = ({
             <Image
               width={100}
               height={100}
-              src={product.images[0].file.url}
+              src={
+                product.images[0].file.url ||
+                getLocalImage(product.images[0].file.id)
+              }
               alt={product.name + " image"}
               className="w-12 h-12 rounded-sm aspect-square object-cover"
             />

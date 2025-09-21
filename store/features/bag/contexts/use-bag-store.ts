@@ -5,13 +5,11 @@ import { toast } from "react-hot-toast";
 
 interface BagStore {
   bag: BagItem[];
-  totalPrice: number;
   getTotalQty: () => number;
   findBagItem: (id: number) => BagItem | undefined;
   addToBag: (bagItem: BagItem) => void;
   updateQty: (id: number, qty: number) => void;
   removeBagItem: (id: number) => void;
-
   clearBag: () => void;
 }
 

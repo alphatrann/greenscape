@@ -3,7 +3,6 @@ import { FindManyProductsDto } from './find-many-products.dto';
 
 export class FindManyStoreProductsDto extends OmitType(FindManyProductsDto, [
   'status',
-  'q',
   'from',
   'to',
 ]) {}

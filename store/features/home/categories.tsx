@@ -7,7 +7,7 @@ import { getLocalImage } from "../categories/utils";
 export const Categories = async () => {
   const plantsCategories = await getCategories(
     "?limit=3&sortBy=products&order=desc",
-    ""
+    "plants"
   );
   const careCategories = await getCategories(
     "?limit=2&sortBy=products&order=desc",

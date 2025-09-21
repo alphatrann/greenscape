@@ -38,7 +38,7 @@ export const MonthlySalesChart = () => {
       setMonthlySales(data.monthlySales)
       setStartYear(data.startYear)
     })
-  }, [])
+  }, [year])
 
   return (
     <Card className="md:col-span-3">
@@ -68,7 +68,7 @@ export const MonthlySalesChart = () => {
               content={
                 <ChartTooltipContent
                   hideLabel
-                  className="w-[180px]"
+                  className="min-w-[250px]"
                   formatter={(value, name, item, index) => (
                     <>
                       <div

@@ -16,6 +16,7 @@ interface CategoriesRadioMenuProps {
   trigger: ReactNode;
   selectedCategory?: CategoryRadioOption;
   onChange: (selectedCategory: string) => void;
+  disabled?: boolean;
   field: "id" | "slug";
 }
 
@@ -24,11 +25,14 @@ export const CategoriesRadioMenu = ({
   trigger,
   selectedCategory,
   onChange,
+  disabled = false,
   field,
 }: CategoriesRadioMenuProps) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuTrigger disabled={disabled} asChild>
+        {trigger}
+      </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuRadioGroup
           value={selectedCategory}
@@ -42,6 +46,7 @@ export const CategoriesRadioMenu = ({
                 <DropdownMenuRadioItem
                   className="min-w-[180px]"
                   value={`${category[field]}|${category.name}`}
+                  disabled={disabled}
                 >
                   {category.name}
                 </DropdownMenuRadioItem>

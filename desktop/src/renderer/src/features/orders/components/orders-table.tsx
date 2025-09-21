@@ -1,21 +1,22 @@
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { DateRangeSelect } from '@renderer/common/components'
+import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 import { DataTable, DataTablePagination, DataTableViewOptions } from '@renderer/common/data-table'
 import { Input } from '@renderer/features/ui/input'
 import { Table } from '@tanstack/react-table'
-import { useFiltersContext } from '@renderer/common/contexts/filters-context'
+import { formatPrice } from '../../../common/utils'
+import { Badge } from '../../ui/badge'
+import { Button } from '../../ui/button'
+import { TableCell, TableRow } from '../../ui/table'
+import { useOrderFiltersContext } from '../contexts/order-filters-context'
 import { CountryGroup, DeliveryStatusGroups, Order, ShippingGroup } from '../types'
+import { getShippingOption } from '../utils'
 import { columns } from './columns'
 import { CountriesFilter } from './countries-filter'
+import { CountryGroups } from './country-groups'
 import { ShippingOptionFilter } from './shipping-options-filter'
 import { StatusFilter } from './status-filter'
 import { TotalFilter } from './total-filter'
-import { useOrderFiltersContext } from '../contexts/order-filters-context'
-import { CountryFlag, DateRangeSelect } from '@renderer/common/components'
-import { TableCell, TableRow } from '../../ui/table'
-import { formatPrice } from '../../../common/utils'
-import { getCountryName, getShippingOption } from '../utils'
-import { Badge } from '../../ui/badge'
-import { Button } from '../../ui/button'
-import { XMarkIcon } from '@heroicons/react/24/outline'
 
 interface OrdersTableProps {
   table: Table<Order>
@@ -84,28 +85,15 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               {formatPrice(sales)}
             </TableCell>
             <TableCell colSpan={3}>
-              {countryGroups
-                .filter(
-                  (g) =>
-                    g.total > 0 &&
-                    (selectedCountries.length > 0 ? selectedCountries.includes(g.country) : true)
-                )
-                .map((group) => (
-                  <div key={group.country} className="flex justify-between items-center">
-                    <div className="flex items-center gap-x-3">
-                      <CountryFlag code={group.country} />
-                      <span className="text-sm font-medium text-foreground">
-                        {getCountryName(group.country)}
-                      </span>
-                    </div>
-                    <span className="font-mono text-sm text-muted-foreground">
-                      {formatPrice(group.total)} ({((group.total / sales) * 100).toFixed(2)}%)
-                    </span>
-                  </div>
-                ))}
+              <CountryGroups
+                countryGroups={countryGroups}
+                selectedCountries={selectedCountries}
+                sales={sales}
+              />
             </TableCell>
             <TableCell colSpan={2}>
               {shippingGroups
+                .sort((a, b) => b.total - a.total)
                 .filter((g) =>
                   shippingCost === undefined ? true : g.shippingCost === shippingCost
                 )
@@ -130,7 +118,12 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 ))}
             </TableCell>
             <TableCell colSpan={2}>
-              {(['Delivered', 'Pending'] as const)
+              {['Delivered', 'Pending']
+                .sort(
+                  (a, b) =>
+                    deliveryStatusGroups[b.toLowerCase()].total -
+                    deliveryStatusGroups[a.toLowerCase()].total
+                )
                 .filter(
                   (g) =>
                     deliveryStatusGroups[g.toLowerCase()].total > 0 &&

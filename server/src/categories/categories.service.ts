@@ -84,40 +84,46 @@ export class CategoriesService {
   }
 
   async getCategoryTree(parentId?: number) {
-    const categories = await this.prisma.category.findMany({
-      where: { parentCategoryId: parentId ?? null },
-      include: {
-        _count: { select: { products: true } },
-        products: {
-          include: {
-            orders: true, // OrdersOnProducts (qty)
-          },
-        },
-      },
-    });
+    const categories = await this.prisma.$queryRaw<
+      {
+        id: number;
+        name: string;
+        slug: string;
+        parentCategoryId: number | null;
+        productCount: number;
+        unitsSold: number;
+        sales: number;
+      }[]
+    >`
+    SELECT
+      c.id,
+      c.name,
+      c.slug,
+      c."parentCategoryId",
+      COUNT(DISTINCT p.id) AS "productCount",
+      COALESCE(SUM(o.qty), 0) AS "unitsSold",
+      COALESCE(SUM(o.qty * p.price), 0) AS "sales"
+    FROM "Category" c
+    LEFT JOIN "_CategoryToProduct" cp ON cp."A" = c.id
+    LEFT JOIN "Product" p ON p.id = cp."B"
+    LEFT JOIN "OrdersOnProducts" o ON o."productId" = p.id
+    WHERE c."parentCategoryId" IS NOT DISTINCT FROM ${parentId ?? null}
+    GROUP BY c.id, c.name, c.slug, c."parentCategoryId"
+    ORDER BY c.name;
+  `;
 
+    // recursively fetch subcategories
     return Promise.all(
       categories.map(async (cat) => {
-        // sales from this category’s products
-        const metrics = cat.products.reduce(
-          (acc, p) => ({
-            unitsSold: acc.unitsSold + p.orders.reduce((s, o) => s + o.qty, 0),
-            sales:
-              acc.sales + p.orders.reduce((s, o) => s + o.qty * p.price, 0),
-          }),
-          { unitsSold: 0, sales: 0 },
-        );
-
-        // recursively fetch subcategories
         const subCategories = await this.getCategoryTree(cat.id);
-
         return {
           id: cat.id,
           name: cat.name,
           slug: cat.slug,
-          _count: cat._count,
           parentCategoryId: cat.parentCategoryId,
-          ...metrics,
+          _count: { products: Number(cat.productCount) },
+          unitsSold: Number(cat.unitsSold),
+          sales: Number(cat.sales),
           subCategories,
         };
       }),

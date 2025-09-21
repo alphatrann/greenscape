@@ -76,13 +76,16 @@ export class CheckoutService implements OnModuleInit {
     }
   }
 
-  async checkout({ bag }: CheckoutDto) {
+  async checkout({ bag }: CheckoutDto, apiUrl: string) {
     const bagItemIds = bag.map((item) => item.productId);
     const bagItemQuantities = bag.map((item) => item.qty);
     const products = await this.prisma.product.findMany({
       where: { id: { in: bagItemIds } },
       include: {
-        images: { take: 1, select: { file: { select: { url: true } } } },
+        images: {
+          take: 1,
+          select: { file: { select: { id: true, url: true } } },
+        },
       },
     });
     if (products.length !== bagItemIds.length)
@@ -115,7 +118,9 @@ export class CheckoutService implements OnModuleInit {
           currency: 'USD',
           product_data: {
             name: item.name,
-            images: item.images.map((image) => image.file.url),
+            images: item.images.map(
+              (image) => image.file?.url || `${apiUrl}/files/${image.file.id}`,
+            ),
           },
           unit_amount: +(+item.price.toFixed(2) * 100).toFixed(2),
         },

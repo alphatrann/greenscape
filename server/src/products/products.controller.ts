@@ -18,6 +18,7 @@ import { ProductsService } from './products.service';
 import {
   CreateProductDto,
   DeleteImagesDto,
+  FindCartProductsDto,
   FindManyProductsDto,
   FindManyStoreProductsDto,
   FindRelatedProductsDto,
@@ -70,6 +71,12 @@ export class ProductsController {
       slug,
     );
     return { success: true, data: products, statusGroups };
+  }
+
+  @Get('cart')
+  async findCartProducts(@Query() { ids }: FindCartProductsDto) {
+    const cartProducts = await this.productsService.findCartProducts(ids);
+    return { success: true, data: cartProducts };
   }
 
   @Get('store')

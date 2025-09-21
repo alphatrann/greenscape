@@ -1,40 +1,29 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useBagStore } from "../contexts";
-import { BagItem } from "./bag-item";
-import Link from "next/link";
 import { Button } from "@/features/ui/button";
-import { Product } from "../../products/types";
-import { getProducts } from "../../products/actions";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { BagItem as IBagItem } from "../types";
+import { BagItem } from "./bag-item";
+import { Product } from "../../products/types";
+import { useBagStore } from "../contexts";
 
-export const BagList = () => {
+interface BagListProps {
+  cartProducts: (Product & IBagItem)[];
+}
+
+export const BagList = ({ cartProducts }: BagListProps) => {
   const [mounted, setMounted] = useState(false);
-  const [cartProducts, setCartProducts] = useState<(Product & IBagItem)[]>([]);
-  const { bag, clearBag } = useBagStore();
-
-  useEffect(() => {
-    const cartProductIds = bag.map((item) => item.id);
-
-    if (cartProductIds.length === 0) return;
-    const productQtyMap = new Map(bag.map((item) => [item.id, item.qty]));
-    getProducts(
-      `?ids=${cartProductIds.join(",")}&limit=${bag.length}&offset=0`
-    ).then((products) => {
-      setCartProducts(
-        products.map((p) => ({ ...p, qty: productQtyMap.get(p.id) ?? 0 }))
-      );
-    });
-  }, [bag]);
-
+  const clearBag = useBagStore((state) => state.clearBag);
   useEffect(() => setMounted(true), []);
+
   if (!mounted)
     return (
       <section className="lg:col-span-7 mt-8">
         <p className="text-muted-foreground">Loading bag...</p>
       </section>
     );
-  if (bag.length === 0)
+
+  if (cartProducts.length === 0)
     return (
       <section className="lg:col-span-7 mt-8">
         <p className="text-muted-foreground">Your bag is currently empty</p>

@@ -28,7 +28,7 @@ export class FindManyOrdersDto extends FindManyDto {
 
   @IsOptional()
   @Transform(({ value }: { value: string }) =>
-    value?.split('-').map((val) => +val),
+    value?.split('-').map((val) => +val * 100),
   )
   @Min(0, { each: true })
   @ArrayMinSize(2)

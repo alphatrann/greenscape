@@ -14,6 +14,7 @@ export const BagClient = () => {
   const [cartProducts, setCartProducts] = useState<(Product & BagItem)[]>([]);
   const bag = useBagStore((state) => state.bag);
   const clearBag = useBagStore((state) => state.clearBag);
+  const [mounted, setMounted] = useState(false);
 
   const total = useMemo(() => {
     return cartProducts.reduce((acc, item) => acc + item.price * item.qty, 0);
@@ -30,6 +31,7 @@ export const BagClient = () => {
   }, [searchParams]);
 
   useEffect(() => {
+    if (!mounted) return;
     const cartProductIds = bag.map((item) => item.id);
     if (cartProductIds.length === 0) {
       setCartProducts([]); // <-- clear local state when bag is empty
@@ -46,7 +48,11 @@ export const BagClient = () => {
         }))
       );
     });
-  }, [bag]);
+  }, [bag, mounted]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="lg:grid relative lg:grid-cols-12 lg:items-start lg:gap-x-12">

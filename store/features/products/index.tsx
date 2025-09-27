@@ -32,8 +32,8 @@ export const ProductsClient = ({
       </div>
       <div className="pt-12 lg:ml-0 lg:flex relative pb-24">
         <DesktopFilter categories={categories} />
-        <div className="mt-6 -ml-4 lg:ml-0 w-full space-y-4 lg:pl-12 lg:mt-0">
-          <div className="flex justify-between items-center gap-x-4">
+        <div className="mt-6 lg:ml-0 w-full space-y-4 lg:pl-12 lg:mt-0">
+          <div className="flex -ml-2 justify-between items-center gap-x-4">
             <MobileFilter categories={categories} />
             <SortSelect />
           </div>
@@ -48,7 +48,7 @@ export const ProductsClient = ({
               </p>
             </div>
           ) : (
-            <ProductList className="px-4 lg:px-0" products={products} />
+            <ProductList products={products} />
           )}
           <div className="mt-8 flex-1">
             <Pagination totalCount={count} />

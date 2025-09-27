@@ -29,7 +29,7 @@ export class CheckoutController {
     return { success: true, checkoutUrl };
   }
 
-  @Post('webhooks')
+  @Post('webhook')
   async handleAfterPayment(
     @Headers('stripe-signature') signature: string,
     @Req() req: ReqWithRawBody,

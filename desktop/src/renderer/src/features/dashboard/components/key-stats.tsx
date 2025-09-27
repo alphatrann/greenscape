@@ -71,29 +71,29 @@ export const KeyStats = () => {
     () => [
       {
         term: 'Sales',
-        cur: formatPrice(thisSales),
-        prev: formatPrice(lastSales),
+        cur: formatPrice(thisSales, { inCent: true }),
+        prev: formatPrice(lastSales, { inCent: true }),
         rate: revenueGrowthRate,
         icon: CurrencyDollarIcon
       },
       {
         term: 'Units Sold',
-        cur: thisUnitsSold,
-        prev: lastUnitsSold,
+        cur: thisUnitsSold.toLocaleString('en-US'),
+        prev: lastUnitsSold.toLocaleString('en-US'),
         rate: unitsSoldGrowthRate,
         icon: CreditCardIcon
       },
       {
         term: 'Avg. Order Price',
-        cur: formatPrice(thisAvgOrderValue),
-        prev: formatPrice(lastAvgOrderValue),
+        cur: formatPrice(thisAvgOrderValue, { inCent: true }),
+        prev: formatPrice(lastAvgOrderValue, { inCent: true }),
         rate: avgOrderGrowthRate,
         icon: BanknotesIcon
       },
       {
         term: 'Customers',
-        cur: thisCustomers,
-        prev: lastCustomers,
+        cur: thisCustomers.toLocaleString('en-US'),
+        prev: lastCustomers.toLocaleString('en-US'),
         rate: customersGrowthRate,
         icon: UserGroupIcon
       }

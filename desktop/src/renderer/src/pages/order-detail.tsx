@@ -65,7 +65,7 @@ export default function OrderDetailPage() {
           <div className="flex justify-between items-center">
             <div className="space-y-1">
               <h2 className="text-2xl font-bold leading-none tracking-tight">
-                {formatPrice(order.total)}
+                {formatPrice(order.total, { inCent: true })}
               </h2>
               <div className="group flex gap-x-3">
                 <p className="text-sm text-muted-foreground">

@@ -82,7 +82,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
         summaryRow={
           <TableRow className="bg-secondary">
             <TableCell className="font-medium text-right" colSpan={2}>
-              {formatPrice(sales)}
+              {formatPrice(sales, { inCent: true })}
             </TableCell>
             <TableCell colSpan={3}>
               <CountryGroups
@@ -112,7 +112,8 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                       </span>
                     </div>
                     <span className="font-mono text-sm text-muted-foreground">
-                      {formatPrice(group.total)} ({((group.total / sales) * 100).toFixed(2)}%)
+                      {formatPrice(group.total, { inCent: true })} (
+                      {((group.total / sales) * 100).toFixed(2)}%)
                     </span>
                   </div>
                 ))}
@@ -139,7 +140,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                       <span className="text-sm font-medium text-foreground">{group}</span>
                     </div>
                     <span className="font-mono text-sm text-muted-foreground">
-                      {formatPrice(deliveryStatusGroups[group.toLowerCase()].total)} (
+                      {formatPrice(deliveryStatusGroups[group.toLowerCase()].total, {
+                        inCent: true
+                      })}{' '}
+                      (
                       {((deliveryStatusGroups[group.toLowerCase()].total / sales) * 100).toFixed(2)}
                       %)
                     </span>

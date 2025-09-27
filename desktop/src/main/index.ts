@@ -21,7 +21,6 @@ import { File, Order, Product, ProductQuery } from './types'
 import { exportData } from './utils/export-data'
 
 const imagesDir = join(app.getPath('userData'), 'images')
-console.log({ userDataPath: app.getPath('userData') })
 
 if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir, { recursive: true })

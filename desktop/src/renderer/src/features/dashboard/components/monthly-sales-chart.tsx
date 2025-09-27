@@ -81,14 +81,16 @@ export const MonthlySalesChart = () => {
                       />
                       {chartConfig[name as keyof typeof chartConfig]?.label || name}
                       <div className="text-foreground ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums">
-                        {formatPrice(+value)}
+                        {formatPrice(+value, { inCent: true })}
                       </div>
                       {/* Add this after the last item */}
                       {index === 1 && (
                         <div className="text-foreground mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium">
                           Total
                           <div className="text-foreground ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums">
-                            {formatPrice(item.payload.freeShipping + item.payload.nextDayAir)}
+                            {formatPrice(item.payload.freeShipping + item.payload.nextDayAir, {
+                              inCent: true
+                            })}
                           </div>
                         </div>
                       )}

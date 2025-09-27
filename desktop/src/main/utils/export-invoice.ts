@@ -32,8 +32,10 @@ export const getPostalAddress = ({
     locality: city
   }).join('\n')
 
-export const formatPrice = (price: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price)
+export const formatPrice = (price: number, options?: { inCent: boolean }) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+    !options?.inCent ? price : price / 100
+  )
 
 export async function exportInvoice(order: any) {
   const { canceled, filePath } = await dialog.showSaveDialog({
@@ -116,20 +118,25 @@ export async function exportInvoice(order: any) {
   })
   doc.font('Geist-Medium').fontSize(12)
   doc.text(
-    `Shipping: ${formatPrice(order.shippingCost)} (${order.shippingOption})`,
+    `Shipping: ${formatPrice(order.shippingCost, { inCent: true })} (${order.shippingOption})`,
     doc.page.margins.left,
     doc.y,
     { width: pageWidth, align: 'right' }
   )
-  doc.text(`Tax: ${formatPrice(order.tax)}`, doc.page.margins.left, doc.y, {
+  doc.text(`Tax: ${formatPrice(order.tax, { inCent: true })}`, doc.page.margins.left, doc.y, {
     width: pageWidth,
     align: 'right'
   })
   doc.font('Geist-Bold').fontSize(14)
-  doc.text(`Total: ${formatPrice(order.total)}`, doc.page.margins.left, doc.y, {
-    width: pageWidth,
-    align: 'right'
-  })
+  doc.text(
+    `Total: ${formatPrice(order.total + order.shippingCost + order.tax, { inCent: true })}`,
+    doc.page.margins.left,
+    doc.y,
+    {
+      width: pageWidth,
+      align: 'right'
+    }
+  )
 
   // Footer
   doc.moveDown(4)

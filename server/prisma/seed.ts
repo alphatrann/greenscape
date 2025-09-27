@@ -225,20 +225,28 @@ async function main() {
     select: {
       id: true,
       total: true,
+      products: { select: { qty: true, product: { select: { price: true } } } },
     },
   });
 
-  for (const { id, total } of orders) {
+  for (const { id, products } of orders) {
     const randomDate = faker.date.past({ years: 5 });
     const shippingCost = faker.helpers.weightedArrayElement([
       { value: 0, weight: 0.8 },
       { value: 15, weight: 0.2 },
     ]);
+    const newTotal = products.reduce(
+      (acc, p) => acc + p.product.price * p.qty,
+      0,
+    );
+
     await prisma.order.update({
       where: { id },
       data: {
+        id: `pi_${id}`,
+        total: newTotal * 100,
         shippingCost,
-        tax: total * faker.number.float({ min: 0, max: 0.5 }),
+        tax: newTotal * 100 * faker.number.float({ min: 0, max: 0.5 }),
         createdAt: randomDate,
         deliveredAt: addDays(
           randomDate,
@@ -288,10 +296,11 @@ async function main() {
       price: p.price,
       qty: faker.number.int({ min: 1, max: 5 }),
     }));
-    const total = toCreateProducts.reduce((acc, p) => acc + p.price * p.qty, 0);
+    const total =
+      toCreateProducts.reduce((acc, p) => acc + p.price * p.qty, 0) * 100;
 
     return {
-      id: faker.string.alphanumeric(24),
+      id: `pi_${faker.string.alphanumeric(24)}`,
       customer: faker.person.fullName(),
       email: faker.internet.email(),
       phone: address.phone,

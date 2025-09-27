@@ -47,7 +47,7 @@ export const SalesByCountries = () => {
         ) : (
           <ChartContainer
             config={chartConfig}
-            className="mx-auto aspect-square w-[300px] max-h-[300px]"
+            className="mx-auto aspect-square w-[400px] max-h-[400px]"
           >
             <PieChart>
               <ChartTooltip
@@ -68,7 +68,8 @@ export const SalesByCountries = () => {
                         />
                         {chartConfig[name as keyof typeof chartConfig]?.label || name}
                         <div className="text-foreground ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums">
-                          {formatPrice(+value)} ({((+value / salesTotal) * 100).toFixed(2)}%)
+                          {formatPrice(+value, { inCent: true })} (
+                          {((+value / salesTotal) * 100).toFixed(2)}%)
                         </div>
                       </>
                     )}
@@ -77,7 +78,7 @@ export const SalesByCountries = () => {
                 cursor={false}
                 defaultIndex={1}
               />
-              <Pie data={chartData} dataKey="sales" nameKey="country" innerRadius={80} />
+              <Pie data={chartData} dataKey="sales" nameKey="country" innerRadius={120} />
               <ChartLegend
                 content={<ChartLegendContent className="w-full" nameKey="country" />}
                 className="-translate-y-2 flex-wrap gap-2 w-full"

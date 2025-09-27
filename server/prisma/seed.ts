@@ -221,8 +221,36 @@ async function main() {
       createdAt: faker.date.past({ years: 5 }),
     },
   });
+  const orders = await prisma.order.findMany({
+    select: {
+      id: true,
+      total: true,
+    },
+  });
 
-  const ordersData = Array.from({ length: 20000 }).map((_, i) => {
+  for (const { id, total } of orders) {
+    const randomDate = faker.date.past({ years: 5 });
+    const shippingCost = faker.helpers.weightedArrayElement([
+      { value: 0, weight: 0.8 },
+      { value: 15, weight: 0.2 },
+    ]);
+    await prisma.order.update({
+      where: { id },
+      data: {
+        shippingCost,
+        tax: total * faker.number.float({ min: 0, max: 0.5 }),
+        createdAt: randomDate,
+        deliveredAt: addDays(
+          randomDate,
+          shippingCost > 0
+            ? faker.number.int({ min: 5, max: 14 })
+            : faker.number.int({ min: 1, max: 3 }),
+        ),
+      },
+    });
+  }
+
+  const ordersData = Array.from({ length: 200 }).map((_, i) => {
     const shippingCost = faker.helpers.weightedArrayElement([
       { value: 0, weight: 0.6 },
       { value: 15, weight: 0.4 },
@@ -275,7 +303,7 @@ async function main() {
       shippingCost,
       country,
       total,
-      tax: total * faker.number.int({ min: 1, max: 20 }),
+      tax: total * faker.number.float({ min: 0, max: 0.5 }),
       createdAt,
       deliveredAt,
       products: {

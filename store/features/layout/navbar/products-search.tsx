@@ -55,13 +55,16 @@ export const ProductsSearch = () => {
         className="h-6 w-6 flex-shrink-0 text-muted-foreground group-hover:text-secondary-foreground"
       />
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <Command shouldFilter={false} className="rounded-lg border shadow-md">
+        <Command
+          shouldFilter={false}
+          className="rounded-lg border shadow-md h-[400px]"
+        >
           <CommandInput
             value={term}
             onValueChange={onChange}
             placeholder="Search products..."
           />
-          <CommandList>
+          <CommandList className="max-h-full">
             {term &&
               (plants.length + care.length === 0 ? (
                 <CommandEmpty>No results found.</CommandEmpty>

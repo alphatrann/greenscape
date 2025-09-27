@@ -1,13 +1,8 @@
 "use client";
 
 import { Category } from "@/features/categories/types";
-import { useParams, useRouter } from "next/navigation";
-import qs from "query-string";
-import { useEffect, useRef } from "react";
-import { searchCategory } from "../categories/utils";
 import { Breadcrumb } from "../ui/breadcrumb";
 import { DesktopFilter, MobileFilter } from "./filter";
-import { useHydrateQueryStore, useQueryStore } from "./hooks";
 import { Pagination } from "./pagination";
 import { ProductList } from "./product-list";
 import { SortSelect } from "./sort";
@@ -24,68 +19,6 @@ export const ProductsClient = ({
   categories,
   products,
 }: ProductsClientProps) => {
-  useHydrateQueryStore();
-  const router = useRouter();
-  const minPrice = useQueryStore((state) => state.minPrice);
-  const page = useQueryStore((state) => state.page);
-  const maxPrice = useQueryStore((state) => state.maxPrice);
-  const sortBy = useQueryStore((state) => state.sortBy);
-  const order = useQueryStore((state) => state.order);
-  const outOfStockIncluded = useQueryStore((state) => state.outOfStockIncluded);
-  const selectedCategory = useQueryStore((state) => state.selectedCategory);
-  const params = useParams();
-
-  const hydrated = useRef(false);
-
-  useEffect(() => {
-    if (!hydrated.current) {
-      hydrated.current = true;
-      return; // skip first run
-    }
-
-    if (params?.slug && selectedCategory !== params.slug.at(-1)) {
-      return;
-    }
-
-    let url = "/products";
-
-    if (selectedCategory) {
-      const [path] = searchCategory(categories, selectedCategory, "slug");
-      if (!path || path.length === 0) return;
-      url += "/category/" + path.map((c) => c.slug).join("/");
-    }
-
-    const inStock = outOfStockIncluded ? undefined : "1";
-
-    const urlWithQueries = qs.stringifyUrl({
-      url,
-      query: {
-        price:
-          minPrice !== null || maxPrice !== null
-            ? `${minPrice || ""}-${maxPrice || ""}`
-            : undefined,
-        page: page === 1 ? undefined : page,
-        inStock,
-        sortBy: sortBy || undefined,
-        order: order || undefined,
-      },
-    });
-
-    const currentUrl = window.location.pathname + window.location.search;
-    if (currentUrl !== urlWithQueries) {
-      router.push(urlWithQueries, { scroll: false });
-    }
-  }, [
-    minPrice,
-    maxPrice,
-    page,
-    sortBy,
-    order,
-    outOfStockIncluded,
-    selectedCategory,
-    count,
-  ]);
-
   return (
     <main className="lg:px-8 sm:px-6 px-4 container max-w-7xl">
       <div className="pt-24 pb-10">

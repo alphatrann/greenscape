@@ -1,13 +1,13 @@
-import { formatAddress } from "localized-address-format";
+import { formatAddress } from 'localized-address-format'
 
 interface Address {
-  line1: string;
-  line2?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-  customer?: string;
+  line1: string
+  line2?: string
+  city?: string
+  state?: string
+  postalCode?: string
+  country?: string
+  customer?: string
 }
 
 export const getPostalAddress = ({
@@ -17,13 +17,13 @@ export const getPostalAddress = ({
   state,
   postalCode,
   country,
-  customer,
+  customer
 }: Address) =>
   formatAddress({
-    name: customer,
-    postalCountry: country,
-    postalCode,
-    administrativeArea: state,
+    name: customer ?? undefined,
+    postalCountry: country ?? undefined,
+    postalCode: postalCode ?? undefined,
+    administrativeArea: state ?? undefined,
     addressLines: line2 ? [line1, line2] : [line1],
-    locality: city,
-  }).join("\n");
+    locality: city ?? undefined
+  }).join('\n')

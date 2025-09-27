@@ -35,26 +35,24 @@ const CountryGroupItem = ({
 }
 
 export const CountryGroups = ({ countryGroups, selectedCountries, sales }: CountryGroupsProps) => {
-  const sortedGroups = [...countryGroups].sort((a, b) => b.total - a.total)
+  const sortedGroups = [...countryGroups]
+    .sort((a, b) => b.total - a.total)
+    .filter(
+      (g) =>
+        g.total > 0 && (selectedCountries.length > 0 ? selectedCountries.includes(g.country) : true)
+    )
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      {sortedGroups
-        .slice(0, 3)
-        .filter(
-          (g) =>
-            g.total > 0 &&
-            (selectedCountries.length > 0 ? selectedCountries.includes(g.country) : true)
-        )
-        .map((group) => (
-          <CountryGroupItem
-            key={group.country}
-            country={group.country}
-            total={group.total}
-            sales={sales}
-          />
-        ))}
+      {sortedGroups.slice(0, 3).map((group) => (
+        <CountryGroupItem
+          key={group.country}
+          country={group.country}
+          total={group.total}
+          sales={sales}
+        />
+      ))}
       <CollapsibleContent>
         {sortedGroups.slice(3).map((group) => (
           <CountryGroupItem

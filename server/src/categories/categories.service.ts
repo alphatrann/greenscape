@@ -8,8 +8,13 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaError } from '../prisma/prisma-error';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import {
+  CreateCategoryDto,
+  FindManyCategoriesDto,
+  UpdateCategoryDto,
+} from './dto';
 import { FindManyDto } from '../common/dto';
+import { formQueries } from './utils';
 
 @Injectable()
 export class CategoriesService {
@@ -36,41 +41,8 @@ export class CategoriesService {
     }
   }
 
-  private formQueries(
-    { q, sortBy = 'id', order = 'asc' }: FindManyDto,
-    slug: string = null,
-  ) {
-    const where: Prisma.CategoryWhereInput = {
-      parentCategory: slug ? { slug } : null,
-      name: {
-        contains: q,
-        mode: 'insensitive',
-      },
-    };
-    let orderBy = {};
-    if (sortBy === 'products' || sortBy === 'subCategories')
-      orderBy = { [sortBy]: { _count: order } };
-    else orderBy = { [sortBy]: order };
-    return { where, orderBy };
-  }
-
-  async findParentsBySlug(slug: string) {
-    return this.prisma.category.findUnique({
-      where: { slug: slug },
-      include: {
-        parentCategory: {
-          select: {
-            slug: true,
-            name: true,
-            parentCategory: { select: { slug: true, name: true } },
-          },
-        },
-      },
-    });
-  }
-
   async paginate(dto: Omit<FindManyDto, 'limit' | 'offset'>, slug?: string) {
-    const { where } = this.formQueries(dto, slug);
+    const { where } = formQueries(dto, slug);
     const count = await this.prisma.category.count({
       where,
     });
@@ -78,10 +50,10 @@ export class CategoriesService {
   }
 
   async findAll(
-    { limit, offset = 0, ...findManyCategoriesDto }: FindManyDto,
+    { limit, offset = 0, ...findManyCategoriesDto }: FindManyCategoriesDto,
     slug: string = null,
   ) {
-    const { where, orderBy } = this.formQueries(findManyCategoriesDto, slug);
+    const { where, orderBy } = formQueries(findManyCategoriesDto, slug);
 
     try {
       const categories = await this.prisma.category.findMany({
@@ -92,7 +64,10 @@ export class CategoriesService {
         include: {
           products: {
             include: {
-              images: { take: 1, select: { file: { select: { url: true } } } },
+              images: {
+                take: 1,
+                select: { file: { select: { id: true, url: true } } },
+              },
             },
           },
           _count: { select: { subCategories: true, products: true } },
@@ -103,28 +78,56 @@ export class CategoriesService {
     } catch (error) {
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Something went wrong',
       });
     }
   }
 
-  async findCategoriesTree() {
-    const categories = await this.prisma.category.findMany({
-      where: { parentCategory: null },
-      include: {
-        subCategories: {
-          include: {
-            _count: { select: { products: true } },
-            subCategories: {
-              include: {
-                _count: { select: { products: true } },
-              },
-            },
-          },
-        },
-      },
-    });
-    return categories;
+  async getCategoryTree(parentId?: number) {
+    const categories = await this.prisma.$queryRaw<
+      {
+        id: number;
+        name: string;
+        slug: string;
+        parentCategoryId: number | null;
+        productCount: number;
+        unitsSold: number;
+        sales: number;
+      }[]
+    >`
+    SELECT
+      c.id,
+      c.name,
+      c.slug,
+      c."parentCategoryId",
+      COUNT(DISTINCT p.id) AS "productCount",
+      COALESCE(SUM(o.qty), 0) AS "unitsSold",
+      COALESCE(SUM(o.qty * p.price), 0) AS "sales"
+    FROM "Category" c
+    LEFT JOIN "_CategoryToProduct" cp ON cp."A" = c.id
+    LEFT JOIN "Product" p ON p.id = cp."B"
+    LEFT JOIN "OrdersOnProducts" o ON o."productId" = p.id
+    WHERE c."parentCategoryId" IS NOT DISTINCT FROM ${parentId ?? null}
+    GROUP BY c.id, c.name, c.slug, c."parentCategoryId"
+    ORDER BY c.name;
+  `;
+
+    // recursively fetch subcategories
+    return Promise.all(
+      categories.map(async (cat) => {
+        const subCategories = await this.getCategoryTree(cat.id);
+        return {
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug,
+          parentCategoryId: cat.parentCategoryId,
+          _count: { products: Number(cat.productCount) },
+          unitsSold: Number(cat.unitsSold),
+          sales: Number(cat.sales),
+          subCategories,
+        };
+      }),
+    );
   }
 
   async update(id: number, dto: UpdateCategoryDto) {
@@ -150,7 +153,7 @@ export class CategoriesService {
       }
       throw new InternalServerErrorException({
         success: false,
-        message: error.message,
+        message: 'Something went wrong',
       });
     }
   }

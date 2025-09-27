@@ -1,119 +1,142 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { startOfMonth, subMonths } from 'date-fns';
+import {
+  parseISO,
+  differenceInDays,
+  subDays,
+  endOfDay,
+  startOfDay,
+} from 'date-fns';
 
 @Injectable()
 export class MetricsService {
   constructor(private prisma: PrismaService) {}
 
-  async getMonthKeyStats() {
-    const today = new Date();
-    const thisDayLastMonth = subMonths(today, 1);
-    const [thisMonthRevenue, thisMonthAvgOrderValue] =
-      await this.getMonthRevenuesAndAvgOrderValue(today);
-    const [lastMonthRevenue, lastMonthAvgOrderValue] =
-      await this.getMonthRevenuesAndAvgOrderValue(thisDayLastMonth);
-    const thisMonthSales = await this.getMonthSales(today);
-    const lastMonthSales = await this.getMonthSales(thisDayLastMonth);
-    const thisMonthCustomers = await this.getMonthCustomers(today);
-    const lastMonthCustomers = await this.getMonthCustomers(thisDayLastMonth);
+  async getPeriodKeyStats(startDateStr: string, endDateStr: string) {
+    const startDate = startOfDay(parseISO(startDateStr));
+    const endDate = endOfDay(parseISO(endDateStr));
+
+    const daysInPeriod = differenceInDays(endDate, startDate) + 1;
+
+    const lastEndDate = subDays(startDate, 1);
+    const lastStartDate = subDays(lastEndDate, daysInPeriod - 1);
+
+    const [thisSales, thisAvgOrderValue] = await this.getSalesAndAvgOrderValue(
+      startDate,
+      endDate,
+    );
+    const thisUnitsSold = await this.getUnitsSold(startDate, endDate);
+    const thisCustomers = await this.getCustomers(startDate, endDate);
+
+    const [lastSales, lastAvgOrderValue] = await this.getSalesAndAvgOrderValue(
+      lastStartDate,
+      lastEndDate,
+    );
+    const lastUnitsSold = await this.getUnitsSold(lastStartDate, lastEndDate);
+    const lastCustomers = await this.getCustomers(lastStartDate, lastEndDate);
 
     return {
-      thisMonthRevenue,
-      lastMonthRevenue,
-      thisMonthAvgOrderValue,
-      lastMonthAvgOrderValue,
-      thisMonthSales,
-      lastMonthSales,
-      thisMonthCustomers,
-      lastMonthCustomers,
+      thisSales,
+      lastSales,
+      thisAvgOrderValue,
+      lastAvgOrderValue,
+      thisUnitsSold,
+      lastUnitsSold,
+      thisCustomers,
+      lastCustomers,
     };
   }
 
-  private async getMonthRevenuesAndAvgOrderValue(date: Date) {
-    const startMonthDate = startOfMonth(date);
+  private async getSalesAndAvgOrderValue(startDate: Date, endDate: Date) {
     const {
       _sum: { total: revenue },
       _avg: { total: avgOrderValue },
     } = await this.prisma.order.aggregate({
       _sum: { total: true },
       _avg: { total: true },
-      where: { createdAt: { gte: startMonthDate, lte: date } },
+      where: { createdAt: { gte: startDate, lte: endDate } },
     });
-    return [+revenue, +avgOrderValue];
+
+    return [+revenue || 0, +avgOrderValue || 0];
   }
 
-  private async getMonthSales(date: Date) {
-    const startMonthDate = startOfMonth(date);
+  private async getUnitsSold(startDate: Date, endDate: Date) {
     const {
-      _sum: { qty: sales },
+      _sum: { qty: unitsSold },
     } = await this.prisma.ordersOnProducts.aggregate({
       _sum: { qty: true },
       where: {
-        order: { createdAt: { gte: startMonthDate, lte: date } },
+        order: { createdAt: { gte: startDate, lte: endDate } },
       },
     });
 
-    return +sales;
+    return +unitsSold || 0;
   }
 
-  private async getMonthCustomers(date: Date) {
-    const startMonthDate = startOfMonth(date);
+  private async getCustomers(startDate: Date, endDate: Date) {
     const [{ count }] = await this.prisma.$queryRaw<[{ count: BigInt }]>`
-      SELECT COUNT(DISTINCT "customer")
-      FROM "Order" o
-      WHERE o."createdAt" >= ${startMonthDate} AND o."createdAt" <= ${date};
-    `;
+    SELECT COUNT(DISTINCT "customer")
+    FROM "Order" o
+    WHERE o."createdAt" >= ${startDate} AND o."createdAt" <= ${endDate};
+  `;
 
-    return Number(count);
+    return Number(count) || 0;
   }
 
-  async getMonthsRevenuesInYear(year: number) {
+  async getMonthsSalesInYear(year: number) {
+    // Get the first order date to determine earliest year
     const {
       _min: { createdAt: firstOrderAt },
-      _max: { createdAt: lastOrderAt },
     } = await this.prisma.order.aggregate({
       _min: { createdAt: true },
-      _max: { createdAt: true },
     });
 
-    const monthlyRevenues = await this.prisma.order.groupBy({
-      by: ['createdAt'],
+    // Group by createdAt (raw) and shippingCost
+    const revenues = await this.prisma.order.groupBy({
+      by: ['createdAt', 'shippingCost'],
       _sum: { total: true },
       where: {
         createdAt: {
-          gte: new Date(`1-1-${year}`),
-          lt: new Date(`1-1-${year + 1}`),
+          gte: new Date(`${year}-01-01`),
+          lt: new Date(`${year + 1}-01-01`),
         },
       },
     });
 
-    const startYear = new Date(firstOrderAt).getTime()
+    // Transform into { month, shippingCost, total }
+    const monthlySales = revenues.map(({ createdAt, shippingCost, _sum }) => ({
+      month: createdAt.getMonth() + 1, // 1-12 instead of 0-11
+      shippingCost,
+      total: _sum.total ?? 0,
+    }));
+
+    const startYear = firstOrderAt
       ? new Date(firstOrderAt).getFullYear()
-      : new Date().getFullYear();
-    const endYear = new Date(lastOrderAt).getTime()
-      ? new Date(lastOrderAt).getFullYear()
       : new Date().getFullYear();
 
     return {
       startYear,
-      endYear,
-      monthlyRevenues: monthlyRevenues.map(({ _sum, ...group }) => ({
-        total: _sum.total || 0,
-        ...group,
-      })),
+      monthlySales,
     };
   }
 
-  async groupSalesByCountries() {
+  async groupSalesByCountries(startDateStr: string, endDateStr: string) {
+    const startDate = parseISO(startDateStr);
+    const endDate = parseISO(endDateStr);
     const countrySaleGroups = await this.prisma.order.groupBy({
       by: ['country'],
       _sum: { total: true },
+      where: {
+        createdAt: {
+          gte: startOfDay(startDate),
+          lte: endOfDay(endDate),
+        },
+      },
     });
 
     return countrySaleGroups.map((group) => ({
       country: group.country,
-      _sum: group._sum.total ?? 0,
+      sales: group._sum.total ?? 0,
     }));
   }
 }

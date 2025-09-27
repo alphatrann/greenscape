@@ -13,7 +13,7 @@ export class StatsService {
     const endOfPrevDay = subMonths(endOfCurDay, 1);
 
     const {
-      _sum: { total: curMonthRevenue },
+      _sum: { total: curMonthSales },
       _avg: { total: curMonthAvgOrder },
     } = await this.prisma.order.aggregate({
       _sum: { total: true },
@@ -22,7 +22,7 @@ export class StatsService {
     });
 
     const {
-      _sum: { total: prevMonthRevenue },
+      _sum: { total: prevMonthSales },
       _avg: { total: prevMonthAvgOrder },
     } = await this.prisma.order.aggregate({
       _sum: { total: true },
@@ -49,16 +49,16 @@ export class StatsService {
     });
 
     return {
-      curMonthRevenue: curMonthRevenue ?? 0,
+      curMonthSales: curMonthSales ?? 0,
       curMonthAvgOrder: curMonthAvgOrder ?? 0,
       prevMonthAvgOrder: prevMonthAvgOrder ?? 0,
       prevMonthProductSales: prevMonthProductSales ?? 0,
-      prevMonthRevenue: prevMonthRevenue ?? 0,
+      prevMonthSales: prevMonthSales ?? 0,
       curMonthProductSales: curMonthProductSales ?? 0,
     };
   }
 
-  async getMonthlyRevenues(year: number) {
+  async getMonthlySales(year: number) {
     const {
       _min: { createdAt: firstOrderAt },
       _max: { createdAt: lastOrderAt },
@@ -67,7 +67,7 @@ export class StatsService {
       _max: { createdAt: true },
     });
 
-    const monthlyRevenues = await this.prisma.order.groupBy({
+    const monthlySales = await this.prisma.order.groupBy({
       by: ['createdAt'],
       _sum: { total: true },
       where: {
@@ -88,7 +88,7 @@ export class StatsService {
     return {
       startYear,
       endYear,
-      monthlyRevenues: monthlyRevenues.map(({ _sum, ...group }) => ({
+      monthlySales: monthlySales.map(({ _sum, ...group }) => ({
         total: _sum.total || 0,
         ...group,
       })),

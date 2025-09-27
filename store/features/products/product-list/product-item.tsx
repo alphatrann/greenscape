@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Product } from "../types";
 import Image from "next/image";
 import { formatPrice } from "../utils";
+import { getLocalImage } from "@/features/categories/utils";
 
 interface ProductItemProps {
   product: Product;
@@ -19,7 +20,10 @@ export const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
         width={600}
         height={600}
         className="rounded-md object-cover transition-opacity group-hover:opacity-75 aspect-square"
-        src={product.images[0].file.url}
+        src={
+          product.images[0]?.file.url ||
+          getLocalImage(product.images[0]?.file.id)
+        }
       />
 
       <div className="pt-4 space-y-2 border-t border-gray-200">

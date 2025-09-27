@@ -19,10 +19,6 @@ export class FindManyDto {
   q?: string;
 
   @IsOptional()
-  @IsString()
-  sortBy?: string;
-
-  @IsOptional()
   @IsIn(['asc', 'desc'])
   order?: 'asc' | 'desc';
 }

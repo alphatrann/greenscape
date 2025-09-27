@@ -8,7 +8,7 @@ export const getCategoriesTree = async () => {
   const {
     data: { data: categories },
   } = await axios.get(url, {
-    headers: { Cookie: cookies().toString() },
+    headers: { Cookie: (await cookies()).toString() },
   });
   return categories as Category[];
 };

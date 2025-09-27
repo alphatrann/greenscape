@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20-alpine3.16
 WORKDIR /user/src/app
 RUN chown -R node:node /user/src/app
 COPY package.json yarn.lock ./

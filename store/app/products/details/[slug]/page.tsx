@@ -10,22 +10,20 @@ import { formatPrice } from "@/features/products/utils";
 import { ProductList } from "@/features/products/product-list";
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
-export const generateMetadata = async ({
-  params: { slug },
-}: ProductPageProps) => {
+export const generateMetadata = async ({ params }: ProductPageProps) => {
+  const { slug } = await params;
   const { data: product } = await getProduct(slug);
   if (!product) return { title: "Product not found" };
   return { title: "Products - " + product.name };
 };
 
-export default async function ProductPage({
-  params: { slug },
-}: ProductPageProps) {
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { slug } = await params;
   const { data: product } = await getProduct(slug);
   if (!product) redirect("/not-found");
 

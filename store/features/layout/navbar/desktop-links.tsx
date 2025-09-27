@@ -1,6 +1,5 @@
 "use client";
 import { Category } from "@/features/categories/types";
-import { Product } from "@/features/products/types";
 import {
   NavigationMenu,
   NavigationMenuContent,

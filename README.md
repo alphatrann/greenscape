@@ -122,12 +122,11 @@ POSTGRES_DB=greenify # set to anything to you like
 Similarly, create a `.env` at the root of the `server/` directory and add the following variables:
 
 ```bash
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/greenify?schema=public
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/greenscape?schema=public
 SESSION_SECRET=s3cr3t # set to anything you like
 CORS_ORIGIN_ADMIN=http://localhost:3000
 CORS_ORIGIN_STORE=http://localhost:3001
-REDIS_HOST=localhost
-REDIS_PORT=6379
+REDIS_URL=redis://localhost:6379
 STRIPE_SECRET_KEY=sk_test_... # from the Stripe dashboard
 STRIPE_WEBHOOK_SECRET=whsec_... # from the Stripe CLI
 ```

@@ -12,11 +12,13 @@ import {
   UploadedFiles,
   UseInterceptors,
   ParseFilePipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import {
   CreateProductDto,
   DeleteImagesDto,
+  FindCartProductsDto,
   FindManyProductsDto,
   FindManyStoreProductsDto,
   FindRelatedProductsDto,
@@ -25,8 +27,9 @@ import {
 import { DeleteManyDto } from '../common/dto';
 import { Role, Status } from '@prisma/client';
 import { RolesGuard } from '../auth/guards';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { imageValidators } from '../files/validators';
+import { LocalFilesInterceptor } from '../files/interceptors/local-files.interceptor';
+import { MAX_IMAGE_SIZE, MAX_PRODUCT_IMAGES_COUNT } from '../common/constants';
 
 @Controller('products')
 export class ProductsController {
@@ -43,7 +46,14 @@ export class ProductsController {
   @UseGuards(RolesGuard(Role.Admin))
   async findAll(@Query() findManyProductsDto: FindManyProductsDto) {
     const products = await this.productsService.findAll(findManyProductsDto);
-    return { success: true, data: products };
+    const statusGroups = await this.productsService.aggregateStatus(
+      findManyProductsDto,
+    );
+    return {
+      success: true,
+      data: products,
+      statusGroups,
+    };
   }
 
   @Get('category/:slug')
@@ -56,7 +66,17 @@ export class ProductsController {
       findManyProductsDto,
       slug,
     );
-    return { success: true, data: products };
+    const statusGroups = await this.productsService.aggregateStatus(
+      findManyProductsDto,
+      slug,
+    );
+    return { success: true, data: products, statusGroups };
+  }
+
+  @Get('cart')
+  async findCartProducts(@Query() { ids }: FindCartProductsDto) {
+    const cartProducts = await this.productsService.findCartProducts(ids);
+    return { success: true, data: cartProducts };
   }
 
   @Get('store')
@@ -97,7 +117,7 @@ export class ProductsController {
   @UseGuards(RolesGuard(Role.Admin))
   async paginate(@Query() dto: FindManyProductsDto) {
     const count = await this.productsService.paginate(dto);
-    return { success: true, count };
+    return { success: true, data: count };
   }
 
   @Get('paginate/category/:slug')
@@ -107,7 +127,7 @@ export class ProductsController {
     @Param('slug') slug: string,
   ) {
     const count = await this.productsService.paginate(dto, slug);
-    return { success: true, count };
+    return { success: true, data: count };
   }
 
   @Get('recommend')
@@ -134,15 +154,30 @@ export class ProductsController {
     return { success: true, data: product };
   }
 
-  @Get('search/:term')
-  async search(@Param('term') term: string) {
-    const products = await this.productsService.search(term);
-    return { success: true, data: products };
-  }
-
   @Patch(':id/upload-images')
   @UseGuards(RolesGuard(Role.Admin))
-  @UseInterceptors(FilesInterceptor('images', 4))
+  // to upload file to aws, uncomment this interceptor and comment the interceptor below
+  // @UseInterceptors(FilesInterceptor('images', 4))
+  // for local use, uncomment this interceptor and comment the interceptor above
+  @UseInterceptors(
+    LocalFilesInterceptor({
+      maxFilesCount: MAX_PRODUCT_IMAGES_COUNT,
+      fieldName: 'images',
+      path: '/products',
+      fileFilter: (_request, file, callback) => {
+        if (!file.mimetype.includes('image')) {
+          return callback(
+            new BadRequestException('Provide a valid image'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: MAX_IMAGE_SIZE, // 10MB
+      },
+    }),
+  )
   async uploadImages(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFiles(
@@ -157,38 +192,11 @@ export class ProductsController {
       files.map((file) => ({
         buffer: file.buffer,
         filename: file.originalname,
+        mimetype: file.mimetype,
+        path: file.path,
       })),
     );
     return { success: true };
-  }
-
-  @Get('aggregate')
-  @UseGuards(RolesGuard(Role.Admin))
-  async aggregateProducts(@Query() dto: FindManyProductsDto) {
-    const inStockGroups = await this.productsService.aggregate('inStock', dto);
-    const statusGroups = await this.productsService.aggregate('status', dto);
-
-    return { inStockGroups, statusGroups, success: true };
-  }
-
-  @Get('aggregate/:slug')
-  @UseGuards(RolesGuard(Role.Admin))
-  async aggregateProductsBySlug(
-    @Query() dto: FindManyProductsDto,
-    @Param('slug') slug,
-  ) {
-    const inStockGroups = await this.productsService.aggregate(
-      'inStock',
-      dto,
-      slug,
-    );
-    const statusGroups = await this.productsService.aggregate(
-      'status',
-      dto,
-      slug,
-    );
-
-    return { inStockGroups, statusGroups, success: true };
   }
 
   @Delete(':productId/remove-images')

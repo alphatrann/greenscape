@@ -2,6 +2,7 @@ import { getCategories } from "@/features/categories/actions";
 import Image from "next/image";
 import Link from "next/link";
 import { Category } from "../categories/types";
+import { getLocalImage } from "../categories/utils";
 
 export const Categories = async () => {
   const plantsCategories = await getCategories(
@@ -47,7 +48,10 @@ const CategoryItem = ({ category, parentSlug }: CategoryProps) => {
       >
         <Image
           alt={category.name + " image"}
-          src={category.products[0].images[0].file.url}
+          src={
+            category.products[0].images[0].file.url ||
+            getLocalImage(category.products[0].images[0].file.id)
+          }
           className="absolute transition-opacity group-hover:opacity-50 object-cover w-full h-full inset-0"
           width={300}
           height={400}

@@ -18,16 +18,11 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({
 }) => {
   const selectedCategory = useQueryStore((state) => state.selectedCategory);
   const update = useQueryStore((state) => state.update);
-  const params = useParams();
 
   const [foundCategoryPath, foundCategory] = useMemo(() => {
     if (!selectedCategory) return [[], null];
     return searchCategory(categories, selectedCategory, "slug");
   }, [selectedCategory, categories]);
-
-  useEffect(() => {
-    if (params?.slug) update({ selectedCategory: params.slug.at(-1) });
-  }, []);
 
   return (
     <div className="space-y-3">
@@ -49,7 +44,7 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({
                 <Separator orientation="vertical" className="mx-2 h-4" />
                 <Badge
                   variant="secondary"
-                  className="rounded-sm px-1 font-normal"
+                  className="rounded-sm line-clamp-1 px-1 font-normal"
                 >
                   {foundCategoryPath.map((p) => p.name).join("/")}
                 </Badge>

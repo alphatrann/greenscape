@@ -1,27 +1,25 @@
-import { Transform, Type } from 'class-transformer';
-import { FindManyDto } from '../../common/dto';
+import { Status } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
-  IsBoolean,
   IsDateString,
   IsEnum,
-  IsInt,
+  IsIn,
   IsNumber,
   IsOptional,
-  Matches,
   Min,
 } from 'class-validator';
-import { Status } from '@prisma/client';
-import { VALID_DATE_REGEX } from '../../common/constants';
+import { FindManyDto } from '../../common/dto';
 
 export class FindManyProductsDto extends FindManyDto {
-  @Transform(({ value }: { value: string }) =>
-    value.split(',').map((val) => +val),
+  @Transform(({ value }: { value?: string }) =>
+    value ? value?.split('-').map((val) => +val) : value,
   )
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
   @IsNumber({ allowInfinity: false, allowNaN: false }, { each: true })
+  @Min(0, { each: true })
   @IsOptional({ each: true })
   price?: [number, number];
 
@@ -29,20 +27,25 @@ export class FindManyProductsDto extends FindManyDto {
   @IsEnum(Status)
   status?: Status;
 
-  @Transform(({ value }) => (value === 'false' ? false : true))
-  @IsOptional()
-  @IsBoolean()
-  inStock?: boolean;
+  @Transform(({ value }: { value?: string }) =>
+    value ? value.split('-').map((val) => +val) : value,
+  )
+  @ArrayMinSize(2)
+  @ArrayMaxSize(2)
+  @IsNumber({ allowInfinity: false, allowNaN: false }, { each: true })
+  @Min(0, { each: true })
+  @IsOptional({ each: true })
+  inStock?: [number, number];
 
-  @Matches(VALID_DATE_REGEX, {
-    message: 'Please provide a valid date in the format of yyyy-mm-dd',
-  })
+  @IsDateString()
   @IsOptional()
   from?: string;
 
-  @Matches(VALID_DATE_REGEX, {
-    message: 'Please provide a valid date in the format of yyyy-mm-dd',
-  })
+  @IsDateString()
   @IsOptional()
   to?: string;
+
+  @IsOptional()
+  @IsIn(['price', 'inStock', 'orders', 'createdAt', 'id'])
+  sortBy?: string;
 }

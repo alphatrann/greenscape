@@ -3,39 +3,34 @@ import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  IsDateString,
   IsIn,
   IsNumber,
   IsOptional,
   Matches,
+  Min,
 } from 'class-validator';
-import { VALID_DATE_REGEX } from '../../common/constants';
 import { FindManyDto } from '../../common/dto';
 import { allowedCountries } from '../../common/utils';
 
-export class FindManyOrdersDto extends OmitType(FindManyDto, [
-  'sortBy',
-  'order',
-]) {
+export class FindManyOrdersDto extends FindManyDto {
   @IsOptional()
   @IsIn(['delivered', 'pending'])
   status?: 'delivered' | 'pending';
 
-  @Matches(VALID_DATE_REGEX, {
-    message: 'Please provide a valid date in the format of yyyy-mm-dd',
-  })
+  @IsDateString()
   @IsOptional()
   from?: string;
 
-  @Matches(VALID_DATE_REGEX, {
-    message: 'Please provide a valid date in the format of yyyy-mm-dd',
-  })
+  @IsDateString()
   @IsOptional()
   to?: string;
 
   @IsOptional()
   @Transform(({ value }: { value: string }) =>
-    value.split(',').map((val) => +val),
+    value?.split('-').map((val) => +val),
   )
+  @Min(0, { each: true })
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
   @IsNumber(
@@ -54,4 +49,8 @@ export class FindManyOrdersDto extends OmitType(FindManyDto, [
   @IsIn(allowedCountries, { each: true })
   @IsOptional()
   countries?: string[];
+
+  @IsOptional()
+  @IsIn(['total', 'shippingCost', 'createdAt', 'deliveredAt', 'id'])
+  sortBy?: string;
 }

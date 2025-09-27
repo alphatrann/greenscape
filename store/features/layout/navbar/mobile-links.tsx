@@ -38,7 +38,7 @@ export const MobileLinks = ({ categories }: MobileLinksProps) => {
               <TabsContent value={c.slug} key={c.id}>
                 <ul className="space-y-8 mt-8 text-start">
                   {c.subCategories.map((sc) => (
-                    <li>
+                    <li key={c.id}>
                       <span className="block font-medium leading-none">
                         {sc.name}
                       </span>

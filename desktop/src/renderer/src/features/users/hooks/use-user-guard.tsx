@@ -55,8 +55,7 @@ export const useUserGuard = () => {
         }
       })
       .catch(() => {
-        // offline / API error
-        if (location.pathname !== AppRoute.Login) redirectToLogin()
+        loadFromLocalStorage()
       })
       .finally(() => setChecking(false))
   }, [online, location.pathname])

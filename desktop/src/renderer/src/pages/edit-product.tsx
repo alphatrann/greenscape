@@ -10,7 +10,6 @@ import { Product } from '../features/products/types'
 
 export default function ProductSettingsPage() {
   const { slug } = useParams()
-
   const [product, setProduct] = useState<Product | null>(null)
 
   useEffect(() => {

@@ -35,7 +35,7 @@ export const SalesByCountries = () => {
         <CardTitle className="text-base">Country Sales</CardTitle>
         <DateRangeSelect from={from} to={to} onFromChange={onFromChange} onToChange={onToChange} />
       </CardHeader>
-      <CardContent className="w-full h-full">
+      <CardContent className="w-full p-0 h-full">
         {chartData.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <h3 className="text-center text-xl font-medium text-muted-foreground">
@@ -47,7 +47,7 @@ export const SalesByCountries = () => {
         ) : (
           <ChartContainer
             config={chartConfig}
-            className="mx-auto aspect-square w-[400px] max-h-[400px]"
+            className="mx-auto aspect-square w-[300px] max-h-[300px]"
           >
             <PieChart>
               <ChartTooltip
@@ -78,7 +78,7 @@ export const SalesByCountries = () => {
                 cursor={false}
                 defaultIndex={1}
               />
-              <Pie data={chartData} dataKey="sales" nameKey="country" innerRadius={120} />
+              <Pie data={chartData} dataKey="sales" nameKey="country" innerRadius={70} />
               <ChartLegend
                 content={<ChartLegendContent className="w-full" nameKey="country" />}
                 className="-translate-y-2 flex-wrap gap-2 w-full"

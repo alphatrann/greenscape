@@ -103,7 +103,7 @@ export async function getProducts(
 
 export async function deleteProducts(productIds: number[]) {
   await db.read()
-  const toDelete = db.data.products.filter((p) => !productIds.includes(p.id))
+  const toDelete = db.data.products.filter((p) => productIds.includes(p.id))
 
   for (const product of toDelete) {
     await detachImages(
@@ -111,7 +111,7 @@ export async function deleteProducts(productIds: number[]) {
       product.images.map((i) => i.file.id)
     )
   }
-  db.data.products = toDelete
+  db.data.products = db.data.products.filter((p) => !productIds.includes(p.id))
   await db.write()
 }
 
@@ -121,10 +121,6 @@ export async function detachImages(productId: number, imageIds: string[]) {
 
   if (productIndex >= 0) {
     const product = db.data!.products[productIndex]
-    if (!product.images) {
-      product.images = []
-    }
-
     const pathsToDelete = product.images
       .filter((i) => imageIds.includes(i.file.id))
       .map((i) => i.file.url)
@@ -159,12 +155,7 @@ export async function attachImages(productId: number, imagesDir: string, files: 
       }
     }))
 
-    if (!product.images) {
-      product.images = []
-    }
-
-    product.images.push(...newImages)
-    db.data.products[idx] = product
+    db.data.products[idx].images = product.images.concat(newImages)
   }
 
   await db.write()

@@ -2,24 +2,12 @@
 import { PriceInput } from "@/features/common/components";
 import { Button } from "@/features/ui/button";
 import { Label } from "@/features/ui/label";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 import { useQueryStore } from "../hooks/use-query-store";
 
 export const PriceFilter = () => {
-  const searchParams = useSearchParams();
   const minPrice = useQueryStore((state) => state.minPrice);
   const maxPrice = useQueryStore((state) => state.maxPrice);
   const update = useQueryStore((state) => state.update);
-
-  useEffect(() => {
-    const price = searchParams.get("price");
-    if (price) {
-      const [min, max] = price.split(",");
-      if (!isNaN(+min)) update({ minPrice: +min });
-      if (!isNaN(+max)) update({ maxPrice: +max });
-    }
-  }, [searchParams.get("price")]);
 
   return (
     <div className="pt-4 space-y-4">

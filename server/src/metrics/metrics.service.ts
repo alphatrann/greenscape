@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { parseISO, differenceInDays, subDays } from 'date-fns';
+import {
+  parseISO,
+  differenceInDays,
+  subDays,
+  endOfDay,
+  startOfDay,
+} from 'date-fns';
 
 @Injectable()
 export class MetricsService {
   constructor(private prisma: PrismaService) {}
 
   async getPeriodKeyStats(startDateStr: string, endDateStr: string) {
-    const startDate = parseISO(startDateStr);
-    const endDate = parseISO(endDateStr);
+    const startDate = startOfDay(parseISO(startDateStr));
+    const endDate = endOfDay(parseISO(endDateStr));
 
     const daysInPeriod = differenceInDays(endDate, startDate) + 1;
 
@@ -122,8 +128,8 @@ export class MetricsService {
       _sum: { total: true },
       where: {
         createdAt: {
-          gte: startDate,
-          lte: endDate,
+          gte: startOfDay(startDate),
+          lte: endOfDay(endDate),
         },
       },
     });

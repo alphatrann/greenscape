@@ -1,31 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useBagStore } from "../contexts";
 import { formatPrice } from "@/features/products/utils";
 import { Button } from "@/features/ui/button";
 import axios from "axios";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useBagStore } from "../contexts";
 
-export const BagSummary = () => {
-  const searchParams = useSearchParams();
+interface BagSummaryProps {
+  total: number;
+}
+
+export const BagSummary = ({ total }: BagSummaryProps) => {
   const [mounted, setMounted] = useState(false);
-  const { bag, clearBag, totalPrice } = useBagStore();
+  const bag = useBagStore((state) => state.bag);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    const success = searchParams.get("success");
-    const cancelled = searchParams.get("cancelled");
-    if (success === "1") {
-      toast.success("Payment completed");
-      clearBag();
-    }
-    if (cancelled === "1") toast.error("Payment cancelled");
-  }, [searchParams.get("success"), searchParams.get("cancelled")]);
 
   const onCheckout = async () => {
     try {
@@ -53,7 +45,7 @@ export const BagSummary = () => {
         <div className="flex justify-between pt-4 items-center">
           <dt className="text-gray-700 text-sm">Subtotal</dt>
           <dd className="text-gray-900 font-medium text-sm">
-            {formatPrice(totalPrice)}
+            {formatPrice(total)}
           </dd>
         </div>
         <div className="flex justify-between pt-4 border-t border-gray-200 items-center">
@@ -65,7 +57,7 @@ export const BagSummary = () => {
         <div className="flex justify-between pt-4 border-t border-gray-200 items-center">
           <dt className="text-gray-900 font-medium text-base">Order total</dt>
           <dd className="text-gray-900 font-medium text-base">
-            {formatPrice(totalPrice)}
+            {formatPrice(total)}
           </dd>
         </div>
       </dl>

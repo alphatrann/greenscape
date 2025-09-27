@@ -1,6 +1,5 @@
 "use client";
 
-import qs from "query-string";
 import { Category } from "@/features/categories/types";
 import { Breadcrumb } from "../ui/breadcrumb";
 import { DesktopFilter, MobileFilter } from "./filter";
@@ -8,12 +7,6 @@ import { Pagination } from "./pagination";
 import { ProductList } from "./product-list";
 import { SortSelect } from "./sort";
 import { Product } from "./types";
-import { useQueryStore } from "./hooks";
-import { useEffect } from "react";
-import { searchCategory } from "../categories/utils";
-import { useRouter } from "next/navigation";
-import { useDebouncedCallback } from "use-debounce";
-import { PAGE_SIZE } from "../../constants";
 
 interface ProductsClientProps {
   count: number;
@@ -26,51 +19,6 @@ export const ProductsClient = ({
   categories,
   products,
 }: ProductsClientProps) => {
-  const router = useRouter();
-  const minPrice = useQueryStore((state) => state.minPrice);
-  const page = useQueryStore((state) => state.page);
-  const maxPrice = useQueryStore((state) => state.maxPrice);
-  const sortBy = useQueryStore((state) => state.sortBy);
-  const order = useQueryStore((state) => state.order);
-  const outOfStockIncluded = useQueryStore((state) => state.outOfStockIncluded);
-  const selectedCategory = useQueryStore((state) => state.selectedCategory);
-
-  const applyQuery = useDebouncedCallback(() => {
-    const offset = (page - 1) * PAGE_SIZE;
-    let url = "/products";
-    if (selectedCategory) {
-      const [path] = searchCategory(categories, selectedCategory, "slug");
-      if (!path || path.length === 0) return;
-      url += "/category/" + path.map((c) => c.slug).join("/");
-    }
-    const inStock = outOfStockIncluded ? undefined : "true";
-
-    const urlWithQueries = qs.stringifyUrl({
-      url,
-      query: {
-        price: `${minPrice || ""},${maxPrice || ""}`,
-        offset: offset > count ? 0 : offset,
-        inStock, // undefined to remove the key-value pair from the URL
-        sortBy,
-        order,
-      },
-    });
-    router.push(urlWithQueries, { scroll: false });
-  }, 500);
-
-  useEffect(() => {
-    applyQuery();
-  }, [
-    minPrice,
-    maxPrice,
-    page,
-    sortBy,
-    order,
-    outOfStockIncluded,
-    selectedCategory,
-    categories,
-  ]);
-
   return (
     <main className="lg:px-8 sm:px-6 px-4 container max-w-7xl">
       <div className="pt-24 pb-10">
@@ -91,7 +39,7 @@ export const ProductsClient = ({
           </div>
 
           {products.length === 0 ? (
-            <div className="h-1/4 flex flex-col justify-center">
+            <div className="h-1/4 px-4 flex flex-col justify-center">
               <h2 className="text-2xl font-bold tracking-tight mt-4 text-gray-900 sm:text-3xl">
                 No products found
               </h2>

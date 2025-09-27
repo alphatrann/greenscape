@@ -1,36 +1,42 @@
 import { PAGE_SIZE } from "@/constants";
 import { getCategoriesTree } from "@/features/categories/actions";
 import { getProducts, paginateProducts } from "@/features/products/actions";
-import { DesktopFilter, MobileFilter } from "@/features/products/filter";
-import { Pagination } from "@/features/products/pagination";
-import { ProductList } from "@/features/products/product-list";
-import { SortSelect } from "@/features/products/sort";
-import { Breadcrumb } from "@/features/ui/breadcrumb";
 import qs from "query-string";
-import { ProductsClient } from "../../../../features/products";
+import { ProductsClient } from "@/features/products";
+import { searchCategory } from "@/features/categories/utils";
 
 interface ProductsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     offset?: string;
     sortBy?: string;
     order?: "asc" | "desc";
     q?: string;
     price?: string;
     inStock?: "true";
-  };
-  params: {
+  }>;
+  params: Promise<{
     slug: string[];
-  };
+  }>;
 }
 
-export const metadata = {
-  title: "Products",
+export const generateMetadata = async ({ params }: ProductsPageProps) => {
+  const { slug } = await params;
+  const categories = await getCategoriesTree();
+  const [path] = searchCategory(categories, slug.at(-1) || "", "slug");
+  return {
+    title:
+      path && path.length > 0
+        ? path.map((c) => c.name).join(" / ")
+        : "Category",
+  };
 };
 
 export default async function CategoryProductsPage({
-  searchParams: { offset, sortBy = "id", order = "asc", q, price, inStock },
-  params: { slug },
+  searchParams,
+  params,
 }: ProductsPageProps) {
+  const { offset, sortBy, order, q, price, inStock } = await searchParams;
+  const { slug } = await params;
   const query = qs.stringifyUrl({
     url: "",
     query: {

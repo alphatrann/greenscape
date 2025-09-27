@@ -34,7 +34,7 @@ export const useCountrySales = () => {
       const group = groupSales.country
       const groupKey = group.toLowerCase().split(' ').join('-')
       config[groupKey] = {
-        label: getCountryName(group), // capitalize
+        label: getCountryName(group) ?? 'Other', // capitalize
         color: `var(--chart-${index})`
       }
       index++

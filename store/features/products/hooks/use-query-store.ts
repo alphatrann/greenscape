@@ -5,8 +5,8 @@ interface State {
   maxPrice: number | null;
   selectedCategory: string | null;
   outOfStockIncluded: boolean;
-  sortBy: string;
-  order: "desc" | "asc";
+  sortBy: string | null;
+  order: "desc" | "asc" | null;
   page: number;
 }
 
@@ -20,8 +20,8 @@ const initialState: State = {
   maxPrice: null,
   selectedCategory: null,
   outOfStockIncluded: true,
-  sortBy: "id",
-  order: "asc",
+  sortBy: null,
+  order: null,
   page: 1,
 };
 

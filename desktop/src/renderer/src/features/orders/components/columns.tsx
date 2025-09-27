@@ -36,30 +36,31 @@ export const columns: ColumnDef<Order>[] = [
       <div className="text-right font-medium">{formatPrice(row.original.total)}</div>
     )
   },
-  {
-    id: 'phone',
-    accessorKey: 'Phone',
-    header: 'Phone number',
-    cell: ({ row }) => <div>{row.original.phone}</div>
-  },
-  {
-    id: 'email',
-    accessorKey: 'email',
-    header: 'Email',
-    cell: ({ row }) => <div>{row.original.email}</div>
-  },
+
   {
     id: 'country',
     accessorKey: 'country',
     header: 'Country',
     cell: ({ row }) => {
       return (
-        <div className="flex items-center gap-x-3">
+        <div className="flex items-center gap-x-2 w-full">
           {row.original.country && <CountryFlag code={row.original.country} />}
-          {getCountryName(row.original.country ?? '')}
+          <span>{getCountryName(row.original.country ?? '')}</span>
         </div>
       )
     }
+  },
+  {
+    id: 'phone',
+    accessorKey: 'Phone',
+    header: () => <div className="pl-4">Phone number</div>,
+    cell: ({ row }) => <div className="text-sm pl-4">{row.original.phone}</div>
+  },
+  {
+    id: 'email',
+    accessorKey: 'email',
+    header: 'Email',
+    cell: ({ row }) => <div>{row.original.email}</div>
   },
   {
     id: 'shippingCost',

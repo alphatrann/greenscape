@@ -46,8 +46,8 @@ export default function CategoriesPage() {
 
         <div className="mt-6">
           <div className="flex justify-between items-center gap-x-3">
-            <div className="grid grid-cols-4 md:grid-cols-6 font-medium items-center w-full py-2 pr-3 rounded-md">
-              <div className="flex gap-x-2 items-center col-span-2 md:col-span-4">
+            <div className="grid grid-cols-4 md:grid-cols-6 gap-x-4 font-medium items-center w-full py-2 pr-3 rounded-md">
+              <div className="flex gap-x-4 items-center col-span-2 md:col-span-4">
                 <div>Category</div>
                 <Button
                   variant="outline"
@@ -62,18 +62,18 @@ export default function CategoriesPage() {
                 </Button>
               </div>
               <CategorySortDropdown
-                title="Units Sold"
-                field="unitsSold"
-                sortBy={sortBy}
-                order={order}
-                sortByField={sortByField}
-              />
-              <CategorySortDropdown
                 title="Sales"
                 field="sales"
                 sortByField={sortByField}
                 sortBy={sortBy}
                 order={order}
+              />
+              <CategorySortDropdown
+                title="Units Sold"
+                field="unitsSold"
+                sortBy={sortBy}
+                order={order}
+                sortByField={sortByField}
               />
             </div>
             <div className="text-right w-32 font-medium text-sm">Actions</div>

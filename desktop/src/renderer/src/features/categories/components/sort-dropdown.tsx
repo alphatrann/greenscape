@@ -30,7 +30,10 @@ export const CategorySortDropdown = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="px-3 data-[state=open]:bg-accent">
+        <Button
+          variant="ghost"
+          className="px-3 w-fit justify-end gap-x-0 data-[state=open]:bg-accent"
+        >
           <span>{title}</span>
           {field === sortBy && order === 'desc' ? (
             <ArrowDownIcon className="ml-1 h-4 w-4" />

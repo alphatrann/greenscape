@@ -1,5 +1,6 @@
-import { BagList, BagSummary, Related } from "@/features/bag/client";
-import { Breadcrumb } from "../../features/ui/breadcrumb";
+import { Related } from "@/features/bag/components/related";
+import { BagClient } from "@/features/bag/components";
+import { Breadcrumb } from "@/features/ui/breadcrumb";
 
 export const metadata = {
   title: "Shopping Bag",
@@ -13,10 +14,7 @@ export default function BagPage() {
         Shopping Bag
       </h1>
 
-      <div className="lg:grid relative lg:grid-cols-12 lg:items-start lg:gap-x-12">
-        <BagList />
-        <BagSummary />
-      </div>
+      <BagClient />
       <Related />
     </div>
   );

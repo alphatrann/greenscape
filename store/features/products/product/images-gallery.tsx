@@ -18,7 +18,7 @@ export const ImagesGallery: React.FC<ImagesGalleryProps> = ({ product }) => {
         <Image
           src={
             product.images[pos].file.url ||
-            getLocalImage(product.images[pos].file.id)
+            getLocalImage(product.images[pos]?.file.id)
           }
           alt="Cover image"
           width={1024}
@@ -34,7 +34,7 @@ export const ImagesGallery: React.FC<ImagesGalleryProps> = ({ product }) => {
               "cursor-pointer",
               pos === i && "h-fit rounded ring-2 ring-primary ring-offset-2"
             )}
-            key={image.file.id}
+            key={image?.file.id}
           >
             <Image
               width={200}
@@ -43,7 +43,7 @@ export const ImagesGallery: React.FC<ImagesGalleryProps> = ({ product }) => {
                 "aspect-square rounded object-cover",
                 pos !== i && "opacity-50"
               )}
-              src={image.file.url || getLocalImage(image.file.id)}
+              src={image?.file.url || getLocalImage(image?.file.id)}
               alt={product.name}
             />
           </div>

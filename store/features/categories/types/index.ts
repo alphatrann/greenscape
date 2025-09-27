@@ -8,4 +8,6 @@ export interface Category {
   parentCategoryId: number | null;
   subCategories: Category[];
   products: Product[];
+  unitsSold: number;
+  sales: number;
 }

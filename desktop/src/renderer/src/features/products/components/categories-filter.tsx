@@ -26,7 +26,7 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({ categories }
       field="slug"
       onChange={(newValue) => {
         const slug = newValue.split('|')[0]
-        if (slug === selectedCategory) setSelectedCategory(null)
+        if (slug === selectedCategory) setSelectedCategory(undefined)
         else setSelectedCategory(slug)
       }}
       selectedCategory={`${foundCategory?.slug}|${foundCategory?.name}`}

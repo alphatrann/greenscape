@@ -6,10 +6,10 @@ import { DesktopLogo, MobileLogo } from "@/features/common/components";
 import { Button } from "@/features/ui/button";
 
 const socialLinks = [
-  { icon: Facebook, href: "https://facebook.com" },
-  { icon: Twitter, href: "https://x.com/ttalphazero" },
-  { icon: Instagram, href: "https://instagram.com" },
-  { icon: GitHub, href: "https://github.com/alphazero-wd" },
+  { icon: Facebook, href: "https://facebook.com/ttalphaa" },
+  { icon: Twitter, href: "https://x.com/ttalphaa" },
+  { icon: Instagram, href: "https://instagram.com/ttalphaa" },
+  { icon: GitHub, href: "https://github.com/ttalpha" },
 ];
 
 const footerLinks = [
@@ -26,10 +26,10 @@ const footerLinks = [
     title: "Connect",
     subLinks: [
       { href: "/contact-us", title: "Contact us" },
-      { href: "https://facebook.com", title: "Facebook" },
-      { href: "https://x.com/ttalphazero", title: "X" },
-      { href: "https://instagram.com", title: "Instagram" },
-      { href: "https://github.com/alphazero-wd", title: "GitHub" },
+      { href: "https://facebook.com/ttalphaa", title: "Facebook" },
+      { href: "https://x.com/ttalphaa", title: "X" },
+      { href: "https://instagram.com/ttalphaa", title: "Instagram" },
+      { href: "https://github.com/ttalpha", title: "GitHub" },
     ],
   },
   {
@@ -104,7 +104,7 @@ export const Footer = async () => {
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <div className="sm:flex sm:items-center sm:justify-between">
           <span className="text-sm text-muted-foreground sm:text-center dark:text-muted-foreground">
-            &copy; 2012-{new Date().getFullYear()} Greenscape. All Rights
+            &copy; 2023-{new Date().getFullYear()} Greenscape. All Rights
             Reserved.
           </span>
           <div className="flex mt-4 space-x-6 sm:justify-center sm:mt-0">

@@ -11,7 +11,7 @@ export const useSearchProducts = () => {
     const {
       data: { data },
     } = await axios.get(
-      process.env.NEXT_PUBLIC_API_URL + "/products/search/" + term
+      process.env.NEXT_PUBLIC_API_URL + "/products/store?q=" + term
     );
     return data;
   }, [term]);

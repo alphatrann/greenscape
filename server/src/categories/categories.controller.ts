@@ -11,10 +11,14 @@ import {
   Get,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import {
+  CreateCategoryDto,
+  FindManyCategoriesDto,
+  UpdateCategoryDto,
+} from './dto';
 import { RolesGuard } from '../auth/guards';
 import { Role } from '@prisma/client';
-import { DeleteManyDto } from '../common/dto';
+import { DeleteManyDto, FindManyDto } from '../common/dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -28,6 +32,22 @@ export class CategoriesController {
       success: true,
       data: newCategory,
     };
+  }
+
+  @Get(['subs', ':slug/subs'])
+  async findCategories(
+    @Query() findManyCategoriesDto: FindManyCategoriesDto,
+    @Param('slug') slug?: string,
+  ) {
+    const categories = await this.categoriesService.findAll(
+      findManyCategoriesDto,
+      slug,
+    );
+    const count = await this.categoriesService.paginate(
+      findManyCategoriesDto,
+      slug,
+    );
+    return { success: true, data: categories, count };
   }
 
   @Get('tree')

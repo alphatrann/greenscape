@@ -72,7 +72,9 @@ export default function OrdersPage() {
         </div>
 
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Orders ({totalCount})</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Orders ({totalCount.toLocaleString('en-US')})
+          </h1>
           <ExportButton entityType="orders" />
         </div>
         <div className="mt-6 space-y-3">

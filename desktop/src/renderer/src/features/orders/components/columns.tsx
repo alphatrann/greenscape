@@ -33,7 +33,9 @@ export const columns: ColumnDef<Order>[] = [
       <DataTableColumnHeader className="justify-end" column={column} title="Total" />
     ),
     cell: ({ row }) => (
-      <div className="text-right font-medium">{formatPrice(row.original.total)}</div>
+      <div className="text-right font-medium">
+        {formatPrice(row.original.total, { inCent: true })}
+      </div>
     )
   },
 

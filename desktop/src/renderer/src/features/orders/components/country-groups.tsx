@@ -28,7 +28,7 @@ const CountryGroupItem = ({
         <span className="text-sm font-medium text-foreground">{getCountryName(country)}</span>
       </div>
       <span className="font-mono text-sm text-muted-foreground">
-        {formatPrice(total)} ({((total / sales) * 100).toFixed(2)}%)
+        {formatPrice(total, { inCent: true })} ({((total / sales) * 100).toFixed(2)}%)
       </span>
     </div>
   )

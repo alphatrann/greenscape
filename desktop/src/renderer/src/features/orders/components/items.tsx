@@ -13,6 +13,8 @@ import { redirect } from 'react-router-dom'
 import { AppRoute } from '@renderer/common/app-route'
 
 export const OrderItems = ({ order }: { order: Order }) => {
+  const subtotal = order.products.reduce((acc, p) => acc + p.qty * p.product.price, 0)
+
   return (
     <Table>
       <TableHeader>
@@ -39,6 +41,7 @@ export const OrderItems = ({ order }: { order: Order }) => {
         <TableRow>
           <TableCell className="text-right" colSpan={3}>
             <ul>
+              <li className="text-sm font-medium text-gray-700">Subtotal</li>
               <li className="text-sm text-muted-foreground">
                 Shipping ({getShippingOption(+order.shippingCost)})
               </li>
@@ -48,9 +51,16 @@ export const OrderItems = ({ order }: { order: Order }) => {
           </TableCell>
           <TableCell>
             <ul className="text-right">
-              <li className="text-sm text-muted-foreground">{formatPrice(order.shippingCost)}</li>
-              <li className="text-sm text-muted-foreground">{formatPrice(order.tax)}</li>
-              <li className="font-medium text-foreground">{formatPrice(order.total)}</li>
+              <li className="text-sm font-medium text-gray-700">{formatPrice(subtotal)}</li>
+              <li className="text-sm text-muted-foreground">
+                {formatPrice(order.shippingCost, { inCent: true })}
+              </li>
+              <li className="text-sm text-muted-foreground">
+                {formatPrice(order.tax, { inCent: true })}
+              </li>
+              <li className="font-medium text-foreground">
+                {formatPrice(order.total + order.shippingCost + order.tax, { inCent: true })}
+              </li>
             </ul>
           </TableCell>
         </TableRow>

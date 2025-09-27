@@ -55,18 +55,13 @@ The application consists of three main components:
 
 - PostgreSQL: there are plenty of relationships between entities, so a relational database fits the project well
 - Redis: storing users' session data
-- Elasticsearch (in the future): handling products' search
 
 ### Deployment
-The project was deployed on AWS. AWS Amplify was used to quickly launch the frontend to production environment, the backend was containerized and runs in an ECS cluster, and has a load balancer in front to distribute traffic across the EC2 instances.
+The project was deployed on AWS. AWS Amplify was used to quickly launch the frontend to production environment, the backend was containerized and runs in an ECS cluster, and has a load balancer in front to distribute traffic across the EC2 instances. In order for the API to communicate with Stripe Webhook, a NAT Gateway is placed in the public subnets. Also, a VPC endpoint is configured for the API to get buckets and objects from AWS S3.
 
-Here are two versions of the architecture (with the first one being a cheaper solution, while the second one is more secure):
+Here's the diagram showing the AWS architecture:
 
-#### Version 1
-![Version 1](./assets/design-1.jpg)
-
-#### Version 2
-![Version 2](./assets/design-2.jpg)
+![AWS Architecture](./assets/aws.jpg)
 
 ### Challenges
 
@@ -95,7 +90,7 @@ To get started, clone the project from GitHub
 git clone https://github.com/alphazero-wd/greenscape.git
 ```
 
-### Setup the server
+### Set up the development server
 
 Install all dependencies
 
@@ -116,7 +111,7 @@ In the `server/` directory, create a `docker.env` file at the root and add the f
 ```bash
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres # set to anything you like
-POSTGRES_DB=greenify # set to anything to you like
+POSTGRES_DB=greenscape-dev # set to anything to you like
 ```
 
 Similarly, create a `.env` at the root of the `server/` directory and add the following variables:
@@ -131,16 +126,16 @@ STRIPE_SECRET_KEY=sk_test_... # from the Stripe dashboard
 STRIPE_WEBHOOK_SECRET=whsec_... # from the Stripe CLI
 ```
 
-Run PostgreSQL and Redis databases stipulated in the `docker.compose.yml` file
+Run PostgreSQL and Redis databases stipulated in the `docker-compose.dev.yml` file
 
 ```bash
-docker-compose up -d
+docker -f docker-compose.dev.yml up -d
 ```
 
 Apply migrations to the database
 
 ```bash
-yarn migrate
+yarn prisma migrate deploy
 ```
 
 Finally, start the server:
@@ -149,28 +144,28 @@ Finally, start the server:
 yarn start:dev
 ```
 
-### Setup the admin
+### Set up the admin
 
 Install all dependencies
 
 ```bash
-cd admin/
+cd desktop/
 yarn
 ```
 
-Create a `.env.local` file at the root of the `admin/` directory and add the following variable:
+Create a `.env.local` file at the root of the `desktop/` directory and add the following variable:
 
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:5000 # server URL
+VITE_API_URL=http://localhost:5000 # server URL
 ```
 
-Simply start the development server on http://localhost:3000
+Simply start the development server by running the following command:
 
 ```
 yarn dev
 ```
 
-### Setup the store
+### Set up the storefront
 
 Install all dependencies
 
@@ -188,24 +183,23 @@ NEXT_PUBLIC_API_URL=http://localhost:5000 # server URL
 Simply start the development server on http://localhost:3001
 
 ```
-yarn dev
+yarn dev -p 3001
 ```
 
 ## Screenshots
 
 ### Store
 
-![Store](./assets/store-demo.jpg)
+Below is a screenshot of the products page:
+
+![Store](./assets/store_products.png)
 
 ### Admin
 
-![Admin](./assets/admin-demo.jpg)
+Below is a screenshot of the admin dashboard:
 
-## Approaches
-
-- For the backend, NestJS already adopts Dependency Injection out of the box, which loosens the dependence between different parts of the codebase.
-- For the frontend, I adopts [Facade Design Pattern](https://wanago.io/2019/12/09/javascript-design-patterns-facade-react-hooks/) by extracting hooks into dedicated files to separate the logic from the UI.
+![Admin](./assets/admin_dashboard.png)
 
 ## License
 
-MIT license [@alphazero-wd](https://github.com/alphazero-wd)
+MIT license [@ttalpha](https://github.com/ttalpha)

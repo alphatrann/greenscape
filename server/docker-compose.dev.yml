@@ -1,17 +1,10 @@
 services:
-  stripe-cli:
-    image: stripe/stripe-cli
-    container_name: stripe-cli
-    command: 'listen --forward-to host.docker.internal:5000/webhooks'
-    env_file:
-      - docker.env
-
   postgres:
     image: postgres:alpine
     ports:
       - '5432:5432'
     volumes:
-      - /data/postgres:/var/lib/postgresql/data
+      - /var/lib/postgresql:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

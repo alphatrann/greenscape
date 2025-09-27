@@ -49,7 +49,7 @@ export class CheckoutService implements OnModuleInit {
       const { city, country, postal_code, state, line1, line2 } =
         session.customer_details.address;
       await this.ordersService.create({
-        id: session.payment_intent.toString().split('_')[1],
+        id: session.payment_intent.toString(),
         tax: session.total_details.amount_tax,
         line1,
         line2,
@@ -57,7 +57,7 @@ export class CheckoutService implements OnModuleInit {
         country,
         city,
         postalCode: postal_code,
-        total: +(session.amount_total / 100).toFixed(2),
+        total: session.amount_subtotal,
         phone: session.customer_details.phone,
         email: session.customer_details.email,
         bag: productIds.map((id, index) => ({
@@ -65,7 +65,7 @@ export class CheckoutService implements OnModuleInit {
           qty: quantities[index],
         })),
         customer: session.customer_details.name,
-        shippingCost: +(session.shipping_cost.amount_total / 100).toFixed(2),
+        shippingCost: session.shipping_cost.amount_subtotal,
       });
       for (let index in productIds) {
         const product = await this.productsService.findOne(productIds[index]);

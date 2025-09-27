@@ -13,7 +13,7 @@ export const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
     <Link
       href={`/products/details/${product.slug}`}
       key={product.id}
-      className="relative max-w-[300px] mx-auto sm:mx-0 w-fit group h-full"
+      className="relative sm:max-w-[300px] mx-auto sm:mx-0 w-fit group h-full"
     >
       <Image
         alt={product.name}

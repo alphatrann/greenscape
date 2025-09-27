@@ -73,7 +73,9 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="In Stock" className="justify-end" />
     ),
-    cell: ({ row }) => <div className="mr-3 text-right">{row.original.inStock}</div>
+    cell: ({ row }) => (
+      <div className="mr-3 text-right">{row.original.inStock.toLocaleString('en-US')}</div>
+    )
   },
   {
     id: 'orders',
@@ -81,7 +83,9 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Orders" className="justify-end" />
     ),
-    cell: ({ row }) => <div className="mr-3 text-right">{row.original._count.orders}</div>
+    cell: ({ row }) => (
+      <div className="mr-3 text-right">{row.original._count.orders.toLocaleString('en-US')}</div>
+    )
   },
   {
     id: 'status',

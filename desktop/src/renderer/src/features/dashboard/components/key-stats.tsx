@@ -15,6 +15,7 @@ import { startOfMonth } from 'date-fns'
 import { getKeyStats } from '../api'
 import { DateRangeSelect } from '@renderer/common/components'
 import { useDateRange } from '../hooks/use-date-range'
+import toast from 'react-hot-toast'
 
 export const KeyStats = () => {
   const [
@@ -47,7 +48,9 @@ export const KeyStats = () => {
 
   useEffect(() => {
     if (!from || !to) return
-    getKeyStats(from, to).then(setKeyStats)
+    getKeyStats(from, to)
+      .then(setKeyStats)
+      .catch(() => toast.error('Error fetching key stats'))
   }, [from, to])
 
   const revenueGrowthRate = useMemo(

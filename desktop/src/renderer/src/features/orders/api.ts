@@ -19,14 +19,14 @@ export const getOrders = async (query = ''): Promise<OrdersResponse> => {
 }
 
 export const updateDeliveryStatus = async (orderId: string) => {
-  try {
-    await fetch(`${import.meta.env.VITE_API_URL}/orders/${orderId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ deliveredAt: new Date().toISOString() }),
-      credentials: 'include'
-    })
-  } catch {}
+  const now = new Date()
+  await fetch(`${import.meta.env.VITE_API_URL}/orders/${orderId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ deliveredAt: now.toISOString() }),
+    credentials: 'include'
+  })
+  return now
 }

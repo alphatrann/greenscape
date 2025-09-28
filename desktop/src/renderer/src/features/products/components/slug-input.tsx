@@ -28,7 +28,7 @@ export const SlugInput = ({ form, loading }: SlugInputProps) => {
           name="slug"
           render={({ field }) => (
             <FormItem>
-              <Input {...field} disabled={loading} placeholder="white-tshirts" />
+              <Input {...field} disabled={loading} placeholder="snake-plant" />
               <FormMessage />
             </FormItem>
           )}

@@ -18,8 +18,8 @@ export const getPostalAddress = ({
   postalCode,
   country,
   customer
-}: Address) =>
-  formatAddress({
+}: Address) => {
+  const address = formatAddress({
     name: customer ?? undefined,
     postalCountry: country ?? undefined,
     postalCode: postalCode ?? undefined,
@@ -27,3 +27,5 @@ export const getPostalAddress = ({
     addressLines: line2 ? [line1, line2] : [line1],
     locality: city ?? undefined
   }).join('\n')
+  return address === 'undefined' ? 'N/A' : address
+}

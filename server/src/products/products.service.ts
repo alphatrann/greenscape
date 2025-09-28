@@ -36,7 +36,7 @@ export class ProductsService {
         if (error.code === PrismaError.UniqueViolation)
           throw new BadRequestException({
             success: false,
-            message: 'Product with the given name already exists',
+            message: 'Product with the given slug already exists',
           });
         if (error.code === PrismaError.RecordNotFound)
           throw new BadRequestException({

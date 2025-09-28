@@ -8,12 +8,14 @@ import { createCategory } from '../api'
 import { Category } from '../types'
 import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'
+import { v4 } from 'uuid'
 
 export const useCreateCategory = (
   addCategory: (newCategory: Category) => void,
+  closeModal: () => void,
   parentCategoryId?: number
 ) => {
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
   const [loading, setLoading] = useState(false)
   const { setTotal } = useFiltersContext()
   const form = useForm<z.infer<typeof formSchema>>({
@@ -28,12 +30,17 @@ export const useCreateCategory = (
     try {
       setLoading(true)
       if (online) {
-        const newCategory = await createCategory({ ...values, parentCategoryId })
-        addCategory({ ...newCategory, unitsSold: 0, sales: 0, subCategories: [] })
+        const response = await createCategory({ ...values, parentCategoryId })
+
+        if ('message' in response) {
+          form.setError('slug', { message: response.message })
+          return
+        } else addCategory({ ...response, unitsSold: 0, sales: 0, subCategories: [] })
       } else {
         const newCategory: Category = {
           id: -Math.floor(Math.random() * 2 ** 32 - 1),
           ...values,
+          slug: `${values.slug}-${v4()}`,
           _count: { products: 0 },
           parentCategoryId,
           unitsSold: 0,
@@ -43,13 +50,14 @@ export const useCreateCategory = (
         }
         /** @todo store pending writes here */
         addCategory(newCategory)
+        closeModal()
       }
       toast.success('Category created')
       form.reset()
       setTotal((t) => t + 1)
     } catch (error: any) {
       const message: string = error.message
-      if (message.includes('slug')) form.setError('slug', { message }, { shouldFocus: true })
+      toast.error(message)
     } finally {
       setLoading(false)
     }

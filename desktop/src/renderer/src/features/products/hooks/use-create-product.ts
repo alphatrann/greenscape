@@ -13,63 +13,74 @@ import { Product, Status } from '../types'
 
 export const useCreateProduct = () => {
   const navigate = useNavigate()
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', desc: '', status: 'Draft', categoryIds: [] }
+    defaultValues: { name: '', desc: '', status: Status.Draft, categoryIds: [] }
   })
   const { clearFiles, deleteFile, createFilesFormData, dropzoneState, files } = useImagesUpload()
 
   const [loading, setLoading] = useState(false)
 
+  const createOfflineProduct = async (
+    filesPayload: {
+      filename: string
+      buffer: ArrayBuffer
+    }[],
+    newProduct: Product
+  ) => {
+    // @ts-ignore
+    await window.electronAPI.upsertProducts([newProduct])
+
+    // @ts-ignore
+    await window.electronAPI.uploadProductImages(newProduct.id, filesPayload)
+  }
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const productId = -Date.now()
+    let newProduct: Product = {
+      id: productId,
+      _count: { orders: 0 },
+      ...values,
+      categories: values.categoryIds.map((id) => ({ id })),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      images: [],
+      status: values.status as Status
+    }
+    const filesPayload = await Promise.all(
+      files.map(async (f) => ({
+        filename: f.name,
+        buffer: await f.arrayBuffer()
+      }))
+    )
+    if (files.length === 0) {
+      toast.error('Please upload at least an image')
+      return
+    }
+    const formData = createFilesFormData()
+    setLoading(true)
     try {
-      if (files.length === 0) {
-        toast.error('Please upload at least an image')
-        return
-      }
-      const formData = createFilesFormData()
-      const productId = -Date.now()
-      let newProduct: Product
       if (online) {
-        newProduct = await createProduct(values)
-        await uploadImages(newProduct.id, formData)
-      } else {
-        const isUniqueSlug = await window.electronAPI.checkUniqueSlug(values.slug)
-        if (!isUniqueSlug) {
-          form.setError('slug', { message: 'Duplicate slug' })
+        const response = await createProduct(values)
+        if ('message' in response) {
+          form.setError('slug', response)
           return
+        } else {
+          newProduct = response
         }
-        newProduct = {
-          id: productId,
-          _count: { orders: 0 },
-          ...values,
-          categories: values.categoryIds.map((id) => ({ id })),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          images: [],
-          status: values.status as Status
-        }
+        await uploadImages(newProduct.id, formData)
       }
-      const filesPayload = await Promise.all(
-        files.map(async (f) => ({
-          filename: f.name,
-          buffer: await f.arrayBuffer()
-        }))
-      )
-
-      //@ts-ignore
-      await window.electronAPI.upsertProducts([newProduct])
-
-      //@ts-ignore
-      await window.electronAPI.uploadProductImages(newProduct.id, filesPayload)
-      setLoading(true)
+      await createOfflineProduct(filesPayload, newProduct)
       form.reset()
       clearFiles()
       toast.success('Product created')
       navigate(`${AppRoute.Products}/${newProduct.slug}`)
     } catch (error: any) {
-      toast.error(error.message)
+      if (online) {
+        toast.error('Failed to create product. Please try again')
+        await createOfflineProduct(filesPayload, newProduct)
+      } else toast.error(`Failed to create product in offline mode. Reason: ${error.message}`)
     } finally {
       setLoading(false)
     }

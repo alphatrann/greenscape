@@ -33,13 +33,13 @@ export const FiltersProvider = ({ children }: { children: ReactNode }) => {
     pageSize: 10
   })
   const location = useLocation()
-  const [sortBy, setSortBy] = useState<string>('id')
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc')
+  const [sortBy, setSortBy] = useState<string>('createdAt')
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
   const [total, setTotal] = useState(0)
   const reset = () => {
     setQ('')
-    setSortBy('id')
-    setOrder('asc')
+    setSortBy('createdAt')
+    setOrder('desc')
     setPagination((prev) => ({
       pageIndex: 0,
       pageSize: prev.pageSize

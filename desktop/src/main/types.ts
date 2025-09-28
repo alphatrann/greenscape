@@ -62,11 +62,12 @@ interface OrdersOnProducts {
 }
 
 export interface StatusGroup {
-  _count: { id: number }
+  count: number
   status: Status
 }
 
 export interface File {
+  id?: string
   buffer: Buffer
   filename: string
 }
@@ -88,4 +89,55 @@ export interface ProductQuery {
   order?: 'asc' | 'desc'
   offset?: number
   limit?: number
+}
+
+export type OrderQuery = {
+  q?: string
+  totalRange?: [number?, number?]
+  shippingCost?: number
+  status?: string
+  countries?: string[]
+  from?: Date
+  to?: Date
+  sortBy?: 'total' | 'shippingCost' | 'createdAt' | 'deliveredAt' | 'id'
+  order?: 'asc' | 'desc'
+  offset?: number
+  limit?: number
+}
+
+export interface ShippingGroup {
+  shippingCost: number
+  count: number
+  total: number
+}
+
+export interface CountryGroup {
+  country: string
+  count: number
+  total: number
+}
+
+export interface DeliveryStatusGroups {
+  delivered: {
+    count: number
+    total: number
+  }
+  pending: {
+    count: number
+    total: number
+  }
+}
+
+export interface OrdersResponse {
+  data: Order[]
+  count: number
+  sales: number
+  deliveryStatusGroups: DeliveryStatusGroups
+  shippingGroups: ShippingGroup[]
+  countryGroups: CountryGroup[]
+}
+
+export enum DeliveryStatus {
+  Pending = 'pending',
+  Delivered = 'delivered'
 }

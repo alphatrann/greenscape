@@ -31,7 +31,7 @@ export function DataTableColumnHeader<TData, TValue>({
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>
   }
-  const { setSortBy, setOrder } = useFiltersContext()
+  const { sortBy, order, setSortBy, setOrder } = useFiltersContext()
 
   const toggleSortingServer = useDebouncedCallback(async () => {
     setSortBy(column.id || 'id')
@@ -41,6 +41,12 @@ export function DataTableColumnHeader<TData, TValue>({
   useEffect(() => {
     if (column.getIsSorted()) toggleSortingServer()
   }, [column.getIsSorted()])
+
+  useEffect(() => {
+    if (column.id === sortBy) {
+      column.toggleSorting(order === 'desc')
+    }
+  }, [sortBy, order])
 
   return (
     <div className={cn('flex items-center space-x-2', className)}>

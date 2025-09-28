@@ -1,10 +1,13 @@
+import { useOnlineStatus } from '@renderer/common/contexts/online-context'
+import { Badge } from '@renderer/features/ui/badge'
 import { Label } from '@renderer/features/ui/label'
 import { Switch } from '@renderer/features/ui/switch'
-import React, { useEffect } from 'react'
-import { Badge } from '@renderer/features/ui/badge'
-import { Order } from '../types'
-import { getPostalAddress, getShippingOption } from '../utils'
+import { format } from 'date-fns'
+import React from 'react'
+import { CountryFlag } from '../../../common/components'
 import { useSetDelivered } from '../hooks/use-set-delivered'
+import { Order } from '../types'
+import { getCountryName, getPostalAddress, getShippingOption } from '../utils'
 
 interface OrderSummaryProps {
   order: Order
@@ -26,11 +29,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
     shippingCost
   }
 }) => {
-  const { delivered, setDelivered, onUpdateDeliveryStatus } = useSetDelivered(id, deliveredAt)
-
-  useEffect(() => {
-    onUpdateDeliveryStatus()
-  }, [delivered])
+  const { online } = useOnlineStatus()
+  const { delivered, onUpdateDeliveryStatus } = useSetDelivered(id, deliveredAt)
 
   return (
     <div className="space-y-6">
@@ -55,13 +55,22 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             country,
             customer
           })}
+          {country && (
+            <span className="flex gap-x-3 text-sm font-medium">
+              <CountryFlag code={country} />
+              {getCountryName(country)}
+            </span>
+          )}
         </p>
       </div>
       <div className="grid w-full grid-cols-3 gap-x-8">
         <Label>Delivery status</Label>
-        <Badge className="w-fit" variant={deliveredAt ? 'default' : 'secondary'}>
-          {deliveredAt ? 'Delivered' : 'Pending'}
-        </Badge>
+        <div className="gap-y-2 flex flex-col">
+          <Badge className="w-fit" variant={delivered ? 'default' : 'secondary'}>
+            {delivered ? 'Delivered' : 'Pending'}
+          </Badge>
+          <div className="text-sm font-medium">{delivered && format(delivered, 'Pp')}</div>
+        </div>
       </div>
       <div className="grid w-full grid-cols-3 gap-x-8">
         <Label>Shipping option</Label>
@@ -69,12 +78,12 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           {getShippingOption(+shippingCost)}
         </p>
       </div>
-      {!deliveredAt && (
+      {online && !delivered && (
         <div className="flex items-center space-x-2">
           <Switch
-            checked={delivered}
-            onCheckedChange={() => setDelivered(true)}
-            disabled={delivered}
+            checked={!!delivered}
+            onCheckedChange={onUpdateDeliveryStatus}
+            disabled={!!delivered}
             id="delivered"
           />
           <Label htmlFor="delivered">Set to delivered</Label>

@@ -1,10 +1,11 @@
 import xlsx from 'xlsx'
+import { Product } from '../types'
 
-export function getLocalImage(id: number) {
+export function getLocalImage(id: string) {
   return `${import.meta.env.VITE_API_URL}/files/${id}`
 }
 
-export function exportProductsToCSV(products: any[]) {
+export function exportProductsToCSV(products: Product[]) {
   const headers = [
     'ID',
     'Slug',
@@ -26,7 +27,7 @@ export function exportProductsToCSV(products: any[]) {
     p.price,
     new Date(p.createdAt).toISOString(),
     p.status,
-    p.categories.map((c) => c.name).join('/'),
+    p.categories.map((c) => c.name).join(','),
     p.images[0]?.file?.url || getLocalImage(p.images[0]?.file?.id),
     p._count.orders
   ])
@@ -45,7 +46,7 @@ export function exportProductsToExcel(products: any[]) {
     Price: p.price,
     'Created At': new Date(p.createdAt).toISOString(),
     Status: p.status,
-    Categories: p.categories.map((c) => c.name).join('/'),
+    Categories: p.categories.map((c) => c.name).join(','),
     'Image URL': p.images[0]?.file?.url || getLocalImage(p.images[0]?.file?.id),
     'Orders Made': p._count.orders
   }))

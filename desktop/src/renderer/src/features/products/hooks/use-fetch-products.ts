@@ -76,7 +76,7 @@ export const useFetchProducts = () => {
     fetchCategories(queryString)
   }, [query])
 
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
   useEffect(() => {
     if (online) fetchData()
     else fetchOfflineData()

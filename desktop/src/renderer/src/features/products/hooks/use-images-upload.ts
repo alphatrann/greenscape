@@ -50,7 +50,7 @@ export const useImagesUpload = () => {
   const deleteFile = useCallback((url: string) => {
     setPrevImages((prevImages) => {
       return prevImages.filter((image) => {
-        const remoteUrl = getLocalImage(image.file.id)
+        const remoteUrl = image.file.url || getLocalImage(image.file.id)
         return remoteUrl !== url
       })
     })

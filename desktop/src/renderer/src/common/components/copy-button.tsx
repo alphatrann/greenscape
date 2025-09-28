@@ -22,6 +22,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ text, content, className
       const timeout = setTimeout(() => setIsCopied(false), 2000)
       return () => clearTimeout(timeout)
     }
+    return
   }, [isCopied])
 
   return (

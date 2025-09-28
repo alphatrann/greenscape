@@ -8,10 +8,9 @@ export const saveImagesOffline = ({ files, imagesDir }: SaveImagesOfflineDto) =>
   }
 
   const savedPaths: string[] = []
-  const uploadedAt = Date.now()
 
   for (const file of files) {
-    const filePath = path.join(imagesDir, `${uploadedAt}_${file.filename}`)
+    const filePath = path.join(imagesDir, file.filename)
     fs.writeFileSync(filePath, Buffer.from(file.buffer))
     savedPaths.push(filePath)
   }

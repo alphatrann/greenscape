@@ -12,7 +12,7 @@ export const useUserGuard = () => {
 
   const user = useUserStore((state) => state.user)
   const setCurrentUser = useUserStore((state) => state.setCurrentUser)
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
 
   const [checking, setChecking] = useState(false)
 

@@ -4,7 +4,7 @@ import { getLocalImage } from '@renderer/common/utils'
 import { Product } from '../types'
 import placeholder from '../../../../../../resources/placeholder.jpg'
 import { MAX_FILES } from '../constants'
-import { useOnlineStatus } from '../../../common/contexts/online-context'
+import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 
 interface ImagesGalleryProps {
   product: Product
@@ -12,8 +12,7 @@ interface ImagesGalleryProps {
 
 export const ImagesGallery: React.FC<ImagesGalleryProps> = ({ product }) => {
   const [pos, setPos] = useState(0)
-  const online = useOnlineStatus()
-  console.log('Length:', product.images)
+  const { online } = useOnlineStatus()
 
   return (
     <div className="space-y-6">

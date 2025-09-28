@@ -2,21 +2,21 @@ import path from 'path'
 import db from '../db'
 import { v4 } from 'uuid'
 import { File, Product, ProductImage, ProductQuery, Status, StatusGroup } from '../types'
-import { deleteImagesOffline, saveImagesOffline } from './files'
+import { saveImagesOffline } from './files'
 
-export async function checkUniqueSlug(slug: string) {
-  await db.read()
-  const slugExisted = db.data!.products.some((prod) => prod.slug === slug)
-  return !slugExisted
-}
-
-export async function upsertProducts(newProducts: Product[]) {
+export async function upsertProducts(newProducts: Product[], options?: { uploadImages: boolean }) {
   await db.read()
   for (const p of newProducts) {
     const idx = db.data!.products.findIndex((prod) => prod.id === p.id)
     if (idx >= 0) {
-      db.data!.products[idx] = { ...db.data!.products[idx], ...p }
+      const old = db.data!.products[idx]
+      db.data!.products[idx] = {
+        ...old,
+        ...p,
+        images: options?.uploadImages ? p.images : old.images
+      }
     } else {
+      p.images = p?.images ?? []
       db.data!.products.push(p)
     }
   }
@@ -70,7 +70,7 @@ export async function getProducts(
 
   const statusGroups: StatusGroup[] = Object.values(Status).map((status) => ({
     status,
-    _count: { id: products.filter((p) => p.status === status).length }
+    count: products.filter((p) => p.status === status).length
   }))
 
   if (query.status) {
@@ -101,56 +101,32 @@ export async function getProducts(
   return { data: products, count, statusGroups }
 }
 
-export async function deleteProducts(productIds: number[]) {
-  await db.read()
-  const toDelete = db.data.products.filter((p) => productIds.includes(p.id))
-
-  for (const product of toDelete) {
-    await detachImages(
-      product.id,
-      product.images.map((i) => i.file.id)
-    )
-  }
-  db.data.products = db.data.products.filter((p) => !productIds.includes(p.id))
-  await db.write()
-}
-
-export async function detachImages(productId: number, imageIds: string[]) {
-  await db.read()
-  const productIndex = db.data!.products.findIndex((prod) => prod.id === productId)
-
-  if (productIndex >= 0) {
-    const product = db.data!.products[productIndex]
-    const pathsToDelete = product.images
-      .filter((i) => imageIds.includes(i.file.id))
-      .map((i) => i.file.url)
-      .filter(Boolean) as string[]
-
-    await deleteImagesOffline(pathsToDelete)
-
-    db.data.products[productIndex].images = product.images.filter(
-      (i) => !imageIds.includes(i.file.id)
-    )
-  }
-
-  await db.write()
-}
-
 export async function attachImages(productId: number, imagesDir: string, files: File[]) {
   await db.read()
   const idx = db.data!.products.findIndex((prod) => prod.id === productId)
 
   if (idx >= 0) {
     const product = { ...db.data!.products[idx] }
+    product.images = product?.images ?? []
 
-    const paths = saveImagesOffline({
-      files,
-      imagesDir: path.join(imagesDir, 'products')
+    const uploadedFiles = files.map((file) => {
+      const ext = path.extname(file.filename)
+      const id = file?.id ?? v4()
+      return {
+        id,
+        buffer: file.buffer,
+        filename: `${id}${ext === 'jpeg' ? 'jpg' : ext}`
+      }
     })
 
-    const newImages: ProductImage[] = paths.map((p) => ({
+    const paths = saveImagesOffline({
+      files: uploadedFiles,
+      imagesDir
+    })
+
+    const newImages: ProductImage[] = paths.map((p, i) => ({
       file: {
-        id: v4(),
+        id: uploadedFiles[i].id,
         url: p
       }
     }))

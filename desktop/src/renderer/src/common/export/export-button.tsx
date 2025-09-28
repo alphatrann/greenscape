@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@renderer/features/ui/dropdown-menu'
-import { DownloadIcon } from 'lucide-react'
+import { CircleAlertIcon, DownloadIcon } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { getOrders } from '../../features/orders/api'
@@ -16,6 +16,7 @@ import { getShippingOption } from '../../features/orders/utils'
 import { getProducts } from '../../features/products/api'
 import { useFiltersContext } from '../contexts/filters-context'
 import { DateRangeSelect } from '../components'
+import { useOnlineStatus } from '../contexts/online-context'
 
 interface ExportButtonProps {
   entityType: 'products' | 'orders'
@@ -27,6 +28,7 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
   const [to, setTo] = useState<Date | undefined>(new Date())
   const [open, setOpen] = useState(false)
   const { total } = useFiltersContext()
+  const { online } = useOnlineStatus()
 
   const exportData = async () => {
     if (!exportFormat) return
@@ -99,13 +101,21 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
           </>
         )}
 
-        {(entityType === 'products' || (from && to)) && exportFormat && (
-          <>
-            <DropdownMenuSeparator className="my-2" />
-            <Button type="button" onClick={exportData} className="w-full">
-              Export
-            </Button>
-          </>
+        {online ? (
+          (entityType === 'products' || (from && to)) &&
+          exportFormat && (
+            <>
+              <DropdownMenuSeparator className="my-2" />
+              <Button type="button" onClick={exportData} className="w-full">
+                Export
+              </Button>
+            </>
+          )
+        ) : (
+          <DropdownMenuLabel className="text-destructive justify-start flex gap-x-2">
+            <CircleAlertIcon className="w-5 h-5" />
+            Export is unavailable in offline mode
+          </DropdownMenuLabel>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

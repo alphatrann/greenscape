@@ -5,7 +5,7 @@ export class CreateCategoryDto {
   @Length(1, 60)
   name: string;
 
-  @Length(1, 60)
+  @Length(1, 120)
   @Matches(VALID_SLUG_REGEX, { message: 'invalid slug' })
   slug: string;
 

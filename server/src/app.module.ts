@@ -3,13 +3,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
-import { FilesModule } from './files/files.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products.module';
 import { CheckoutModule } from './checkout/checkout.module';
-import { OrdersModule } from './orders/orders.module';
+import { FilesModule } from './files/files.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { OrdersModule } from './orders/orders.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { ProductsModule } from './products/products.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { MetricsModule } from './metrics/metrics.module';
       isGlobal: true,
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().required(),
-        SESSION_SECRET: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
 
         CORS_ORIGIN_ADMIN: Joi.string().required(),
         CORS_ORIGIN_STORE: Joi.string().required(),

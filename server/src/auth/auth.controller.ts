@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import {
   Body,
   Controller,
@@ -13,7 +12,7 @@ import {
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto';
 import {
-  CookieAuthGuard,
+  JwtAuthGuard,
   LocalAuthGuard,
   RolesGuard,
   LocalAdminAuthGuard,
@@ -38,10 +37,12 @@ export class AuthController {
   @UseInterceptors(new TransformDataInterceptor(AuthResponse))
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@CurrentUser() user: User) {
+  async login(@CurrentUser() user: User) {
+    const accessToken = await this.authService.createAccessToken(user.id);
     return {
       success: true,
       data: user,
+      accessToken,
     };
   }
 
@@ -57,7 +58,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(CookieAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new TransformDataInterceptor(AuthResponse))
   me(@CurrentUser() user: User) {
     return {
@@ -74,14 +75,5 @@ export class AuthController {
       success: true,
       data: user,
     };
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(CookieAuthGuard)
-  @Post('logout')
-  logout(@Req() req: Request) {
-    req.logOut(() => {});
-    req.session.cookie.maxAge = 0;
-    return { success: true };
   }
 }

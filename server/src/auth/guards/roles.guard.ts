@@ -6,10 +6,10 @@ import {
   mixin,
 } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
-import { CookieAuthGuard } from './cookie-auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 export const RolesGuard = (role: Role): Type<CanActivate> => {
-  class RolesGuardMixin extends CookieAuthGuard {
+  class RolesGuardMixin extends JwtAuthGuard {
     async canActivate(context: ExecutionContext) {
       await super.canActivate(context);
 

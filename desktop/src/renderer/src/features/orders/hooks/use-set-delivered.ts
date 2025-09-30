@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
-import { updateDeliveryStatus } from '../api'
 
 export const useSetDelivered = (orderId: string, deliveredAt?: Date) => {
   const [delivered, setDelivered] = useState<Date | undefined>(undefined)
@@ -12,8 +11,7 @@ export const useSetDelivered = (orderId: string, deliveredAt?: Date) => {
   const onUpdateDeliveryStatus = async () => {
     try {
       if (deliveredAt) return
-      const now = await updateDeliveryStatus(orderId)
-      console.log()
+      const now = await window.electronAPI.updateDeliveryStatus(orderId)
 
       setDelivered(now)
       toast.success('Order set to delivered!')

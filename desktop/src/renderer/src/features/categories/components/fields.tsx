@@ -1,4 +1,4 @@
-import { slugify } from '@renderer/common/utils'
+import { slugify } from '@renderer/../../common/utils'
 import {
   FormControl,
   FormField,

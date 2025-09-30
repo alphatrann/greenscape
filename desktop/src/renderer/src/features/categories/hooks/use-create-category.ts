@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { formSchema } from '../utils'
-import { createCategory } from '../api'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 import { v4 } from 'uuid'
@@ -30,7 +29,7 @@ export const useCreateCategory = (
     try {
       setLoading(true)
       if (online) {
-        const response = await createCategory({ ...values, parentCategoryId })
+        const response = await window.electronAPI.createCategory({ ...values, parentCategoryId })
 
         if ('message' in response) {
           form.setError('slug', { message: response.message })
@@ -50,8 +49,8 @@ export const useCreateCategory = (
         }
         /** @todo store pending writes here */
         addCategory(newCategory)
-        closeModal()
       }
+      closeModal()
       toast.success('Category created')
       form.reset()
       setTotal((t) => t + 1)

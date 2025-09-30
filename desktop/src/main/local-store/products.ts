@@ -1,10 +1,21 @@
 import path from 'path'
-import db from '../db'
 import { v4 } from 'uuid'
-import { File, Product, ProductImage, ProductQuery, Status, StatusGroup } from '../types'
+import {
+  LocalFilePayload,
+  GetProductsResponse,
+  Product,
+  ProductImage,
+  Status,
+  StatusGroup
+} from '../../common/types'
+import db from '../db'
+import { ProductQuery } from '../types'
 import { saveImagesOffline } from './files'
 
-export async function upsertProducts(newProducts: Product[], options?: { uploadImages: boolean }) {
+export async function upsertProducts(
+  newProducts: Product[],
+  options?: { overrideImages: boolean }
+) {
   await db.read()
   for (const p of newProducts) {
     const idx = db.data!.products.findIndex((prod) => prod.id === p.id)
@@ -13,7 +24,7 @@ export async function upsertProducts(newProducts: Product[], options?: { uploadI
       db.data!.products[idx] = {
         ...old,
         ...p,
-        images: options?.uploadImages ? p.images : old.images
+        images: options?.overrideImages ? p.images : old.images
       }
     } else {
       p.images = p?.images ?? []
@@ -36,9 +47,7 @@ export async function getProductDetail(slug: string) {
   return product
 }
 
-export async function getProducts(
-  query: ProductQuery
-): Promise<{ data: Product[]; count: number; statusGroups: StatusGroup[] }> {
+export async function getProducts(query: ProductQuery): Promise<GetProductsResponse> {
   await db.read()
   let products = [...db.data!.products]
 
@@ -65,7 +74,7 @@ export async function getProducts(
     products = products.filter((p) => new Date(p.createdAt) <= query.to!)
   }
   if (query.selectedCategory) {
-    products = products.filter((p) => p.categories.some((c) => c.slug === query.selectedCategory))
+    products = products.filter((p) => p.categories.some((c) => c.id === query.selectedCategory))
   }
 
   const statusGroups: StatusGroup[] = Object.values(Status).map((status) => ({
@@ -98,10 +107,14 @@ export async function getProducts(
   if (query.offset != null && query.limit != null) {
     products = products.slice(query.offset, query.offset + query.limit)
   }
-  return { data: products, count, statusGroups }
+  return { success: true, data: products, count, statusGroups }
 }
 
-export async function attachImages(productId: number, imagesDir: string, files: File[]) {
+export async function attachImages(
+  productId: number,
+  imagesDir: string,
+  files: LocalFilePayload[]
+) {
   await db.read()
   const idx = db.data!.products.findIndex((prod) => prod.id === productId)
 
@@ -115,11 +128,11 @@ export async function attachImages(productId: number, imagesDir: string, files: 
       return {
         id,
         buffer: file.buffer,
-        filename: `${id}${ext === 'jpeg' ? 'jpg' : ext}`
+        filename: `${id}${ext === '.jpeg' ? '.jpg' : ext}`
       }
     })
 
-    const paths = saveImagesOffline({
+    const paths = await saveImagesOffline({
       files: uploadedFiles,
       imagesDir
     })
@@ -132,7 +145,9 @@ export async function attachImages(productId: number, imagesDir: string, files: 
     }))
 
     db.data.products[idx].images = product.images.concat(newImages)
+    return paths
   }
 
   await db.write()
+  return []
 }

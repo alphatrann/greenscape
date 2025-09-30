@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger
 } from '@renderer/features/ui/dropdown-menu'
 import { ReactNode } from 'react'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 import { CategorySubmenu } from './submenu'
 
 interface CategoriesRadioMenuProps {

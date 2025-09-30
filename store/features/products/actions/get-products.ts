@@ -4,19 +4,18 @@ import { Product } from "../types";
 export const getProducts = async (
   query = "",
   categorySlug = ""
-): Promise<Product[]> => {
+): Promise<{ count: number; data: Product[] }> => {
   try {
     const {
-      data: { data },
+      data: { count, data },
     } = await axios.get(
       process.env.NEXT_PUBLIC_API_URL +
         "/products/store" +
         (categorySlug ? "/category/" + categorySlug : "") +
         query
     );
-    return data;
+    return { count, data };
   } catch (error: any) {
-    console.log(error.response?.data.message ?? error.message);
-    return [] as Product[];
+    return { count: 0, data: [] };
   }
 };

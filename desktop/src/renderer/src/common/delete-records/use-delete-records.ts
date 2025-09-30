@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDeleteRecordsModal } from './use-modal'
-import { deleteRecords } from './api'
 import { useFiltersContext } from '../contexts/filters-context'
 import { useOnlineStatus } from '../contexts/online-context'
 
@@ -16,7 +15,7 @@ export const useDeleteRecords = () => {
   ) => {
     try {
       setLoading(true)
-      if (online) await deleteRecords(ids, entityName)
+      if (online) await window.electronAPI.deleteRecords(ids, entityName)
       else {
         toast.error(`Deleting ${entityName} is unavailable in offline mode`)
         return

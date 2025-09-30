@@ -16,12 +16,4 @@ export interface CategoryFormDto {
   parentCategoryId?: number
 }
 
-export interface CategoriesResponse {
-  count: number
-  data: {
-    categories: Category[]
-    parent: Category | null
-  }
-}
-
 export type CategorySortBy = 'id' | 'sales' | 'unitsSold'

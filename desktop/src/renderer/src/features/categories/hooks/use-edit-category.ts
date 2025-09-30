@@ -4,9 +4,8 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { formSchema } from '../utils'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 import { useEditCategoryModal } from './use-edit-category-modal'
-import { updateCategory } from '../api'
 import { useOnlineStatus } from '../../../common/contexts/online-context'
 import { v4 } from 'uuid'
 
@@ -34,7 +33,7 @@ export const useEditCategory = (
     try {
       setLoading(true)
       if (online) {
-        const response = await updateCategory(category.id, values)
+        const response = await window.electronAPI.updateCategory(category.id, values)
         if ('message' in response) {
           form.setError('slug', response)
           return

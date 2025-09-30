@@ -10,7 +10,7 @@ import {
 import { Form } from '@renderer/features/ui/form'
 import { CategoryFormFields } from './fields'
 import { Loader2 } from 'lucide-react'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 import { useCreateCategory } from '../hooks'
 
 interface CreateCategoryModalProps {

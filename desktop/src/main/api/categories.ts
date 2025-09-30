@@ -1,13 +1,15 @@
-import { CategoriesResponse, Category, CategoryFormDto } from './types'
+import { CategoryFormDto, Category } from '../../common/types'
+import { getToken } from '../local-store/token'
 
 export const createCategory = async (values: CategoryFormDto) => {
+  const token = await getToken({ throw: true })
   const response = await fetch(`${import.meta.env.VITE_API_URL}/categories`, {
     method: 'POST',
     body: JSON.stringify(values),
     headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include'
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
   })
   if (!response.ok && response.status === 400)
     return response.json() as Promise<{ message: string }>
@@ -16,13 +18,14 @@ export const createCategory = async (values: CategoryFormDto) => {
 }
 
 export const updateCategory = async (id: number, values: CategoryFormDto) => {
+  const token = await getToken({ throw: true })
   const response = await fetch(`${import.meta.env.VITE_API_URL}/categories/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(values),
     headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include'
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
   })
   if (!response.ok && response.status === 400)
     return response.json() as Promise<{ message: string }>
@@ -30,17 +33,7 @@ export const updateCategory = async (id: number, values: CategoryFormDto) => {
   return data.data as Category
 }
 
-export const getCategories = async (query = '', slug: string = ''): Promise<CategoriesResponse> => {
-  const url = `${import.meta.env.VITE_API_URL}/categories${(slug ? '/' : '') + slug}/subs?${query}`
-
-  const response = await fetch(url, {
-    credentials: 'include'
-  })
-  const data = await response.json()
-  return data as CategoriesResponse
-}
-
-export const getCategoriesTree = async (query?: string): Promise<Category[]> => {
+export const fetchCategoriesTree = async (query?: string): Promise<Category[]> => {
   const url = `${import.meta.env.VITE_API_URL}/categories/tree${query ?? ''}`
 
   const response = await fetch(url)

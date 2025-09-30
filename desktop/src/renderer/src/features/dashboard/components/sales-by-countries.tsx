@@ -12,7 +12,7 @@ import { useEffect, useMemo } from 'react'
 import { useDateRange } from '../hooks/use-date-range'
 import { DateRangeSelect } from '@renderer/common/components'
 import { startOfMonth } from 'date-fns'
-import { formatPrice } from '../../../common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 
 export const SalesByCountries = () => {
   const { chartConfig, chartData, fetchSalesData } = useCountrySales()

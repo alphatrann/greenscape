@@ -1,4 +1,4 @@
-import { Category } from '@renderer/features/categories/types'
+import { Category } from './categories'
 
 export type FilePreview = File & { preview: string }
 
@@ -9,6 +9,7 @@ export enum Status {
 }
 
 export interface GetProductsResponse {
+  count: number
   success: boolean
   data: Product[]
   statusGroups: StatusGroup[]
@@ -41,7 +42,7 @@ export interface ProductFormDto {
   desc: string
   price: number
   inStock: number
-  status: 'Active' | 'Draft' | 'Archived'
+  status: Status
   categoryIds: number[]
 }
 

@@ -1,5 +1,5 @@
 import { PriceInput } from '@renderer/common/components'
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Button } from '@renderer/features/ui/button'
 import { Label } from '@renderer/features/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/popover'

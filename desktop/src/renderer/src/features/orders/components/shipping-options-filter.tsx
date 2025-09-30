@@ -11,9 +11,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/p
 import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
 import { CircleIcon, PlusCircleIcon } from 'lucide-react'
-import { ShippingGroup } from '../types'
-import { getShippingOption } from '../utils'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
+import { ShippingGroup } from '@renderer/../../common/types'
+import { getShippingOption } from '@renderer/../../common/utils'
 
 interface ShippingOptionFilterProps {
   shippingGroups: ShippingGroup[]

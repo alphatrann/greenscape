@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Order } from '../types'
+import { Order } from '@renderer/../../common/types'
 import { useParams } from 'react-router-dom'
-import { getOrder } from '../api'
 import toast from 'react-hot-toast'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 
@@ -15,7 +14,8 @@ export const useFetchOrder = () => {
     if (!id || typeof id !== 'string') return
     setLoading(true)
     if (online) {
-      getOrder(id)
+      window.electronAPI
+        .fetchOrder(id)
         .then((data) => {
           if (!data) return
           setOrder(data)
@@ -27,7 +27,7 @@ export const useFetchOrder = () => {
     } else {
       window.electronAPI
         .getOrderDetail(id)
-        .then((data?: Order) => {
+        .then((data) => {
           if (!data) return
           setOrder(data)
         })

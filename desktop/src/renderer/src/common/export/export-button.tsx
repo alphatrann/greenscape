@@ -11,12 +11,9 @@ import {
 import { CircleAlertIcon, DownloadIcon } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { getOrders } from '../../features/orders/api'
-import { getShippingOption } from '../../features/orders/utils'
-import { getProducts } from '../../features/products/api'
-import { useFiltersContext } from '../contexts/filters-context'
 import { DateRangeSelect } from '../components'
 import { useOnlineStatus } from '../contexts/online-context'
+import { getDateString, getShippingOption } from '@renderer/../../common/utils'
 
 interface ExportButtonProps {
   entityType: 'products' | 'orders'
@@ -27,14 +24,12 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
   const [from, setFrom] = useState<Date | undefined>(new Date())
   const [to, setTo] = useState<Date | undefined>(new Date())
   const [open, setOpen] = useState(false)
-  const { total } = useFiltersContext()
   const { online } = useOnlineStatus()
 
   const exportData = async () => {
     if (!exportFormat) return
-    const queryString = `?limit=${total}`
     if (entityType === 'products') {
-      const data = await getProducts(queryString)
+      const data = await window.electronAPI.fetchProducts()
       // @ts-ignore
       window.electronAPI.exportData({
         type: entityType,
@@ -44,8 +39,8 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
       toast.success(`Exported ${data.data.length} products successfully!`)
     } else {
       if (!from || !to) return
-      const { count, data } = await getOrders(
-        `${queryString}&from=${from.toISOString()}&to=${to.toISOString()}`
+      const { count, data } = await window.electronAPI.fetchOrders(
+        `?from=${getDateString(from)}&to=${getDateString(to)}`
       )
       // @ts-ignore
 

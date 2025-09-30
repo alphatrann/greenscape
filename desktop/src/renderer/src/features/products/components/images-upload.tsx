@@ -1,5 +1,5 @@
-import { getLocalImage } from '@renderer/common/utils'
-import { FilePreview, ProductImage } from '@renderer/features/products/types'
+import { getLocalImage } from '@renderer/../../common/utils'
+import { FilePreview, ProductImage } from '@renderer/../../common/types'
 import {
   Card,
   CardContent,

@@ -1,9 +1,9 @@
-import { Product } from '../types'
+import { Product } from '@renderer/../../common/types'
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'
-import { getLocalImage } from '@renderer/common/utils'
-import { getProduct, fetchProductImage } from '../api'
+import { fetchProductImage } from '@renderer/common/api'
+import { getLocalImage } from '@renderer/../../common/utils'
 
 export const useFetchProduct = () => {
   const { slug } = useParams()
@@ -14,10 +14,8 @@ export const useFetchProduct = () => {
   const hasFetched = useRef<string | null>(null)
 
   const fetchProductDetailOffline = async () => {
-    // @ts-ignore
-    const productDetail = (await window.electronAPI.getProductDetail(
-      slug
-    )) as Promise<Product | null>
+    if (!slug) return
+    const productDetail = await window.electronAPI.getProductDetail(slug)
     return productDetail
   }
 
@@ -28,22 +26,20 @@ export const useFetchProduct = () => {
 
     setLoading(true)
     if (online) {
-      getProduct(slug!)
+      window.electronAPI
+        .fetchProduct(slug!)
         .then(async (data) => {
           if (!data) {
             return
           }
 
-          // @ts-ignore
-          await window.electronAPI.upsertProducts([{ ...data, images: [] }], { uploadImages: true })
+          await window.electronAPI.upsertProducts([{ ...data, images: [] }])
 
-          // @ts-ignore
           const images = await Promise.all(
             data.images.map((i) => fetchProductImage(i.file.url || getLocalImage(i.file.id)!))
           )
 
-          // @ts-ignore
-          await window.electronAPI.uploadProductImages(
+          await window.electronAPI.uploadLocalProductImages(
             data.id,
             images.map((image, i) => ({
               ...image,

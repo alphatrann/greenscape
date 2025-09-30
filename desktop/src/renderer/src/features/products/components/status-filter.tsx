@@ -12,7 +12,7 @@ import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
 import { CircleIcon, PlusCircleIcon } from 'lucide-react'
 import { useProductFiltersContext } from '../contexts/product-filters-context'
-import { Status, StatusGroup } from '../types'
+import { Status, StatusGroup } from '@renderer/../../common/types'
 
 interface StatusFilterProps {
   statusGroups: StatusGroup[]

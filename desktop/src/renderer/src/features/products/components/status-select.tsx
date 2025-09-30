@@ -8,7 +8,7 @@ import {
   SelectValue
 } from '@renderer/features/ui/select'
 import { UseFormReturn } from 'react-hook-form'
-import { ProductFormDto, Status } from '../types'
+import { ProductFormDto, Status } from '@renderer/../../common/types'
 
 interface StatusSelectProps {
   form: UseFormReturn<ProductFormDto, any, ProductFormDto>

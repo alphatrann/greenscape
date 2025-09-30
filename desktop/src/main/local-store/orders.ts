@@ -4,10 +4,10 @@ import {
   DeliveryStatus,
   DeliveryStatusGroups,
   Order,
-  OrderQuery,
   OrdersResponse,
   ShippingGroup
-} from '../types'
+} from '../../common/types'
+import { OrderQuery } from '../types'
 
 export async function upsertOrders(newOrders: Order[]) {
   await db.read()

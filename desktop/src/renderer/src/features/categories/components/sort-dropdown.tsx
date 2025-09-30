@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@renderer/features/ui/dropdown-menu'
-import { CategorySortBy } from '../types'
+import { CategorySortBy } from '@renderer/../../common/types'
 import { SortOrder } from '../../../common/types'
 
 interface CategorySortDropdownProps {

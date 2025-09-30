@@ -1,4 +1,4 @@
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@renderer/features/ui/card'
 import {
   ArrowDownIcon,
@@ -9,10 +9,9 @@ import {
   UserGroupIcon
 } from '@heroicons/react/24/outline'
 import { useEffect, useMemo, useState } from 'react'
-import { KeyStats as IKeyStats } from '../types'
+import { KeyStats as IKeyStats } from '@renderer/../../common/types'
 import { getGrowthRate } from '@renderer/features/dashboard/utils'
 import { startOfMonth } from 'date-fns'
-import { getKeyStats } from '../api'
 import { DateRangeSelect } from '@renderer/common/components'
 import { useDateRange } from '../hooks/use-date-range'
 import toast from 'react-hot-toast'
@@ -48,7 +47,8 @@ export const KeyStats = () => {
 
   useEffect(() => {
     if (!from || !to) return
-    getKeyStats(from, to)
+    window.electronAPI
+      .getKeyStats(from, to)
       .then(setKeyStats)
       .catch(() => toast.error('Error fetching key stats'))
   }, [from, to])

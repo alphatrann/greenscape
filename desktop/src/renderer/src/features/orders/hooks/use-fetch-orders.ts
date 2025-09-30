@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFiltersContext } from '../../../common/contexts/filters-context'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
-import { Order, OrdersResponse } from '../types'
 import { useTable } from '../../../common/data-table'
 import toast from 'react-hot-toast'
 import { useOnlineStatus } from '../../../common/contexts/online-context'
-import { getOrders } from '../api'
 import { columns } from '../components/columns'
 import qs from 'query-string'
+import { Order, OrdersResponse } from '../../../../../common/types'
 
 export const useFetchOrders = () => {
   const { total, from, to, selectedCountries, status, shippingCost } = useOrderFiltersContext()
@@ -53,10 +52,7 @@ export const useFetchOrders = () => {
   }, [pagination, q, total, from, to, selectedCountries, status, sortBy, order, shippingCost])
 
   const fetchOfflineData = useCallback(async () => {
-    // @ts-ignore
-    const { data, count, sales, ...groups } = (await window.electronAPI.getOrders(
-      query
-    )) as OrdersResponse
+    const { data, count, sales, ...groups } = await window.electronAPI.getOrders(query)
     setGroups(groups)
     setSales(sales)
     setTotalCount(count)
@@ -77,7 +73,7 @@ export const useFetchOrders = () => {
       }
     })
     try {
-      const { data, count, sales, ...groups } = await getOrders(queryString)
+      const { data, count, sales, ...groups } = await window.electronAPI.fetchOrders(queryString)
 
       // @ts-ignore
       window.electronAPI.upsertOrders(data)

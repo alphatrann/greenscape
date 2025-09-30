@@ -30,15 +30,12 @@ export const useLogin = () => {
     try {
       setLoading(true)
       const data = await login(values)
+      await window.electronAPI.saveToken(data.accessToken)
 
-      if (data.success) {
-        setCurrentUser(data.data)
-        form.reset()
-        toast.success('Login successfully')
-        navigate(searchParams.get('callback') ?? AppRoute.Home)
-      } else {
-        throw new Error(data.message)
-      }
+      setCurrentUser(data.data)
+      form.reset()
+      toast.success('Login successfully')
+      navigate(searchParams.get('callback') ?? AppRoute.Home)
     } catch (error: any) {
       toast.error(error.message)
     } finally {

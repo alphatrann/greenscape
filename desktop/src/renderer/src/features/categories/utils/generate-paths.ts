@@ -1,4 +1,4 @@
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 
 export const generatePaths = (categoryTree: Category[], categoryIds: number[]): Category[] => {
   const categoryIdsSet = new Set(categoryIds)

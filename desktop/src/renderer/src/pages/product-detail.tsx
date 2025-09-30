@@ -1,4 +1,4 @@
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
 import { Loading } from '../common/components/loading'
 import { AddToBag } from '../features/products/components/add-to-bag'

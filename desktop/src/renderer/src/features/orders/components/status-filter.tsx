@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/p
 import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
 import { CircleIcon, PlusCircleIcon } from 'lucide-react'
-import { DeliveryStatus, OrdersResponse } from '../types'
+import { DeliveryStatus, OrdersResponse } from '@renderer/../../common/types'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
 
 interface StatusFilterProps {

@@ -50,10 +50,12 @@ export class AuthController {
   @UseInterceptors(new TransformDataInterceptor(AuthResponse))
   @UseGuards(LocalAdminAuthGuard(Role.Admin))
   @Post('login-admin')
-  loginAdmin(@CurrentUser() user: User) {
+  async loginAdmin(@CurrentUser() user: User) {
+    const accessToken = await this.authService.createAccessToken(user.id);
     return {
       success: true,
       data: user,
+      accessToken,
     };
   }
 

@@ -6,8 +6,8 @@ import { format } from 'date-fns'
 import React from 'react'
 import { CountryFlag } from '../../../common/components'
 import { useSetDelivered } from '../hooks/use-set-delivered'
-import { Order } from '../types'
-import { getCountryName, getPostalAddress, getShippingOption } from '../utils'
+import { Order } from '@renderer/../../common/types'
+import { getCountryName, getPostalAddress, getShippingOption } from '@renderer/../../common/utils'
 
 interface OrderSummaryProps {
   order: Order

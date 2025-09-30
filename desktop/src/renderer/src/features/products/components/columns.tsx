@@ -2,7 +2,7 @@ import { EyeIcon } from '@heroicons/react/24/outline'
 import { CopyButton } from '@renderer/common/components/copy-button'
 import { DataTableColumnHeader, DataTableRowActions } from '@renderer/common/data-table'
 import { useDeleteRecordsModal } from '@renderer/common/delete-records'
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Badge } from '@renderer/features/ui/badge'
 import { Checkbox } from '@renderer/features/ui/checkbox'
 import { ColumnDef } from '@tanstack/react-table'
@@ -11,7 +11,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCategoryTreeStore } from '../../categories/hooks/use-category-tree'
 import { generatePaths } from '../../categories/utils'
 import { Button } from '../../ui/button'
-import { Product } from '../types'
+import { Product } from '@renderer/../../common/types'
 
 export const columns: ColumnDef<Product>[] = [
   {

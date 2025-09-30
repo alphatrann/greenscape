@@ -1,5 +1,5 @@
 import { CopyButton, CountryFlag } from '@renderer/common/components'
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice, getCountryName, getShippingOption } from '@renderer/../../common/utils'
 import { Badge } from '@renderer/features/ui/badge'
 import { Button } from '@renderer/features/ui/button'
 import {
@@ -11,8 +11,7 @@ import {
 import { ViewfinderCircleIcon } from '@heroicons/react/24/outline'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Order } from '../types'
-import { getCountryName, getShippingOption } from '../utils'
+import { Order } from '@renderer/../../common/types'
 import { Link } from 'react-router-dom'
 import { AppRoute } from '@renderer/common/app-route'
 import { DataTableColumnHeader } from '@renderer/common/data-table'

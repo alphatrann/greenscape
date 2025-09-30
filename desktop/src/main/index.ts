@@ -1,16 +1,11 @@
-import { exportInvoice } from './utils/export-invoice'
-
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import fs from 'fs'
-import path, { join } from 'path'
+import { join } from 'path'
 import darwinIcon from '../../resources/logo.icns?asset'
 import winIcon from '../../resources/logo.ico?asset'
 import linuxIcon from '../../resources/logo.png?asset'
-import { getOrderDetail, getOrders, upsertOrders } from './local-store/orders'
-import { attachImages, getProductDetail, getProducts, upsertProducts } from './local-store/products'
-import { File, Order, OrderQuery, Product, ProductQuery } from './types'
-import { exportData } from './utils/export-data'
+import { initHandlers } from './handlers'
 
 const imagesDir = join(app.getPath('userData'), 'images')
 
@@ -85,20 +80,4 @@ app.on('window-all-closed', () => {
   }
 })
 
-const productImagesDir = path.join(imagesDir, 'products')
-
-ipcMain.on('export-invoice', (_event, order) => exportInvoice(order))
-ipcMain.on('export-data', (_event, payload) => exportData(payload))
-
-ipcMain.handle('upsert-products', (_event, products: Product[]) => upsertProducts(products))
-ipcMain.handle('upsert-orders', (_event, orders: Order[]) => upsertOrders(orders))
-
-ipcMain.handle('get-products', (_event, query: ProductQuery) => getProducts(query))
-ipcMain.handle('get-product-detail', (_event, slug: string) => getProductDetail(slug))
-
-ipcMain.handle('get-orders', (_event, query: OrderQuery) => getOrders(query))
-ipcMain.handle('get-order-detail', (_event, id: string) => getOrderDetail(id))
-
-ipcMain.handle('upload-product-images', (_event, productId: number, files: File[]) =>
-  attachImages(productId, productImagesDir, files)
-)
+initHandlers(imagesDir)

@@ -1,4 +1,4 @@
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@renderer/features/ui/card'
 import { useEffect, useMemo, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
@@ -10,8 +10,7 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '../../ui/chart'
-import { getMonthlySalesInYear } from '../api'
-import { MonthlySales } from '../types'
+import { MonthlySales } from '@renderer/../../common/types'
 import { groupSalesByMonths } from '../utils'
 import { YearsSelect } from './years-select'
 
@@ -34,7 +33,7 @@ export const MonthlySalesChart = () => {
   const data = useMemo(() => groupSalesByMonths(monthlySales), [monthlySales])
 
   useEffect(() => {
-    getMonthlySalesInYear(year).then((data) => {
+    window.electronAPI.getMonthlySalesInYear(year).then((data) => {
       setMonthlySales(data.monthlySales)
       setStartYear(data.startYear)
     })

@@ -18,8 +18,8 @@ import { Input } from '@renderer/features/ui/input'
 import { Textarea } from '@renderer/features/ui/textarea'
 import React from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { slugify } from '@renderer/common/utils'
-import { ProductFormDto } from '../types'
+import { slugify } from '@renderer/../../common/utils'
+import { ProductFormDto } from '@renderer/../../common/types'
 
 interface ProductOverviewProps {
   form: UseFormReturn<ProductFormDto, any, ProductFormDto>

@@ -1,4 +1,4 @@
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils/format-price'
 import {
   Table,
   TableBody,
@@ -7,8 +7,8 @@ import {
   TableHeader,
   TableRow
 } from '@renderer/features/ui/table'
-import { Order } from '../types'
-import { getShippingOption } from '../utils'
+import { Order } from '@renderer/../../common/types'
+import { getShippingOption } from '@renderer/../../common/utils'
 import { redirect } from 'react-router-dom'
 import { AppRoute } from '@renderer/common/app-route'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'

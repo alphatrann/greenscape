@@ -23,7 +23,6 @@ export const LocalAdminAuthGuard = (role: Role): Type<CanActivate> => {
             'Non-admin users are not allowed to access the resources here',
         });
 
-      await super.logIn(request);
       return true;
     }
   }

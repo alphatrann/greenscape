@@ -9,7 +9,7 @@ export function DashboardPage() {
     <div className="container mx-auto max-w-7xl">
       <h2 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h2>
       <KeyStats />
-      <div className="py-6 grid gap-4 md:grid-cols-5">
+      <div className="py-6 grid gap-4 md:grid-cols-9">
         <MonthlySalesChart />
         <SalesByCountries />
       </div>

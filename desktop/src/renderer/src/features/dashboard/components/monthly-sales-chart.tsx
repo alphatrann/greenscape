@@ -40,7 +40,7 @@ export const MonthlySalesChart = () => {
   }, [year])
 
   return (
-    <Card className="md:col-span-3">
+    <Card className="md:col-span-5">
       <CardHeader>
         <CardTitle className="flex items-center justify-between text-base">
           Monthly Sales

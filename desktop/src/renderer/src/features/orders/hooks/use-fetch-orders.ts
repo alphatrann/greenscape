@@ -68,7 +68,7 @@ export const useFetchOrders = () => {
         offset: query.offset.toString(),
         totalRange: query.totalRange.map((p) => p || '').join('-'),
         from: query.from?.toISOString(),
-        to: query.from?.toISOString(),
+        to: query.to?.toISOString(),
         countries: selectedCountries.length > 0 ? selectedCountries.join(',') : undefined
       }
     })

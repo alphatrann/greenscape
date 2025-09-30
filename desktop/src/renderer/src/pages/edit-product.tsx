@@ -1,30 +1,19 @@
-import { getProduct } from '@renderer/features/products/api'
 import { EditProduct } from '@renderer/features/products/components/edit-product'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
-import { useEffect, useState } from 'react'
-import { redirect, useParams } from 'react-router-dom'
 import { AppRoute } from '../common/app-route'
+import NotFound from '../common/components/not-found'
 import { useCategoryTreeStore } from '../features/categories/hooks/use-category-tree'
 import { useFetchCategories } from '../features/categories/hooks/use-fetch-categories'
-import { Product } from '../features/products/types'
+import { useFetchProduct } from '../features/products/hooks/use-fetch-product'
+import { Loading } from '../common/components/loading'
 
 export default function ProductSettingsPage() {
-  const { slug } = useParams()
-
-  const [product, setProduct] = useState<Product | null>(null)
-
-  useEffect(() => {
-    if (!slug) return
-
-    getProduct(slug!).then(setProduct)
-  }, [slug])
   useFetchCategories()
+  const { loading, product } = useFetchProduct()
   const categories = useCategoryTreeStore((state) => state.categories)
 
-  if (!product) {
-    redirect('/not-found')
-    return null
-  }
+  if (loading) return <Loading />
+  if (!product) return <NotFound />
 
   return (
     <div className="container mx-auto max-w-5xl">

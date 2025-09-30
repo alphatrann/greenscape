@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useDeleteRecordsModal } from './use-modal'
-import { deleteRecords } from './api'
 import { useFiltersContext } from '../contexts/filters-context'
 import { useOnlineStatus } from '../contexts/online-context'
 
 export const useDeleteRecords = () => {
   const { onClose, ids } = useDeleteRecordsModal()
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
   const [loading, setLoading] = useState(false)
   const { setTotal } = useFiltersContext()
   const onDeleteRecords = async (
@@ -16,10 +15,12 @@ export const useDeleteRecords = () => {
   ) => {
     try {
       setLoading(true)
-      if (online) await deleteRecords(ids, entityName)
-      if (entityName === 'products') {
-        await window.electronAPI.deleteProducts(ids)
+      if (online) await window.electronAPI.deleteRecords(ids, entityName)
+      else {
+        toast.error(`Deleting ${entityName} is unavailable in offline mode`)
+        return
       }
+
       /** @todo store pending delete operations */
       setTotal((t) => t - ids.length)
       deleteInUI(ids)

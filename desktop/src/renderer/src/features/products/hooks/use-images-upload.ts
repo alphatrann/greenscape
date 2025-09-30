@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 import { MAX_FILES } from '../constants'
-import { FilePreview, ProductImage } from '../types'
-import { getLocalImage } from '../../../common/utils'
+import { FilePreview, ProductImage } from '@renderer/../../common/types'
+import { getLocalImage } from '@renderer/../../common/utils'
 
 export const useImagesUpload = () => {
   const [files, setFiles] = useState<FilePreview[]>([])
@@ -50,7 +50,7 @@ export const useImagesUpload = () => {
   const deleteFile = useCallback((url: string) => {
     setPrevImages((prevImages) => {
       return prevImages.filter((image) => {
-        const remoteUrl = getLocalImage(image.file.id)
+        const remoteUrl = image.file.url || getLocalImage(image.file.id)
         return remoteUrl !== url
       })
     })

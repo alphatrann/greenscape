@@ -1,12 +1,11 @@
-import { Product } from '../types'
+import { Product, StatusGroup } from '@renderer/../../common/types'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useFiltersContext } from '../../../common/contexts/filters-context'
 import { useOnlineStatus } from '../../../common/contexts/online-context'
-import { getProducts, paginateProducts } from '../api'
 import { useProductFiltersContext } from '../contexts/product-filters-context'
-import { StatusGroup } from '../types'
 import qs from 'query-string'
 import { useCategoryTreeStore } from '../../categories/hooks/use-category-tree'
+import { searchCategory } from '../../categories/utils'
 
 export const useFetchProducts = () => {
   const [statusGroups, setStatusGroups] = useState<StatusGroup[]>([])
@@ -41,13 +40,12 @@ export const useFetchProducts = () => {
   }, [price, status, inStock, from, to, q, order, sortBy, pagination, selectedCategory])
 
   const fetchOfflineData = useCallback(async () => {
-    // @ts-ignore
-    const { data, count, statusGroups } = (await window.electronAPI.getProducts(query)) as {
-      data: Product[]
-      count: number
-      statusGroups: StatusGroup[]
-    }
-
+    const { data, count, statusGroups } = await window.electronAPI.getProducts({
+      ...query,
+      selectedCategory: query.selectedCategory
+        ? searchCategory(categories, query.selectedCategory, 'slug')[1]?.id
+        : undefined
+    })
     setProducts(data)
     setTotalProductsCount(count)
     setStatusGroups(statusGroups)
@@ -59,24 +57,22 @@ export const useFetchProducts = () => {
       url: '',
       query: {
         ...queryData,
-
         price: price.map((p) => p ?? '').join('-'),
         inStock: inStock.map((i) => i ?? '').join('-'),
         slug: selectedCategory
       }
     })
-    getProducts(queryString, selectedCategory).then((data) => {
+    window.electronAPI.fetchProducts(queryString, selectedCategory).then((data) => {
       setProducts(data.data)
       setStatusGroups(data.statusGroups)
-      // @ts-ignore
+      setTotalProductsCount(data.count)
       window.electronAPI.upsertProducts(data.data)
     })
 
-    paginateProducts(queryString, selectedCategory).then((data) => setTotalProductsCount(data))
     fetchCategories(queryString)
   }, [query])
 
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
   useEffect(() => {
     if (online) fetchData()
     else fetchOfflineData()

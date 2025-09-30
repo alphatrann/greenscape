@@ -4,13 +4,18 @@ import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 import { DataTable, DataTablePagination, DataTableViewOptions } from '@renderer/common/data-table'
 import { Input } from '@renderer/features/ui/input'
 import { Table } from '@tanstack/react-table'
-import { formatPrice } from '../../../common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Badge } from '../../ui/badge'
 import { Button } from '../../ui/button'
 import { TableCell, TableRow } from '../../ui/table'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
-import { CountryGroup, DeliveryStatusGroups, Order, ShippingGroup } from '../types'
-import { getShippingOption } from '../utils'
+import {
+  CountryGroup,
+  DeliveryStatusGroups,
+  Order,
+  ShippingGroup
+} from '@renderer/../../common/types'
+import { getShippingOption } from '@renderer/../../common/utils'
 import { columns } from './columns'
 import { CountriesFilter } from './countries-filter'
 import { CountryGroups } from './country-groups'

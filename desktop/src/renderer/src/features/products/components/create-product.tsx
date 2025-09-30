@@ -1,6 +1,4 @@
-'use client'
-
-import { Category } from '@renderer/features/categories/types'
+import { Category } from '@renderer/../../common/types'
 import { Form } from '@renderer/features/ui/form'
 import React, { useEffect } from 'react'
 import { useCreateProduct } from '../hooks/use-create-product'

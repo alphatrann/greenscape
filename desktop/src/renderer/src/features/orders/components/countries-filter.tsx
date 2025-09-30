@@ -14,10 +14,10 @@ import { Separator } from '@renderer/features/ui/separator'
 import { cn } from '@renderer/lib/utils'
 import { PlusCircleIcon } from 'lucide-react'
 import { CheckIcon } from 'lucide-react'
-import { CountryGroup } from '../types'
-import { getCountryName } from '../utils'
+import { CountryGroup } from '@renderer/../../common/types'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
 import { CountryFlag } from '../../../common/components/country-flag'
+import { getCountryName } from '@renderer/../../common/utils'
 
 interface CountriesFilterProps {
   countryGroups: CountryGroup[]

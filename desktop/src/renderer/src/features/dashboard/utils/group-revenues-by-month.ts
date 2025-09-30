@@ -1,4 +1,4 @@
-import { MonthlySales } from '../types'
+import { MonthlySales } from '@renderer/../../common/types'
 
 export const groupSalesByMonths = (monthlySales: MonthlySales[]) => {
   const revenuesEveryMonth = [

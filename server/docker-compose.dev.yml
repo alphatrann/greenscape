@@ -10,11 +10,6 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=greenscape-dev
 
-  redis:
-    image: redis:alpine
-    ports:
-      - '6379:6379'
-
 volumes:
   postgres-data:
     driver: local

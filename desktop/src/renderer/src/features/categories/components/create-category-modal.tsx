@@ -10,9 +10,8 @@ import {
 import { Form } from '@renderer/features/ui/form'
 import { CategoryFormFields } from './fields'
 import { Loader2 } from 'lucide-react'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 import { useCreateCategory } from '../hooks'
-import { ReactEventHandler } from 'react'
 
 interface CreateCategoryModalProps {
   parentId?: number
@@ -29,12 +28,7 @@ export function CreateCategoryModal({
   open,
   close
 }: CreateCategoryModalProps) {
-  const { loading, handleSubmit, form } = useCreateCategory(addCategory, parentId)
-
-  const onSubmit: ReactEventHandler<HTMLFormElement> = async (e) => {
-    await handleSubmit(e)
-    close()
-  }
+  const { loading, handleSubmit, form } = useCreateCategory(addCategory, close, parentId)
 
   return (
     <Dialog open={isOpen} onOpenChange={isOpen ? close : open}>
@@ -44,7 +38,7 @@ export function CreateCategoryModal({
           <DialogDescription>Create new category for better products filtering</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={handleSubmit}>
             <CategoryFormFields form={form} loading={loading} />
 
             <DialogFooter>

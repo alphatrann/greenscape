@@ -1,68 +1,10 @@
-import { getOrders } from '@renderer/features/orders/api'
 import { OrdersTable } from '@renderer/features/orders/components/orders-table'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
-import { useOrderFiltersContext } from '../features/orders/contexts/order-filters-context'
-import { useEffect, useState } from 'react'
-import { Order, OrdersResponse } from '../features/orders/types'
-import { useFiltersContext } from '../common/contexts/filters-context'
-import qs from 'query-string'
-import { useTable } from '../common/data-table'
-import { columns } from '../features/orders/components/columns'
 import { ExportButton } from '../common/export/export-button'
+import { useFetchOrders } from '../features/orders/hooks/use-fetch-orders'
 
 export default function OrdersPage() {
-  const { total, from, to, selectedCountries, status, shippingCost } = useOrderFiltersContext()
-  const {
-    q,
-    pagination,
-    total: totalCount,
-    setTotal: setTotalCount,
-    sortBy,
-    order,
-    reset
-  } = useFiltersContext()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [sales, setSales] = useState(0)
-  const [groups, setGroups] = useState<Omit<OrdersResponse, 'sales' | 'data' | 'count'>>({
-    countryGroups: [],
-    shippingGroups: [],
-    deliveryStatusGroups: { delivered: { count: 0, total: 0 }, pending: { count: 0, total: 0 } }
-  })
-  const table = useTable(columns, orders, totalCount)
-
-  useEffect(() => {
-    reset()
-  }, [])
-
-  useEffect(() => {
-    const validSortByColumns = ['total', 'shippingCost', 'createdAt', 'deliveredAt', 'id']
-    const invalidSortBy = sortBy && !validSortByColumns.includes(sortBy)
-    const fetchData = async () => {
-      const query = qs.stringifyUrl({
-        url: '',
-        query: {
-          limit: pagination.pageSize.toString(),
-          offset: (pagination.pageIndex * pagination.pageSize).toString(),
-          q,
-          shippingCost,
-          totalRange: total.map((p) => p || '').join('-'),
-          from: from?.toISOString(),
-          to: to?.toISOString(),
-          countries: selectedCountries.length > 0 ? selectedCountries.join(',') : undefined,
-          status,
-          sortBy: invalidSortBy ? 'createdAt' : sortBy,
-          order
-        }
-      })
-      const { data, count, sales, ...groups } = await getOrders(query)
-      setGroups(groups)
-      setSales(sales)
-      setTotalCount(count)
-      setGroups(groups)
-      setOrders(data)
-    }
-    fetchData()
-  }, [pagination, q, total, from, to, selectedCountries, status, sortBy, order, shippingCost])
+  const { totalCount, sales, table, groups } = useFetchOrders()
 
   return (
     <>

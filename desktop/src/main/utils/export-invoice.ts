@@ -2,40 +2,7 @@ import PDFDocument from 'pdfkit'
 import * as fs from 'fs'
 import { dialog } from 'electron'
 import path from 'path'
-import { formatAddress } from 'localized-address-format'
-
-interface Address {
-  line1: string
-  line2?: string
-  city?: string
-  state?: string
-  postalCode?: string
-  country?: string
-  customer?: string
-}
-
-export const getPostalAddress = ({
-  line1,
-  line2,
-  city,
-  state,
-  postalCode,
-  country,
-  customer
-}: Address) =>
-  formatAddress({
-    name: customer,
-    postalCountry: country,
-    postalCode,
-    administrativeArea: state,
-    addressLines: line2 ? [line1, line2] : [line1],
-    locality: city
-  }).join('\n')
-
-export const formatPrice = (price: number, options?: { inCent: boolean }) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-    !options?.inCent ? price : price / 100
-  )
+import { formatPrice, getPostalAddress } from '../../common/utils'
 
 export async function exportInvoice(order: any) {
   const { canceled, filePath } = await dialog.showSaveDialog({

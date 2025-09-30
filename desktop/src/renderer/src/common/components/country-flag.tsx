@@ -1,4 +1,4 @@
-import { getCountryName } from '../../features/orders/utils'
+import { getCountryName } from '../../../../common/utils'
 
 interface CountryFlagProps {
   code: string

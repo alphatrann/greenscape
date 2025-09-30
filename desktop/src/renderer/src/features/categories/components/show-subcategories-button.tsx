@@ -14,7 +14,6 @@ interface ShowSubcategoriesButtonProps {
 }
 
 export const ShowSubcategoriesButton = ({ slug }: ShowSubcategoriesButtonProps) => {
-;
   return (
     <TooltipProvider>
       <Tooltip>

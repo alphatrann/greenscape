@@ -16,6 +16,7 @@ class UserResponse implements Omit<User, 'roles'> {
 }
 export class AuthResponse {
   success: boolean;
+  accessToken?: string;
   @Type(() => UserResponse)
   data: UserResponse;
 }

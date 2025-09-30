@@ -36,7 +36,7 @@ export class ProductsService {
         if (error.code === PrismaError.UniqueViolation)
           throw new BadRequestException({
             success: false,
-            message: 'Product with the given name already exists',
+            message: 'Product with the given slug already exists',
           });
         if (error.code === PrismaError.RecordNotFound)
           throw new BadRequestException({
@@ -116,14 +116,6 @@ export class ProductsService {
     return recommendedProducts;
   }
 
-  async paginate(
-    dto: Omit<FindManyProductsDto, 'limit' | 'offset' | 'sortBy' | 'order'>,
-    slug: string = '',
-  ) {
-    const { where } = formProductQueries(dto, slug);
-    return this.prisma.product.count({ where });
-  }
-
   async findCartProducts(ids: number[]) {
     if (ids.length === 0) return [];
     const products = await this.prisma.product.findMany({
@@ -143,12 +135,10 @@ export class ProductsService {
     return products;
   }
 
-  async findAll(
-    { limit = 10, offset = 0, ...dto }: FindManyProductsDto,
-    slug?: string,
-  ) {
+  async findAll({ limit, offset, ...dto }: FindManyProductsDto, slug?: string) {
     try {
       const { where, orderBy } = formProductQueries(dto, slug);
+      const count = await this.prisma.product.count({ where });
       const products = await this.prisma.product.findMany({
         take: limit,
         skip: offset,
@@ -171,7 +161,7 @@ export class ProductsService {
         },
       });
 
-      return products;
+      return { count, products };
     } catch (error) {
       throw new InternalServerErrorException({
         success: false,
@@ -194,9 +184,9 @@ export class ProductsService {
     }));
   }
 
-  async findBySlug(slug: string) {
+  async findBySlug(slug: string, { admin }: { admin: boolean }) {
     const product = await this.prisma.product.findUnique({
-      where: { slug },
+      where: { slug, status: !admin ? Status.Active : undefined },
       include: {
         categories: true,
         images: {

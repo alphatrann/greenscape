@@ -1,42 +1,20 @@
-import { useEffect, useState } from 'react'
+import { FileDownIcon } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { AppRoute } from '../common/app-route'
 import { CopyButton } from '../common/components'
+import { Loading } from '../common/components/loading'
+import NotFound from '../common/components/not-found'
+import { formatPrice, getShippingOption } from '@renderer/../../common/utils'
 import { OrderItems } from '../features/orders/components/items'
 import { OrderOverview } from '../features/orders/components/overview'
 import { OrderSummary } from '../features/orders/components/summary'
+import { useFetchOrder } from '../features/orders/hooks/use-fetch-order'
 import { Breadcrumb } from '../features/ui/breadcrumb'
-import { Separator } from '../features/ui/separator'
-import { Order } from '../features/orders/types'
-import { formatPrice } from '../common/utils'
-import { getOrder } from '../features/orders/api'
-import { useNavigate, useParams } from 'react-router-dom'
-import { Loading } from '../common/components/loading'
 import { Button } from '../features/ui/button'
-import { FileDownIcon } from 'lucide-react'
-import { getShippingOption } from '../features/orders/utils'
-import toast from 'react-hot-toast'
+import { Separator } from '../features/ui/separator'
 
 export default function OrderDetailPage() {
-  const [loading, setLoading] = useState(false)
-  const [order, setOrder] = useState<Order | null>(null)
-  const { id } = useParams()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (!id || typeof id !== 'string') return
-    setLoading(true)
-    getOrder(id)
-      .then((data) => {
-        if (!data) {
-          navigate('/404')
-          return
-        }
-        setOrder(data)
-      })
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false))
-  }, [id])
-
+  const { loading, order } = useFetchOrder()
   const onExportInvoice = () => {
     if (!order) return
     // @ts-ignore
@@ -48,7 +26,7 @@ export default function OrderDetailPage() {
   }
 
   if (loading) return <Loading />
-  if (!order) return null
+  if (!order) return <NotFound />
 
   return (
     <div className="container mx-auto max-w-3xl">

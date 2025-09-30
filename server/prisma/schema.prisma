@@ -33,8 +33,8 @@ model File {
 
 model Category {
   id               Int        @id @default(autoincrement())
-  slug             String     @unique @db.VarChar(60)
-  name             String     @db.VarChar(60)
+  slug             String     @unique
+  name             String
   parentCategoryId Int?
   parentCategory   Category?  @relation("CategoriesToSubcategories", fields: [parentCategoryId], references: [id], onDelete: Cascade)
   subCategories    Category[] @relation("CategoriesToSubcategories")

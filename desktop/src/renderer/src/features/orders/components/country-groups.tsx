@@ -1,9 +1,8 @@
 import { Button } from '../../ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../../ui/collapsible'
-import { CountryGroup } from '../types'
+import { CountryGroup } from '@renderer/../../common/types'
 import { CountryFlag } from '../../../common/components'
-import { getCountryName } from '../utils'
-import { formatPrice } from '../../../common/utils'
+import { formatPrice, getCountryName } from '@renderer/../../common/utils'
 import { useState } from 'react'
 
 interface CountryGroupsProps {

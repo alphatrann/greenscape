@@ -2,7 +2,7 @@ import { Low } from 'lowdb'
 import { JSONFile } from 'lowdb/node'
 import { app } from 'electron'
 import path from 'path'
-import { Product, Order } from './types'
+import { Order, Product } from '../common/types'
 
 type Data = {
   products: Product[]

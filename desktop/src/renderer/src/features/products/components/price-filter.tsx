@@ -1,5 +1,5 @@
 import { PriceInput } from '@renderer/common/components'
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Button } from '@renderer/features/ui/button'
 import { Label } from '@renderer/features/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@renderer/features/ui/popover'
@@ -31,14 +31,18 @@ export const PriceFilter = () => {
             <Label>Min</Label>
             <PriceInput
               value={price[0] ? price[0].toString() : ''}
-              onChange={(e) => setPrice([parseFloat(e.target.value), price[1]])}
+              onChange={(e) =>
+                setPrice([e.target.value ? parseFloat(e.target.value) : null, price[1]])
+              }
             />
           </div>
           <div className="flex-1 space-y-2">
             <Label>Max</Label>
             <PriceInput
               value={price[1] ? price[1].toString() : ''}
-              onChange={(e) => setPrice([price[0], parseFloat(e.target.value)])}
+              onChange={(e) =>
+                setPrice([price[0], e.target.value ? parseFloat(e.target.value) : null])
+              }
             />
           </div>
         </div>

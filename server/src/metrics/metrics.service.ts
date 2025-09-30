@@ -85,30 +85,27 @@ export class MetricsService {
 
   async getMonthsSalesInYear(year: number) {
     // Get the first order date to determine earliest year
-    const {
-      _min: { createdAt: firstOrderAt },
-    } = await this.prisma.order.aggregate({
-      _min: { createdAt: true },
-    });
+    const [{ firstOrderAt }] = await this.prisma.$queryRaw<
+      [{ firstOrderAt: Date | null }]
+    >`
+      SELECT MIN("createdAt") AS "firstOrderAt"
+      FROM "Order";
+    `;
 
-    // Group by createdAt (raw) and shippingCost
-    const revenues = await this.prisma.order.groupBy({
-      by: ['createdAt', 'shippingCost'],
-      _sum: { total: true },
-      where: {
-        createdAt: {
-          gte: new Date(`${year}-01-01`),
-          lt: new Date(`${year + 1}-01-01`),
-        },
-      },
-    });
-
-    // Transform into { month, shippingCost, total }
-    const monthlySales = revenues.map(({ createdAt, shippingCost, _sum }) => ({
-      month: createdAt.getMonth() + 1, // 1-12 instead of 0-11
-      shippingCost,
-      total: _sum.total ?? 0,
-    }));
+    // Get monthly sales and shippingCost using raw SQL
+    const monthlySales = await this.prisma.$queryRaw<
+      Array<{ month: number; shippingCost: number; total: number }>
+    >`
+      SELECT
+        EXTRACT(MONTH FROM "createdAt") AS month,
+        "shippingCost",
+        SUM("total") AS total
+      FROM "Order"
+      WHERE "createdAt" >= ${new Date(`${year}-01-01`)}
+        AND "createdAt" < ${new Date(`${year + 1}-01-01`)}
+      GROUP BY month, "shippingCost"
+      ORDER BY month, "shippingCost";
+    `;
 
     const startYear = firstOrderAt
       ? new Date(firstOrderAt).getFullYear()
@@ -116,7 +113,11 @@ export class MetricsService {
 
     return {
       startYear,
-      monthlySales,
+      monthlySales: monthlySales.map((s) => ({
+        month: Number(s.month),
+        shippingCost: Number(s.shippingCost),
+        total: Number(s.total),
+      })),
     };
   }
 

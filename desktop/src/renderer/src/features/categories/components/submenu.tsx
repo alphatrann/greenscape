@@ -5,7 +5,7 @@ import {
   DropdownMenuSubTrigger
 } from '@renderer/features/ui/dropdown-menu'
 import React from 'react'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 
 interface CategorySubmenuProps {
   category: Category

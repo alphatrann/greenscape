@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 
 interface EditCategoryModalStore {
   isOpen: boolean

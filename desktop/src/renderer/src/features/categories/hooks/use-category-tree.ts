@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
-import { getCategoriesTree } from '../api'
-import { Category, CategorySortBy } from '../types'
+import { Category, CategorySortBy } from '@renderer/../../common/types'
 import { searchCategory } from '../utils'
 import { SortOrder } from '../../../common/types'
 import { sortCategories } from '../utils/sort-categories'
@@ -46,7 +45,7 @@ export const useCategoryTreeStore = create<CategoryTreeState>((set, get) => ({
   },
 
   fetchCategories: async (queryString) => {
-    const categories = await getCategoriesTree(queryString)
+    const categories = await window.electronAPI.getCategoriesTree(queryString)
     set({ categories })
     localStorage.setItem('category-tree', JSON.stringify(categories))
   },

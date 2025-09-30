@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { VALID_SLUG_REGEX } from '@renderer/common/constants'
+import { Status } from '@renderer/../../common/types'
 
 export const formSchema = z.object({
   name: z
@@ -27,5 +28,5 @@ export const formSchema = z.object({
     .gte(1)
     .array()
     .min(1, { message: 'Please select at least 1 category' }),
-  status: z.enum(['Active', 'Draft', 'Archived'])
+  status: z.enum(Object.values(Status))
 })

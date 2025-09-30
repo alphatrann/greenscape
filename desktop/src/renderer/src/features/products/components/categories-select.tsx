@@ -7,7 +7,7 @@ import { FormField, FormMessage } from '@renderer/features/ui/form'
 import { Separator } from '@renderer/features/ui/separator'
 import { UseFormReturn } from 'react-hook-form'
 import { searchCategory } from '@renderer/features/categories/utils'
-import { ProductFormDto } from '../types'
+import { ProductFormDto } from '@renderer/../../common/types'
 
 interface CategoriesSelectProps {
   form: UseFormReturn<ProductFormDto, any, ProductFormDto>

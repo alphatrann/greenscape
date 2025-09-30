@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react'
-import { Status } from '../types'
+import { Status } from '@renderer/../../common/types'
 
 type ProductFiltersContextType = {
   price: [number | null, number | null] // [min, max]

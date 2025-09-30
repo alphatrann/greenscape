@@ -4,7 +4,7 @@ import { Label } from '@renderer/features/ui/label'
 import { Separator } from '@renderer/features/ui/separator'
 import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/solid'
 import { format } from 'date-fns'
-import { Order } from '../types'
+import { Order } from '../../../../../common/types/types'
 
 interface OrderOverviewProps {
   order: Order
@@ -25,10 +25,10 @@ export const OrderOverview: React.FC<OrderOverviewProps> = ({ order }) => {
         <HoverCard>
           <HoverCardTrigger asChild>
             <Button variant="link" className="h-fit p-0">
-              {order.customer}
+              {order.customer ?? 'N/A'}
             </Button>
           </HoverCardTrigger>
-          <HoverCardContent>
+          <HoverCardContent className="w-auto">
             <Label className="mb-4 block">Customer information</Label>
             <ul className="space-y-2">
               <li className="flex items-center">

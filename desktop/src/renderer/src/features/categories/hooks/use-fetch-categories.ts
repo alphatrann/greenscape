@@ -4,7 +4,7 @@ import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 
 export const useFetchCategories = () => {
   const { fetchCategories, fetchCategoriesOffline } = useCategoryTreeStore()
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
 
   useEffect(() => {
     if (online) fetchCategories().catch(fetchCategoriesOffline)

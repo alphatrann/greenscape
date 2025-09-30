@@ -1,75 +1,16 @@
-import { formatPrice, getLocalImage } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { Breadcrumb } from '@renderer/features/ui/breadcrumb'
-import { useParams } from 'react-router-dom'
-import { Product } from '../features/products/types'
-import { useEffect, useState } from 'react'
-import { fetchProductImage, getProduct } from '../features/products/api'
+import { Loading } from '../common/components/loading'
+import { AddToBag } from '../features/products/components/add-to-bag'
 import { ImagesGallery } from '../features/products/components/images-gallery'
 import { ProductDescription } from '../features/products/components/product-description'
-import { AddToBag } from '../features/products/components/add-to-bag'
-import { Loading } from '../common/components/loading'
-import { useOnlineStatus } from '../common/contexts/online-context'
+import { useFetchProduct } from '../features/products/hooks/use-fetch-product'
+import NotFound from '../common/components/not-found'
 
 export default function ProductPage() {
-  const { slug } = useParams()
-
-  const [loading, setLoading] = useState(false)
-  const [product, setProduct] = useState<Product | null>(null)
-  const online = useOnlineStatus()
-
-  const fetchProductDetailOffline = async () => {
-    const productDetail = (await window.electronAPI.getProductDetail(
-      slug
-    )) as Promise<Product | null>
-    return productDetail
-  }
-
-  useEffect(() => {
-    if (!slug) return
-    setLoading(true)
-    if (online) {
-      getProduct(slug!)
-        .then((data) => {
-          if (!data) {
-            return
-          }
-
-          window.electronAPI.deleteProductImages(
-            data.id,
-            data.images.map((i) => i.file.id)
-          )
-          const images = Promise.all(
-            data.images.map((i) => fetchProductImage(i.file.url || getLocalImage(i.file.id)!))
-          )
-          images.then((imagePayload) =>
-            window.electronAPI.uploadProductImages(data.id, imagePayload)
-          )
-
-          fetchProductDetailOffline().then((detail) =>
-            window.electronAPI.upsertProducts([{ ...detail, ...data }])
-          )
-
-          setProduct(data)
-        })
-        .finally(() => setLoading(false))
-    } else {
-      fetchProductDetailOffline()
-        .then((data) => {
-          console.log({ data })
-
-          if (!data) {
-            return
-          }
-          setProduct(data)
-        })
-        .finally(() => setLoading(false))
-    }
-  }, [slug, online])
-
+  const { loading, product } = useFetchProduct()
   if (loading) return <Loading />
-  if (!product) {
-    return null
-  }
+  if (!product) return <NotFound />
 
   return (
     <>

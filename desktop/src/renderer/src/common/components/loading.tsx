@@ -5,10 +5,10 @@ export function Loading() {
     <div className="flex h-1/2 w-full flex-col items-center justify-center gap-y-8">
       <MobileLogo />
       <svg
-        className="h-8 w-8 animate-spin text-primary"
+        className="size-8 animate-spin text-primary"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
-        viewBox="0 0 32 32"
+        viewBox="0 0 24 24"
       >
         <circle
           className="opacity-25"

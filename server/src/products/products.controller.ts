@@ -45,12 +45,15 @@ export class ProductsController {
   @Get()
   @UseGuards(RolesGuard(Role.Admin))
   async findAll(@Query() findManyProductsDto: FindManyProductsDto) {
-    const products = await this.productsService.findAll(findManyProductsDto);
+    const { count, products } = await this.productsService.findAll(
+      findManyProductsDto,
+    );
     const statusGroups = await this.productsService.aggregateStatus(
       findManyProductsDto,
     );
     return {
       success: true,
+      count,
       data: products,
       statusGroups,
     };
@@ -62,7 +65,7 @@ export class ProductsController {
     @Query() findManyProductsDto: FindManyProductsDto,
     @Param('slug') slug: string,
   ) {
-    const products = await this.productsService.findAll(
+    const { count, products } = await this.productsService.findAll(
       findManyProductsDto,
       slug,
     );
@@ -70,7 +73,7 @@ export class ProductsController {
       findManyProductsDto,
       slug,
     );
-    return { success: true, data: products, statusGroups };
+    return { success: true, count, data: products, statusGroups };
   }
 
   @Get('cart')
@@ -80,54 +83,21 @@ export class ProductsController {
   }
 
   @Get('store')
-  async findAllInStore(@Query() dto: FindManyStoreProductsDto) {
-    const products = await this.productsService.findAll({
+  async findAllInStore(
+    @Query() { limit = 10, offset = 0, ...dto }: FindManyStoreProductsDto,
+  ) {
+    const { count, products } = await this.productsService.findAll({
       ...dto,
+      limit,
+      offset,
       status: Status.Active,
     });
 
     return {
       success: true,
+      count,
       data: products,
     };
-  }
-
-  @Get('store/paginate')
-  async paginateStore(@Query() dto: FindManyStoreProductsDto) {
-    const count = await this.productsService.paginate({
-      ...dto,
-      status: Status.Active,
-    });
-    return { success: true, count };
-  }
-
-  @Get('store/paginate/category/:slug')
-  async paginateStoreByCategorySlug(
-    @Query() dto: FindManyStoreProductsDto,
-    @Param('slug') slug: string,
-  ) {
-    const count = await this.productsService.paginate(
-      { ...dto, status: Status.Active },
-      slug,
-    );
-    return { success: true, count };
-  }
-
-  @Get('paginate')
-  @UseGuards(RolesGuard(Role.Admin))
-  async paginate(@Query() dto: FindManyProductsDto) {
-    const count = await this.productsService.paginate(dto);
-    return { success: true, data: count };
-  }
-
-  @Get('paginate/category/:slug')
-  @UseGuards(RolesGuard(Role.Admin))
-  async paginateByCategorySlug(
-    @Query() dto: FindManyProductsDto,
-    @Param('slug') slug: string,
-  ) {
-    const count = await this.productsService.paginate(dto, slug);
-    return { success: true, data: count };
   }
 
   @Get('recommend')
@@ -138,19 +108,30 @@ export class ProductsController {
 
   @Get('store/category/:slug')
   async findAllBySlugInStore(
-    @Query() dto: FindManyStoreProductsDto,
+    @Query() { limit = 10, offset = 0, ...dto }: FindManyStoreProductsDto,
     @Param('slug') slug: string,
   ) {
-    const products = await this.productsService.findAll(
+    const { count, products } = await this.productsService.findAll(
       { ...dto, status: Status.Active },
       slug,
     );
-    return { success: true, data: products };
+    return { success: true, count, data: products };
   }
 
+  @UseGuards(RolesGuard(Role.Admin))
   @Get('details/:slug')
+  async findOneAdmin(@Param('slug') slug: string) {
+    const product = await this.productsService.findBySlug(slug, {
+      admin: true,
+    });
+    return { success: true, data: product };
+  }
+
+  @Get('store/details/:slug')
   async findOne(@Param('slug') slug: string) {
-    const product = await this.productsService.findBySlug(slug);
+    const product = await this.productsService.findBySlug(slug, {
+      admin: false,
+    });
     return { success: true, data: product };
   }
 

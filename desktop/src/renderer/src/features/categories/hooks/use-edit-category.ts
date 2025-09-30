@@ -4,17 +4,17 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { formSchema } from '../utils'
-import { Category } from '../types'
+import { Category } from '@renderer/../../common/types'
 import { useEditCategoryModal } from './use-edit-category-modal'
-import { updateCategory } from '../api'
 import { useOnlineStatus } from '../../../common/contexts/online-context'
+import { v4 } from 'uuid'
 
 export const useEditCategory = (
   category: Category | null,
   editCategory: (updated: Category) => void
 ) => {
   const [loading, setLoading] = useState(false)
-  const online = useOnlineStatus()
+  const { online } = useOnlineStatus()
   const { onClose } = useEditCategoryModal()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -33,13 +33,16 @@ export const useEditCategory = (
     try {
       setLoading(true)
       if (online) {
-        const updated = await updateCategory(category.id, values)
-        editCategory(updated)
+        const response = await window.electronAPI.updateCategory(category.id, values)
+        if ('message' in response) {
+          form.setError('slug', response)
+          return
+        } else editCategory(response)
       } else {
         const updated: Category = {
           ...category,
           name: values.name,
-          slug: values.slug
+          slug: category.slug === values.slug ? category.slug : `${values.slug}-${v4()}`
         }
         /** @todo store pending writes */
         editCategory(updated)

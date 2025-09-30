@@ -1,13 +1,12 @@
 import { useState, useMemo } from 'react'
-import { SalesByCountry } from '../types'
-import { getSalesByCountries } from '../api'
-import { getCountryName } from '../../orders/utils/get-country-name'
+import { SalesByCountry } from '@renderer/../../common/types'
+import { getCountryName } from '../../../../../common/utils/get-country-name'
 
 export const useCountrySales = () => {
   const [salesByCountries, setSalesByCountries] = useState<SalesByCountry[]>([])
 
   const fetchSalesData = (start: Date, end: Date) => {
-    getSalesByCountries(start, end).then((data) => {
+    window.electronAPI.getSalesByCountries(start, end).then((data) => {
       data.sort((a, b) => b.sales - a.sales)
 
       if (data.length > 5) {

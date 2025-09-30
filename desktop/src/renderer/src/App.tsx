@@ -15,8 +15,9 @@ import ProductSettingsPage from './pages/edit-product'
 import { OrderFiltersProvider } from './features/orders/contexts/order-filters-context'
 import OrdersPage from './pages/orders'
 import OrderDetailPage from './pages/order-detail'
-import { OfflineBanner } from './common/components/offline-banner'
+import { ConnectionBanner } from './common/components/connection-banner'
 import { OnlineStatusProvider } from './common/contexts/online-context'
+import NotFound from './common/components/not-found'
 
 function App(): React.JSX.Element {
   return (
@@ -24,7 +25,7 @@ function App(): React.JSX.Element {
       <HashRouter>
         <Toaster />
         <Navbar />
-        <OfflineBanner />
+        <ConnectionBanner />
         <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
           <AppRoutes />
         </div>
@@ -73,6 +74,7 @@ function AppRoutes() {
         }
       />
       <Route path={AppRoute.Order} element={<OrderDetailPage />} />
+      <Route path={AppRoute.NotFound} element={<NotFound />} />
     </Routes>
   )
 }

@@ -1,4 +1,4 @@
-import { formatPrice } from '@renderer/common/utils'
+import { formatPrice } from '@renderer/../../common/utils/format-price'
 import {
   Table,
   TableBody,
@@ -7,13 +7,14 @@ import {
   TableHeader,
   TableRow
 } from '@renderer/features/ui/table'
-import { Order } from '../types'
-import { getShippingOption } from '../utils'
+import { Order } from '@renderer/../../common/types'
+import { getShippingOption } from '@renderer/../../common/utils'
 import { redirect } from 'react-router-dom'
 import { AppRoute } from '@renderer/common/app-route'
+import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 
 export const OrderItems = ({ order }: { order: Order }) => {
-  const subtotal = order.products.reduce((acc, p) => acc + p.qty * p.product.price, 0)
+  const { online } = useOnlineStatus()
 
   return (
     <Table>
@@ -26,18 +27,31 @@ export const OrderItems = ({ order }: { order: Order }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {order.products.map(({ productId, qty, product }) => (
-          <TableRow
-            className="cursor-pointer hover:bg-gray-100"
-            onClick={() => redirect(`${AppRoute.Products}/${productId}`)}
-            key={productId}
-          >
-            <TableCell className="font-medium">{product.name}</TableCell>
-            <TableCell className="text-right">{qty}</TableCell>
-            <TableCell className="text-right">{formatPrice(product.price)}</TableCell>
-            <TableCell className="text-right">{formatPrice(product.price * qty)}</TableCell>
+        {order.products.length === 0 && !online ? (
+          <TableRow>
+            <TableCell colSpan={4} className="text-center py-8">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-lg font-semibold text-gray-700">No products to display</span>
+                <span className="text-sm text-muted-foreground">
+                  You are currently offline. Product details are unavailable.
+                </span>
+              </div>
+            </TableCell>
           </TableRow>
-        ))}
+        ) : (
+          order.products.map(({ productId, qty, product }) => (
+            <TableRow
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => redirect(`${AppRoute.Products}/${productId}`)}
+              key={productId}
+            >
+              <TableCell className="font-medium">{product.name}</TableCell>
+              <TableCell className="text-right">{qty}</TableCell>
+              <TableCell className="text-right">{formatPrice(product.price)}</TableCell>
+              <TableCell className="text-right">{formatPrice(product.price * qty)}</TableCell>
+            </TableRow>
+          ))
+        )}
         <TableRow>
           <TableCell className="text-right" colSpan={3}>
             <ul>
@@ -51,7 +65,9 @@ export const OrderItems = ({ order }: { order: Order }) => {
           </TableCell>
           <TableCell>
             <ul className="text-right">
-              <li className="text-sm font-medium text-gray-700">{formatPrice(subtotal)}</li>
+              <li className="text-sm font-medium text-gray-700">
+                {formatPrice(order.total, { inCent: true })}
+              </li>
               <li className="text-sm text-muted-foreground">
                 {formatPrice(order.shippingCost, { inCent: true })}
               </li>

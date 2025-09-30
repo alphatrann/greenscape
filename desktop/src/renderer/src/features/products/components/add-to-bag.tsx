@@ -1,5 +1,5 @@
 import { Button } from '@renderer/features/ui/button'
-import { Product } from '../types'
+import { Product } from '@renderer/../../common/types'
 
 export const AddToBag = ({ product }: { product: Product }) => {
   if (product.inStock === 0)

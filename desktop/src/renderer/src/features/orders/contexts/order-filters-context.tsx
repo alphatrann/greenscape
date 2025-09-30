@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react'
-import { DeliveryStatus } from '../types'
+import { DeliveryStatus } from '../../../../../common/types/types'
 
 type OrderFiltersContextType = {
   total: [number | null, number | null]

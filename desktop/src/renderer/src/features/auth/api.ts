@@ -7,16 +7,8 @@ export const login = async (dto: LoginDto) => {
     body: JSON.stringify(dto),
     headers: {
       'Content-Type': 'application/json'
-    },
-    credentials: 'include'
+    }
   })
   const data = await response.json()
-  return data as { success: boolean; message?: string; data: User }
-}
-
-export const logout = async () => {
-  await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
-    method: 'POST',
-    credentials: 'include'
-  })
+  return data as { success: boolean; accessToken: string; data: User }
 }

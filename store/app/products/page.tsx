@@ -1,6 +1,6 @@
 import { PAGE_SIZE } from "@/constants";
 import { getCategoriesTree } from "@/features/categories/actions";
-import { getProducts, paginateProducts } from "@/features/products/actions";
+import { getProducts } from "@/features/products/actions";
 import qs from "query-string";
 import { ProductsClient } from "../../features/products";
 
@@ -37,8 +37,7 @@ export default async function ProductsPage({
     },
   });
 
-  const products = await getProducts(query);
-  const count = await paginateProducts(query);
+  const { count, data: products } = await getProducts(query);
   const categories = await getCategoriesTree();
   return (
     <ProductsClient products={products} count={count} categories={categories} />

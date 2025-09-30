@@ -1,5 +1,4 @@
 import { CategoriesRadioMenu } from '@renderer/features/categories/components/radio-menu'
-import { Category } from '@renderer/features/categories/types'
 import { searchCategory } from '@renderer/features/categories/utils'
 import { Badge } from '@renderer/features/ui/badge'
 import { Button } from '@renderer/features/ui/button'
@@ -7,6 +6,7 @@ import { Separator } from '@renderer/features/ui/separator'
 import { PlusCircleIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { useProductFiltersContext } from '../contexts/product-filters-context'
+import { Category } from '@renderer/../../common/types'
 
 interface CategoriesFilterProps {
   categories: Category[]

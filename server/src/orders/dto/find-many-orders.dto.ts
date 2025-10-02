@@ -7,13 +7,12 @@ import {
   IsIn,
   IsNumber,
   IsOptional,
-  Matches,
   Min,
 } from 'class-validator';
 import { FindManyDto } from '../../common/dto';
 import { allowedCountries } from '../../common/utils';
 
-export class FindManyOrdersDto extends FindManyDto {
+export class FindManyOrdersDto extends OmitType(FindManyDto, ['q']) {
   @IsOptional()
   @IsIn(['delivered', 'pending'])
   status?: 'delivered' | 'pending';
@@ -51,6 +50,6 @@ export class FindManyOrdersDto extends FindManyDto {
   countries?: string[];
 
   @IsOptional()
-  @IsIn(['total', 'shippingCost', 'createdAt', 'deliveredAt', 'id'])
+  @IsIn(['total', 'shippingCost', 'createdAt', 'deliveredAt', 'id', 'tax'])
   sortBy?: string;
 }

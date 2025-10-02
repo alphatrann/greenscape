@@ -13,14 +13,13 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { DateRangeSelect } from '../components'
 import { useOnlineStatus } from '../contexts/online-context'
-import { getDateString, getShippingOption } from '@renderer/../../common/utils'
 
 interface ExportButtonProps {
-  entityType: 'products' | 'orders'
+  entityType: 'categories' | 'products' | 'orders'
 }
 
 export const ExportButton = ({ entityType }: ExportButtonProps) => {
-  const [exportFormat, setExportFormat] = useState('')
+  const [exportFormat, setExportFormat] = useState<'csv' | 'json' | 'xlsx' | ''>('')
   const [from, setFrom] = useState<Date | undefined>(new Date())
   const [to, setTo] = useState<Date | undefined>(new Date())
   const [open, setOpen] = useState(false)
@@ -28,33 +27,21 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
 
   const exportData = async () => {
     if (!exportFormat) return
-    if (entityType === 'products') {
-      const data = await window.electronAPI.fetchProducts()
-      // @ts-ignore
-      window.electronAPI.exportData({
-        type: entityType,
-        format: exportFormat,
-        data: data
-      })
-      toast.success(`Exported ${data.data.length} products successfully!`)
+    let downloaded: boolean = false
+    if (entityType === 'categories') {
+      const { success } = await window.electronAPI.exportCategories({ format: exportFormat })
+      downloaded = success
+    } else if (entityType === 'products') {
+      const { success } = await window.electronAPI.exportProducts({ format: exportFormat })
+      downloaded = success
     } else {
       if (!from || !to) return
-      const { count, data } = await window.electronAPI.fetchOrders(
-        `?from=${getDateString(from)}&to=${getDateString(to)}`
-      )
-      // @ts-ignore
-
-      window.electronAPI.exportData({
-        type: entityType,
-        from,
-        to,
-        format: exportFormat,
-        data: data.map((d) => ({ ...d, shippingOption: getShippingOption(d.shippingCost) }))
-      })
-
-      toast.success(`Exported ${count} orders to ${exportFormat.toUpperCase()} successfully!`)
-      setOpen(false)
+      const { success } = await window.electronAPI.exportOrders({ from, to, format: exportFormat })
+      downloaded = success
     }
+    setOpen(false)
+    if (downloaded)
+      toast.success(`Exported ${entityType} to ${exportFormat.toUpperCase()} successfully!`)
   }
 
   const preventCloseOnSelect = (e: Event) => {
@@ -72,7 +59,10 @@ export const ExportButton = ({ entityType }: ExportButtonProps) => {
       <DropdownMenuContent className="w-[250px]">
         <DropdownMenuLabel>Format</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={exportFormat} onValueChange={setExportFormat}>
+        <DropdownMenuRadioGroup
+          value={exportFormat}
+          onValueChange={(newContent) => setExportFormat(newContent as typeof exportFormat)}
+        >
           <DropdownMenuRadioItem onSelect={preventCloseOnSelect} value="csv">
             CSV
           </DropdownMenuRadioItem>

@@ -38,6 +38,7 @@ export class OrdersService {
         email: true,
         country: true,
         shippingCost: true,
+        tax: true,
         createdAt: true,
         deliveredAt: true,
       },

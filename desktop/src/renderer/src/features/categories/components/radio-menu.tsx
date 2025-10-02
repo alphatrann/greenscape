@@ -13,12 +13,14 @@ interface CategoriesRadioMenuProps {
   categories: Category[]
   trigger: ReactNode
   selectedCategory?: string
+  categoryMap: Map<number, number>
   onChange: (selectedCategory: string) => void
   field: 'id' | 'slug'
 }
 
 export const CategoriesRadioMenu = ({
   categories,
+  categoryMap,
   trigger,
   selectedCategory,
   onChange,
@@ -39,11 +41,9 @@ export const CategoriesRadioMenu = ({
                   value={`${category[field]}|${category.name}`}
                 >
                   {category.name}
-                  {category?._count?.products > 0 && (
-                    <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                      {category?._count?.products}
-                    </span>
-                  )}
+                  <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+                    {categoryMap.get(category.id)}
+                  </span>
                 </DropdownMenuRadioItem>
               )}
             />

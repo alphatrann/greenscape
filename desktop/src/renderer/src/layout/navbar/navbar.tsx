@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { AppRoute } from '@renderer/common/app-route'
 import { useUserStore } from '@renderer/features/users/store'
 import { useUserGuard } from '@renderer/features/users/hooks/use-user-guard'
+import { ModeToggle } from '../../common/components'
 
 export function Navbar() {
   useUserGuard()
@@ -23,6 +24,7 @@ export function Navbar() {
           <Links />
         </div>
         <div className="flex h-full items-center gap-x-6">
+          <ModeToggle />
           <Profile user={user} />
           <NavMobileMenu user={user} />
         </div>

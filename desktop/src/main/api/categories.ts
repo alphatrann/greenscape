@@ -3,6 +3,7 @@ import { getToken } from '../local-store/token'
 
 export const createCategory = async (values: CategoryFormDto) => {
   const token = await getToken({ throw: true })
+
   const response = await fetch(`${import.meta.env.VITE_API_URL}/categories`, {
     method: 'POST',
     body: JSON.stringify(values),
@@ -11,8 +12,9 @@ export const createCategory = async (values: CategoryFormDto) => {
       Authorization: `Bearer ${token}`
     }
   })
-  if (!response.ok && response.status === 400)
+  if (!response.ok && response.status === 400) {
     return response.json() as Promise<{ message: string }>
+  }
   const data = await response.json()
   return data.data as Category
 }

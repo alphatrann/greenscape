@@ -31,7 +31,9 @@ export const OrderItems = ({ order }: { order: Order }) => {
           <TableRow>
             <TableCell colSpan={4} className="text-center py-8">
               <div className="flex flex-col items-center gap-2">
-                <span className="text-lg font-semibold text-gray-700">No products to display</span>
+                <span className="text-lg font-semibold text-secondary-foreground">
+                  No products to display
+                </span>
                 <span className="text-sm text-muted-foreground">
                   You are currently offline. Product details are unavailable.
                 </span>
@@ -41,7 +43,7 @@ export const OrderItems = ({ order }: { order: Order }) => {
         ) : (
           order.products.map(({ productId, qty, product }) => (
             <TableRow
-              className="cursor-pointer hover:bg-gray-100"
+              className="cursor-pointer hover:bg-background"
               onClick={() => redirect(`${AppRoute.Products}/${productId}`)}
               key={productId}
             >
@@ -55,17 +57,17 @@ export const OrderItems = ({ order }: { order: Order }) => {
         <TableRow>
           <TableCell className="text-right" colSpan={3}>
             <ul>
-              <li className="text-sm font-medium text-gray-700">Subtotal</li>
+              <li className="text-sm font-medium text-secondary-foreground">Subtotal</li>
               <li className="text-sm text-muted-foreground">
                 Shipping ({getShippingOption(+order.shippingCost)})
               </li>
               <li className="text-sm text-muted-foreground">Tax</li>
-              <li className="font-medium text-gray-900">Total</li>
+              <li className="font-medium text-foreground">Total</li>
             </ul>
           </TableCell>
           <TableCell>
             <ul className="text-right">
-              <li className="text-sm font-medium text-gray-700">
+              <li className="text-sm font-medium text-secondary-foreground">
                 {formatPrice(order.total, { inCent: true })}
               </li>
               <li className="text-sm text-muted-foreground">

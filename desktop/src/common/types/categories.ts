@@ -5,9 +5,15 @@ export interface Category {
   parentCategory: Category | null
   subCategories?: Category[]
   parentCategoryId?: number
-  _count: { products: number }
+  productCount: number
   unitsSold: number
   sales: number
+}
+
+export type SortOrder = 'asc' | 'desc'
+export interface SortState {
+  sortBy: CategorySortBy
+  order: SortOrder
 }
 
 export interface CategoryFormDto {

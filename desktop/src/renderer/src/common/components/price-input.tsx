@@ -13,7 +13,7 @@ export const PriceInput = (props: React.InputHTMLAttributes<HTMLInputElement>) =
         min={0.01}
         placeholder="19.99"
         {...props}
-        className={cn('pl-7 text-gray-900', props.className)}
+        className={cn('pl-7 text-foreground', props.className)}
       />
     </div>
   )

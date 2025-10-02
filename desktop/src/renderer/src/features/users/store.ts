@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { User } from './types'
+import { User } from '@renderer/../../common/types'
 
 interface State {
   user: User | null

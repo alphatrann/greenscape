@@ -51,11 +51,15 @@ export class ProductsController {
     const statusGroups = await this.productsService.aggregateStatus(
       findManyProductsDto,
     );
+    const categoryGroups = await this.productsService.aggregateCategories(
+      findManyProductsDto,
+    );
     return {
       success: true,
       count,
       data: products,
       statusGroups,
+      categoryGroups,
     };
   }
 

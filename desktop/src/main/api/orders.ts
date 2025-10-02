@@ -26,15 +26,15 @@ export const fetchOrders = async (query = ''): Promise<OrdersResponse> => {
 }
 
 export const updateDeliveryStatus = async (orderId: string) => {
+  const now = new Date().toISOString()
   const token = await getToken({ throw: true })
-  const now = new Date()
   await fetch(`${import.meta.env.VITE_API_URL}/orders/${orderId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ deliveredAt: now.toISOString() })
+    body: JSON.stringify({ deliveredAt: now })
   })
-  return now
+  return { deliveredAt: now }
 }

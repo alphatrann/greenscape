@@ -3,7 +3,6 @@ import { startOfDay, endOfDay } from 'date-fns';
 import { FindManyOrdersDto } from '../dto';
 
 export function formQueries({
-  q,
   countries,
   from,
   to,
@@ -15,23 +14,6 @@ export function formQueries({
 }: FindManyOrdersDto) {
   const where: Prisma.OrderWhereInput = {};
   const orderBy: Prisma.OrderOrderByWithRelationAndSearchRelevanceInput = {};
-  const search: Prisma.StringFilter<'Order'> = {
-    contains: q,
-    mode: 'insensitive',
-  };
-  orderBy[sortBy || 'createdAt'] = order || 'desc';
-  if (q) {
-    where.OR = [
-      { customer: search },
-      { email: search },
-      { phone: search },
-      { line1: search },
-      { line2: search },
-      { city: search },
-      { postalCode: search },
-      { state: search },
-    ];
-  }
   if (countries) where.country = { in: countries };
   where.shippingCost = shippingCost;
   if (totalRange) {

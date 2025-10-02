@@ -20,13 +20,13 @@ export const useFetchOrder = () => {
           if (!data) return
           setOrder(data)
           // @ts-ignore
-          window.electronAPI.upsertOrders([data])
+          window.electronAPI.upsertOfflineOrders([data])
         })
         .catch((error) => toast.error(error.message))
         .finally(() => setLoading(false))
     } else {
       window.electronAPI
-        .getOrderDetail(id)
+        .getOfflineOrder(id)
         .then((data) => {
           if (!data) return
           setOrder(data)

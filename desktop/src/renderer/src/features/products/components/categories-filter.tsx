@@ -6,13 +6,17 @@ import { Separator } from '@renderer/features/ui/separator'
 import { PlusCircleIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { useProductFiltersContext } from '../contexts/product-filters-context'
-import { Category } from '@renderer/../../common/types'
+import { Category, CategoryGroup } from '@renderer/../../common/types'
 
 interface CategoriesFilterProps {
   categories: Category[]
+  categoryGroups: CategoryGroup[]
 }
 
-export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({ categories }) => {
+export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({
+  categories,
+  categoryGroups
+}) => {
   const { selectedCategory, setSelectedCategory } = useProductFiltersContext()
 
   const [foundCategoryPath, foundCategory] = useMemo(() => {
@@ -20,8 +24,11 @@ export const CategoriesFilter: React.FC<CategoriesFilterProps> = ({ categories }
     return searchCategory(categories, selectedCategory, 'slug')
   }, [selectedCategory, categories])
 
+  const categoryMap = new Map(categoryGroups.map((g) => [g.id, g.count]))
+
   return (
     <CategoriesRadioMenu
+      categoryMap={categoryMap}
       categories={categories}
       field="slug"
       onChange={(newValue) => {

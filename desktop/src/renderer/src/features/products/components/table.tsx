@@ -6,13 +6,12 @@ import {
   DataTableViewOptions,
   useTable
 } from '@renderer/common/data-table'
-import { Category } from '@renderer/features/categories/types'
 import { Button } from '@renderer/features/ui/button'
 import { Input } from '@renderer/features/ui/input'
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import { useProductFiltersContext } from '../contexts/product-filters-context'
-import { Product, StatusGroup } from '@renderer/../../common/types'
+import { Category, CategoryGroup, Product, StatusGroup } from '@renderer/../../common/types'
 import { CategoriesFilter } from './categories-filter'
 import { columns } from './columns'
 import { InStockFilter } from './in-stock-filter'
@@ -25,12 +24,14 @@ interface ProductsTableProps {
   count: number
   categories: Category[]
   statusGroups: StatusGroup[]
+  categoryGroups: CategoryGroup[]
 }
 
 export const ProductsTable: React.FC<ProductsTableProps> = ({
   count,
   products,
   categories,
+  categoryGroups,
   statusGroups
 }) => {
   const { q, setQ, reset: resetFilters } = useFiltersContext()
@@ -65,7 +66,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
             className="h-8 w-[250px]"
           />
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <CategoriesFilter categories={categories} />
+            <CategoriesFilter categoryGroups={categoryGroups} categories={categories} />
             <DateRangeSelect from={from} to={to} onFromChange={setFrom} onToChange={setTo} />
             <StatusFilter statusGroups={statusGroups} />
             <PriceFilter />

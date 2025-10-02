@@ -8,11 +8,11 @@ import { DeleteRecordsModal } from '../common/delete-records/modal'
 import { CategoryTree } from '../features/categories/components/tree'
 import { useCategoryTreeStore } from '../features/categories/hooks/use-category-tree'
 import { CategorySortDropdown } from '../features/categories/components/sort-dropdown'
-import { CategorySortBy } from '../features/categories/types'
-import { SortOrder } from '../common/types'
 import { Button } from '../features/ui/button'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { useFetchCategories } from '../features/categories/hooks/use-fetch-categories'
+import { CategorySortBy, SortOrder } from '../../../common/types'
+import { ExportButton } from '../common/export/export-button'
 
 export default function CategoriesPage() {
   useUserGuard()
@@ -42,6 +42,7 @@ export default function CategoriesPage() {
         </div>
         <div className="flex items-center justify-between gap-x-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Categories</h1>
+          <ExportButton entityType="categories" />
         </div>
 
         <div className="mt-6">

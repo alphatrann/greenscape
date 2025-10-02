@@ -37,7 +37,6 @@ export const columns: ColumnDef<Order>[] = [
       </div>
     )
   },
-
   {
     id: 'country',
     accessorKey: 'country',

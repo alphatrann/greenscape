@@ -44,7 +44,7 @@ export const useEditCategory = (
           name: values.name,
           slug: category.slug === values.slug ? category.slug : `${values.slug}-${v4()}`
         }
-        /** @todo store pending writes */
+        await window.electronAPI.updateCategoryOffline(updated)
         editCategory(updated)
       }
       toast.success('Category updated')

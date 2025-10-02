@@ -1,22 +1,16 @@
 import { create } from 'zustand'
 import { produce } from 'immer'
-import { Category, CategorySortBy } from '@renderer/../../common/types'
+import { Category, SortState } from '@renderer/../../common/types'
 import { searchCategory } from '../utils'
-import { SortOrder } from '../../../common/types'
 import { sortCategories } from '../utils/sort-categories'
-
-interface SortState {
-  sortBy: CategorySortBy
-  order: SortOrder
-}
 
 type CategoryTreeState = {
   categories: Category[]
   fetchCategoriesOffline: () => void
   fetchCategories: (queryString?: string) => Promise<void>
-  addCategory: (newCategory: Category) => void
-  editCategory: (updatedCategory: Category) => void
-  deleteCategory: (id: number) => void
+  addCategory: (newCategory: Category) => Promise<void>
+  editCategory: (updatedCategory: Category) => Promise<void>
+  deleteCategory: (id: number) => Promise<void>
   sortCategories: (sortState: SortState) => void
 }
 
@@ -33,24 +27,18 @@ export const useCategoryTreeStore = create<CategoryTreeState>((set, get) => ({
       })
     )
   },
-  fetchCategoriesOffline: () => {
-    const items = localStorage.getItem('category-tree')
-    if (!items) return
-    try {
-      const localCategories = JSON.parse(items) as Category[]
-      set({ categories: localCategories })
-    } catch {
-      // ignore JSON errors
-    }
+  fetchCategoriesOffline: async () => {
+    const categories = await window.electronAPI.getCategoriesTree()
+    set({ categories })
   },
 
   fetchCategories: async (queryString) => {
-    const categories = await window.electronAPI.getCategoriesTree(queryString)
+    const categories = await window.electronAPI.fetchCategoriesTree(queryString)
     set({ categories })
-    localStorage.setItem('category-tree', JSON.stringify(categories))
+    await window.electronAPI.setCategories(categories)
   },
 
-  addCategory: (newCategory) => {
+  addCategory: async (newCategory) => {
     set(
       produce((state: CategoryTreeState) => {
         const parentId = newCategory.parentCategoryId
@@ -65,10 +53,10 @@ export const useCategoryTreeStore = create<CategoryTreeState>((set, get) => ({
         }
       })
     )
-    localStorage.setItem('category-tree', JSON.stringify(get().categories))
+    await window.electronAPI.setCategories(get().categories)
   },
 
-  editCategory: (updatedCategory) => {
+  editCategory: async (updatedCategory) => {
     set(
       produce((state: CategoryTreeState) => {
         const parentId = updatedCategory.parentCategoryId
@@ -101,10 +89,10 @@ export const useCategoryTreeStore = create<CategoryTreeState>((set, get) => ({
         }
       })
     )
-    localStorage.setItem('category-tree', JSON.stringify(get().categories))
+    await window.electronAPI.setCategories(get().categories)
   },
 
-  deleteCategory: (id) => {
+  deleteCategory: async (id) => {
     set(
       produce((state: CategoryTreeState) => {
         const [, found] = searchCategory(state.categories, id, 'id')
@@ -123,6 +111,6 @@ export const useCategoryTreeStore = create<CategoryTreeState>((set, get) => ({
         }
       })
     )
-    localStorage.setItem('category-tree', JSON.stringify(get().categories))
+    await window.electronAPI.setCategories(get().categories)
   }
 }))

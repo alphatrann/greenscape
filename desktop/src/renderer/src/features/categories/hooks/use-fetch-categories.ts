@@ -9,5 +9,5 @@ export const useFetchCategories = () => {
   useEffect(() => {
     if (online) fetchCategories().catch(fetchCategoriesOffline)
     else fetchCategoriesOffline()
-  }, [fetchCategories, fetchCategoriesOffline])
+  }, [online, fetchCategories, fetchCategoriesOffline])
 }

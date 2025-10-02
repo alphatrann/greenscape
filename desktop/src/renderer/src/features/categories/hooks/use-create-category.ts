@@ -36,18 +36,19 @@ export const useCreateCategory = (
           return
         } else addCategory({ ...response, unitsSold: 0, sales: 0, subCategories: [] })
       } else {
+        const offlineSlug = `${values.slug}-${v4()}`
         const newCategory: Category = {
           id: -Math.floor(Math.random() * 2 ** 32 - 1),
           ...values,
-          slug: `${values.slug}-${v4()}`,
-          _count: { products: 0 },
+          slug: offlineSlug,
+          productCount: 0,
           parentCategoryId,
           unitsSold: 0,
           sales: 0,
           subCategories: [],
           parentCategory: null
         }
-        /** @todo store pending writes here */
+        await window.electronAPI.createCategoryOffline(newCategory)
         addCategory(newCategory)
       }
       closeModal()

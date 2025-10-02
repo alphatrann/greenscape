@@ -4,7 +4,7 @@ import { AppRoute } from '../common/app-route'
 import { CopyButton } from '../common/components'
 import { Loading } from '../common/components/loading'
 import NotFound from '../common/components/not-found'
-import { formatPrice, getShippingOption } from '@renderer/../../common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { OrderItems } from '../features/orders/components/items'
 import { OrderOverview } from '../features/orders/components/overview'
 import { OrderSummary } from '../features/orders/components/summary'
@@ -15,13 +15,9 @@ import { Separator } from '../features/ui/separator'
 
 export default function OrderDetailPage() {
   const { loading, order } = useFetchOrder()
-  const onExportInvoice = () => {
+  const onExportInvoice = async () => {
     if (!order) return
-    // @ts-ignore
-    window.electronAPI.exportInvoice({
-      ...order,
-      shippingOption: getShippingOption(order.shippingCost)
-    })
+    await window.electronAPI.exportInvoice(order.id)
     toast.success('Order exported successfully')
   }
 

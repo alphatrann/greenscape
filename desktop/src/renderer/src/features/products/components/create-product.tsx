@@ -12,17 +12,21 @@ interface CreateProductProps {
 
 export const CreateProduct: React.FC<CreateProductProps> = ({ categories }) => {
   const { loading, form, handleSubmit, files, dropzoneState, deleteFile } = useCreateProduct()
+  const productName = form.watch('name')
 
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-    return () => files.forEach((file) => URL.revokeObjectURL(file?.preview || ''))
+    return () => {
+      files.forEach((file) => URL.revokeObjectURL(file?.preview || ''))
+      form.unregister('name')
+    }
   }, [])
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
-          <ProductFormHeader loading={loading} heading="Create new product" />
+          <ProductFormHeader loading={loading} heading={productName || 'Create new product'} />
           <ProductFormFields
             deleteImage={deleteFile}
             files={files}

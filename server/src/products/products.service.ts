@@ -150,7 +150,7 @@ export class ProductsService {
           name: true,
           inStock: true,
           price: true,
-          categories: { select: { id: true, slug: true } },
+          categories: { select: { id: true } },
           createdAt: true,
           status: true,
           images: {
@@ -161,6 +161,11 @@ export class ProductsService {
         },
       });
 
+      products.forEach((p: any) => {
+        p.ordersMade = p._count.orders;
+        delete p._count;
+      });
+
       return { count, products };
     } catch (error) {
       throw new InternalServerErrorException({
@@ -168,6 +173,18 @@ export class ProductsService {
         message: 'Internal Server Error',
       });
     }
+  }
+
+  async aggregateCategories(dto: FindManyProductsDto) {
+    const { where } = formProductQueries(dto);
+    const groups = await this.prisma.category.findMany({
+      where: { products: { some: { ...where } }, subCategories: { none: {} } },
+      select: { id: true, _count: { select: { products: { where } } } },
+    });
+    return groups.map((g) => ({
+      count: g._count.products,
+      id: g.id,
+    }));
   }
 
   async aggregateStatus(dto: FindManyProductsDto, slug: string = null) {
@@ -239,6 +256,7 @@ export class ProductsService {
               'Cannot create product because either it is not found or category provided is unknown',
           });
       }
+
       throw new InternalServerErrorException({
         success: false,
         message: 'Internal Server Error',

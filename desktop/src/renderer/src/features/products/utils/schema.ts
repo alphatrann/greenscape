@@ -22,11 +22,6 @@ export const formSchema = z.object({
       message: 'The number of products in stock must be non-negative'
     })
     .int({ message: 'Please provide how many products in stock' }),
-  categoryIds: z
-    .number()
-    .int()
-    .gte(1)
-    .array()
-    .min(1, { message: 'Please select at least 1 category' }),
+  categoryIds: z.number().int().array().min(1, { message: 'Please select at least 1 category' }),
   status: z.enum(Object.values(Status))
 })

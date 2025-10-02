@@ -4,7 +4,7 @@ import { Label } from '@renderer/features/ui/label'
 import { Separator } from '@renderer/features/ui/separator'
 import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/solid'
 import { format } from 'date-fns'
-import { Order } from '../../../../../common/types/types'
+import { Order } from '@renderer/../../common/types'
 
 interface OrderOverviewProps {
   order: Order

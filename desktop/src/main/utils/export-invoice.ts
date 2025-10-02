@@ -1,17 +1,74 @@
 import PDFDocument from 'pdfkit'
+import { imageSize } from 'image-size'
 import * as fs from 'fs'
 import { dialog } from 'electron'
 import path from 'path'
-import { formatPrice, getPostalAddress } from '../../common/utils'
+import { formatPrice, getPostalAddress, getShippingOption } from '../../common/utils'
+import { fetchOrder } from '../api/orders'
 
-export async function exportInvoice(order: any) {
+function drawLogo(doc: typeof PDFDocument, pageWidth: number) {
+  const logoPath = path.resolve('resources/invoice-logo.png')
+  const maxLogoWidth = 160
+  const logoY = 40
+
+  // measure actual image size
+  const { width: imgWidth, height: imgHeight } = imageSize(fs.readFileSync(logoPath))
+
+  // decide render width (never upscale)
+  const renderWidth = Math.min(maxLogoWidth, imgWidth)
+
+  // keep aspect ratio
+  const scale = renderWidth / imgWidth
+  const renderHeight = imgHeight * scale
+
+  // center horizontally on page
+  const logoX = doc.page.margins.left + (pageWidth - renderWidth) / 2
+
+  // draw the logo
+  doc.image(logoPath, logoX, logoY, {
+    width: renderWidth,
+    height: renderHeight
+  })
+  return pageWidth
+}
+function drawLineItem(
+  doc: typeof PDFDocument,
+  label: string,
+  amount: string,
+  y: number,
+  pageWidth: number
+) {
+  const marginLeft = doc.page.margins.left
+  const marginRight = doc.page.margins.right
+
+  // define a narrower label column, aligned to the right side
+  const labelColumnWidth = pageWidth * 0.6 // adjust: 0.6 → labels start further right
+  const labelX = marginLeft + pageWidth - labelColumnWidth
+
+  // draw label
+  doc.text(label, labelX, y, {
+    align: 'left',
+    width: labelColumnWidth / 2 // makes it hug closer to the amount
+  })
+
+  // draw amount (flush right)
+  doc.text(amount, marginLeft, y, {
+    align: 'right',
+    width: pageWidth - marginRight
+  })
+}
+
+export async function exportInvoice(id: string) {
+  const order = await fetchOrder(id)
+  if (!order) throw new Error('Cannot find order to export')
+
   const { canceled, filePath } = await dialog.showSaveDialog({
-    title: 'Save Order as PDF',
-    defaultPath: `order_${order.id}.pdf`,
+    title: 'Save invoice as PDF',
+    defaultPath: `invoice_${order.id.replace('pi_', '')}.pdf`,
     filters: [{ name: 'PDF', extensions: ['pdf'] }]
   })
 
-  if (canceled || !filePath) return
+  if (canceled || !filePath) return { success: !canceled }
 
   const doc = new PDFDocument({ margin: 50 })
   doc.registerFont('Geist-Regular', path.resolve('resources/fonts/Geist-Regular.ttf'))
@@ -21,11 +78,8 @@ export async function exportInvoice(order: any) {
   doc.pipe(fs.createWriteStream(filePath))
 
   // Brand logo + name
-  const logoPath = path.resolve('resources/invoice-logo.png')
-  const logoWidth = 211
   const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right
-  const logoX = doc.page.margins.left + (pageWidth - logoWidth) / 2
-  doc.image(logoPath, logoX, 40, { width: logoWidth })
+  drawLogo(doc, pageWidth)
 
   // Invoice title
   doc.moveDown(3)
@@ -36,7 +90,7 @@ export async function exportInvoice(order: any) {
   doc.font('Geist-Medium').fontSize(12)
   doc.text(`Invoice No.: ${order.id}`)
   doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`)
-  doc.text(`Shipping Option: ${order.shippingOption}`)
+  doc.text(`Shipping Option: ${getShippingOption(order.shippingCost)}`)
 
   // Bill To
   doc.moveDown()
@@ -64,11 +118,9 @@ export async function exportInvoice(order: any) {
   let y = doc.y
   y = drawRow(['Product', 'Qty', 'Price', 'Subtotal'], y)
 
-  let totalCalc = 0
   doc.font('Geist-Regular').fontSize(11)
   order.products.forEach((p: any) => {
     const subtotal = p.qty * p.product.price
-    totalCalc += subtotal
     y = drawRow(
       [p.product.name, String(p.qty), formatPrice(p.product.price), formatPrice(subtotal)],
       y
@@ -78,31 +130,25 @@ export async function exportInvoice(order: any) {
   // Totals (right aligned)
   doc.moveDown(2)
 
-  doc.font('Geist-Semibold').fontSize(13)
-  doc.text(`Subtotal: ${formatPrice(totalCalc)}`, doc.page.margins.left, doc.y, {
-    width: pageWidth,
-    align: 'right'
-  })
+  // usage
   doc.font('Geist-Medium').fontSize(12)
-  doc.text(
-    `Shipping: ${formatPrice(order.shippingCost, { inCent: true })} (${order.shippingOption})`,
-    doc.page.margins.left,
+  drawLineItem(doc, 'Subtotal:', formatPrice(order.total, { inCent: true }), doc.y, pageWidth)
+  drawLineItem(
+    doc,
+    'Shipping:',
+    formatPrice(order.shippingCost, { inCent: true }),
     doc.y,
-    { width: pageWidth, align: 'right' }
+    pageWidth
   )
-  doc.text(`Tax: ${formatPrice(order.tax, { inCent: true })}`, doc.page.margins.left, doc.y, {
-    width: pageWidth,
-    align: 'right'
-  })
-  doc.font('Geist-Bold').fontSize(14)
-  doc.text(
-    `Total: ${formatPrice(order.total + order.shippingCost + order.tax, { inCent: true })}`,
-    doc.page.margins.left,
+  drawLineItem(doc, 'Tax:', formatPrice(order.tax, { inCent: true }), doc.y, pageWidth)
+
+  doc.font('Geist-Bold').fontSize(13)
+  drawLineItem(
+    doc,
+    'Total:',
+    formatPrice(order.total + order.shippingCost + order.tax, { inCent: true }),
     doc.y,
-    {
-      width: pageWidth,
-      align: 'right'
-    }
+    pageWidth
   )
 
   // Footer
@@ -127,4 +173,5 @@ export async function exportInvoice(order: any) {
 
     return y + rowHeight
   }
+  return { success: !canceled }
 }

@@ -28,6 +28,8 @@ export class CategoriesService {
       return newCategory;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.log({ error });
+
         if (error.code === PrismaError.UniqueViolation)
           throw new BadRequestException({
             success: false,
@@ -121,7 +123,7 @@ export class CategoriesService {
           name: cat.name,
           slug: cat.slug,
           parentCategoryId: cat.parentCategoryId,
-          _count: { products: Number(cat.productCount) },
+          productCount: Number(cat.productCount),
           unitsSold: Number(cat.unitsSold),
           sales: Number(cat.sales),
           subCategories,

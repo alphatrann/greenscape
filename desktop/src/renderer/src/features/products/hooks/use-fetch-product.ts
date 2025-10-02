@@ -5,7 +5,7 @@ import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 import { fetchProductImage } from '@renderer/common/api'
 import { getLocalImage } from '@renderer/../../common/utils'
 
-export const useFetchProduct = () => {
+export const useFetchProduct = (options?: { storeImages: boolean }) => {
   const { slug } = useParams()
 
   const [loading, setLoading] = useState(false)
@@ -32,20 +32,24 @@ export const useFetchProduct = () => {
           if (!data) {
             return
           }
+          await window.electronAPI.upsertOfflineProducts([{ ...data, images: [] }], {
+            overrideImages: true
+          })
 
-          await window.electronAPI.upsertProducts([{ ...data, images: [] }])
+          if (options?.storeImages) {
+            const images = await Promise.all(
+              data.images.map((i) => fetchProductImage(i.file.url || getLocalImage(i.file.id)!))
+            )
 
-          const images = await Promise.all(
-            data.images.map((i) => fetchProductImage(i.file.url || getLocalImage(i.file.id)!))
-          )
-
-          await window.electronAPI.uploadLocalProductImages(
-            data.id,
-            images.map((image, i) => ({
-              ...image,
-              id: data.images[i].file.id
-            }))
-          )
+            await window.electronAPI.uploadLocalProductImages(
+              data.id,
+              images.map((image, i) => ({
+                ...image,
+                id: data.images[i].file.id
+              })),
+              { synced: true }
+            )
+          }
 
           setProduct(data)
         })

@@ -18,19 +18,34 @@ import OrderDetailPage from './pages/order-detail'
 import { ConnectionBanner } from './common/components/connection-banner'
 import { OnlineStatusProvider } from './common/contexts/online-context'
 import NotFound from './common/components/not-found'
+import { ThemeProvider } from './common/contexts/theme-context'
 
 function App(): React.JSX.Element {
   return (
-    <OnlineStatusProvider>
-      <HashRouter>
-        <Toaster />
-        <Navbar />
-        <ConnectionBanner />
-        <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
-          <AppRoutes />
-        </div>
-      </HashRouter>
-    </OnlineStatusProvider>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <OnlineStatusProvider>
+        <HashRouter>
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                background: 'var(--secondary)',
+                color: 'var(--secondary-foreground)'
+              },
+              success: {
+                iconTheme: { primary: 'var(--primary)', secondary: 'white' }
+              },
+              error: { iconTheme: { primary: 'var(--destructive)', secondary: 'white' } }
+            }}
+          />
+          <Navbar />
+          <ConnectionBanner />
+          <div className="px-4 py-12 sm:px-6 lg:px-8">
+            <AppRoutes />
+          </div>
+        </HashRouter>
+      </OnlineStatusProvider>
+    </ThemeProvider>
   )
 }
 

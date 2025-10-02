@@ -114,7 +114,7 @@ export const KeyStats = () => {
   return (
     <div>
       <div className="flex justify-between items-center">
-        <h3 className="text-base font-semibold leading-6 text-gray-900">Key Metrics</h3>
+        <h3 className="text-base font-semibold leading-6 text-foreground">Key Metrics</h3>
         <DateRangeSelect from={from} to={to} onFromChange={onFromChange} onToChange={onToChange} />
       </div>
       <dl className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -126,21 +126,21 @@ export const KeyStats = () => {
             </CardHeader>
             <CardContent className="mt-1">
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-semibold text-gray-900">{stat.cur}</span>
+                <span className="text-2xl font-semibold text-foreground">{stat.cur}</span>
                 <div className="ml-2">
                   {isFinite(stat.rate) && (
                     <>
                       {+stat.rate > 0 && (
-                        <div className="inline-flex items-baseline rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 md:mt-2 lg:mt-0">
-                          <ArrowUpIcon className="-ml-1 mr-0.5 h-4 w-4 flex-shrink-0 self-center text-primary" />
+                        <div className="inline-flex items-baseline rounded-full dark:bg-primary-foreground dark:text-green-100 bg-green-100 px-2.5 py-0.5 text-sm font-medium text-primary-foreground md:mt-2 lg:mt-0">
+                          <ArrowUpIcon className="-ml-1 mr-0.5 h-4 w-4 flex-shrink-0 self-center text-primary dark:text-green-300" />
                           <span className="sr-only">Increased by</span>
                           {Math.abs(stat.rate).toFixed(1)}%
                         </div>
                       )}
 
                       {+stat.rate < 0 && (
-                        <div className="inline-flex items-baseline rounded-full bg-red-100 px-2.5 py-0.5 text-sm font-medium text-red-800 md:mt-2 lg:mt-0">
-                          <ArrowDownIcon className="-ml-1 mr-0.5 h-4 w-4 flex-shrink-0 self-center text-red-500" />
+                        <div className="inline-flex items-baseline rounded-full bg-red-100 px-2.5 py-0.5 text-sm font-medium dark:text-red-100 dark:bg-red-800 text-red-800 md:mt-2 lg:mt-0">
+                          <ArrowDownIcon className="-ml-1 mr-0.5 h-4 w-4 flex-shrink-0 self-center text-red-500 dark:text-red-300" />
                           <span className="sr-only">Decreased by</span>
                           {Math.abs(stat.rate).toFixed(1)}%
                         </div>

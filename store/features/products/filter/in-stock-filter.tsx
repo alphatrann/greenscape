@@ -3,7 +3,6 @@ import { Label } from "@/features/ui/label";
 import { useQueryStore } from "@/features/products/hooks";
 
 export const InStockFilter = () => {
-  const isFetching = useQueryStore((state) => state.isFetching);
   const outOfStockIncluded = useQueryStore((state) => state.outOfStockIncluded);
   const update = useQueryStore((state) => state.update);
 
@@ -16,7 +15,6 @@ export const InStockFilter = () => {
           onCheckedChange={() =>
             update({ outOfStockIncluded: !outOfStockIncluded })
           }
-          disabled={isFetching}
         />
         <Label className="font-normal">Don&apos;t include out of stock</Label>
       </div>

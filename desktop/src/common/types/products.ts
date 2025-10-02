@@ -13,6 +13,7 @@ export interface GetProductsResponse {
   success: boolean
   data: Product[]
   statusGroups: StatusGroup[]
+  categoryGroups: CategoryGroup[]
 }
 
 export interface Product {
@@ -27,8 +28,9 @@ export interface Product {
   createdAt: Date
   updatedAt: Date
   images: ProductImage[]
-  _count: { orders: number }
+  ordersMade: number
 }
+
 export interface ProductImage {
   file: {
     id: string
@@ -49,4 +51,9 @@ export interface ProductFormDto {
 export interface StatusGroup {
   count: number
   status: Status
+}
+
+export interface CategoryGroup {
+  count: number
+  id: number
 }

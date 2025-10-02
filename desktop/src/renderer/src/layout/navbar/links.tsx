@@ -16,7 +16,7 @@ export const Links = () => {
               'flex h-16 items-center border-b-2 border-transparent px-1 text-sm font-medium text-muted-foreground',
               location.pathname === link.href ||
                 (location.pathname.startsWith(link.href) && link.href !== AppRoute.Home)
-                ? 'border-primary font-semibold text-gray-900'
+                ? 'border-primary font-semibold text-foreground'
                 : 'hover:border-gray-300'
             )}
           >

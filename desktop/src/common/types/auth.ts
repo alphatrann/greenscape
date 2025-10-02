@@ -11,3 +11,8 @@ export enum Role {
   User = 'User',
   Admin = 'Admin'
 }
+
+export interface LoginDto {
+  email: string
+  password: string
+}

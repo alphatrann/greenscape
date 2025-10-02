@@ -8,7 +8,7 @@ import { useFetchProduct } from '../features/products/hooks/use-fetch-product'
 import NotFound from '../common/components/not-found'
 
 export default function ProductPage() {
-  const { loading, product } = useFetchProduct()
+  const { loading, product } = useFetchProduct({ storeImages: true })
   if (loading) return <Loading />
   if (!product) return <NotFound />
 

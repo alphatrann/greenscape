@@ -25,7 +25,7 @@ export const login = async (dto: LoginDto) => {
       'Content-Type': 'application/json'
     }
   })
-  if (!response.ok) throw new Error(await response.json())
   const data = await response.json()
+  if (!response.ok) throw new Error(data.message)
   return data as { success: boolean; accessToken: string; data: User }
 }

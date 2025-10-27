@@ -6,7 +6,7 @@ import { sortCategories } from '../utils/sort-categories'
 
 type CategoryTreeState = {
   categories: Category[]
-  fetchCategoriesOffline: () => void
+  fetchCategoriesOffline: () => Promise<void>
   fetchCategories: (queryString?: string) => Promise<void>
   addCategory: (newCategory: Category) => Promise<void>
   editCategory: (updatedCategory: Category) => Promise<void>

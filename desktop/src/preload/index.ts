@@ -75,5 +75,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   login: (dto: LoginDto) => ipcRenderer.invoke('login', dto),
   logout: () => ipcRenderer.invoke('logout'),
-  getCurrentUser: () => ipcRenderer.invoke('get-current-user')
+  getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
+  getLocalUser: () => ipcRenderer.invoke('get-local-user')
 })

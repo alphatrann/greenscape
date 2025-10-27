@@ -10,7 +10,7 @@ import { v4 } from 'uuid'
 import * as z from 'zod'
 import { formSchema } from '../utils/schema'
 import { useImagesUpload } from './use-images-upload'
-import { getLocalImage } from '../../../../../common/utils'
+import { getLocalImage } from '@renderer/../../common/utils'
 
 export const useEditProduct = (product: Product) => {
   const navigate = useNavigate()
@@ -61,21 +61,34 @@ export const useEditProduct = (product: Product) => {
       toast.error('Please upload at least an image')
       return
     }
-
+    let updated = {
+      id: product.id,
+      name: values.name,
+      slug,
+      status: values.status,
+      categories: values.categoryIds.map((id) => ({ id })),
+      createdAt: product.createdAt,
+      desc: values.desc,
+      images: product.images,
+      inStock: values.inStock,
+      ordersMade: product.ordersMade,
+      price: values.price,
+      updatedAt: product.updatedAt
+    }
+    const filesPayload = await Promise.all(
+      files.map(async (f) => ({
+        filename: f.name,
+        buffer: await f.arrayBuffer()
+      }))
+    )
     try {
       setLoading(true)
 
       const existingImageIds = new Set(prevImages.map((img) => img.file.id))
-      const filesPayload = await Promise.all(
-        files.map(async (f) => ({
-          filename: f.name,
-          buffer: await f.arrayBuffer()
-        }))
-      )
+
       const deletedImages = product.images
         .map((image) => image.file.id)
         .filter((imageId) => !existingImageIds.has(imageId))
-      let updated: Product
 
       if (online) {
         const response = await window.electronAPI.updateProduct(product.id, values)
@@ -93,22 +106,15 @@ export const useEditProduct = (product: Product) => {
           }
         }
       } else {
-        updated = {
-          id: product.id,
-          name: values.name,
-          slug,
-          status: values.status,
-          categories: values.categoryIds.map((id) => ({ id })),
-          createdAt: product.createdAt,
-          desc: values.desc,
-          images: product.images,
-          inStock: values.inStock,
-          ordersMade: product.ordersMade,
-          price: values.price,
-          updatedAt: product.updatedAt
-        }
         await window.electronAPI.updateOfflineProduct(updated)
       }
+
+      toast.success('Product updated')
+    } catch (error: any) {
+      toast.error(`${error.message}. Saving an offline version instead...`)
+      await window.electronAPI.updateOfflineProduct(updated)
+    } finally {
+      setLoading(false)
       await window.electronAPI.upsertOfflineProducts([updated])
       if (files.length > 0) {
         const paths = await window.electronAPI.uploadLocalProductImages(product.id, filesPayload, {
@@ -120,8 +126,6 @@ export const useEditProduct = (product: Product) => {
           else throw new Error('Failed to upload images from disk')
         }
       }
-
-      toast.success('Product updated')
       form.reset({
         name: '',
         desc: '',
@@ -131,10 +135,6 @@ export const useEditProduct = (product: Product) => {
       })
       navigate(`${AppRoute.Products}/${slug}`)
       clearFiles()
-    } catch (error: any) {
-      toast.error(error.message)
-    } finally {
-      setLoading(false)
     }
   }
 

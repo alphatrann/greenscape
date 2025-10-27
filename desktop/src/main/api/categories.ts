@@ -12,10 +12,11 @@ export const createCategory = async (values: CategoryFormDto) => {
       Authorization: `Bearer ${token}`
     }
   })
-  if (!response.ok && response.status === 400) {
-    return response.json() as Promise<{ message: string }>
-  }
   const data = await response.json()
+  if (!response.ok) {
+    if (response.status === 400) return data as Promise<{ message: string }>
+    else throw new Error(data.message)
+  }
   return data.data as Category
 }
 
@@ -29,9 +30,11 @@ export const updateCategory = async (id: number, values: CategoryFormDto) => {
       Authorization: `Bearer ${token}`
     }
   })
-  if (!response.ok && response.status === 400)
-    return response.json() as Promise<{ message: string }>
   const data = await response.json()
+  if (!response.ok) {
+    if (response.status === 400) return data as Promise<{ message: string }>
+    else throw new Error(data.message)
+  }
   return data.data as Category
 }
 

@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCategoryTreeStore } from '../../categories/hooks/use-category-tree'
 import { Button } from '../../ui/button'
 import { Product } from '@renderer/../../common/types'
+import { ProductCategories } from './product-categories'
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -56,17 +57,12 @@ export const columns: ColumnDef<Product>[] = [
       const { categories } = useCategoryTreeStore()
       const flattened = flattenCategories(categories)
 
-      return (
-        <div className="text-muted-foreground">
-          {Array.from(new Set(flattened))
-            .filter((c) => {
-              const categoryIds = row.original.categories.map((c) => c.id)
-              return categoryIds.includes(c.id)
-            })
-            .map((c) => c.name)
-            .join(', ')}
-        </div>
-      )
+      const uniqueCategories = Array.from(new Set(flattened)).filter((c) => {
+        const categoryIds = row.original.categories.map((c) => c.id)
+        return categoryIds.includes(c.id)
+      })
+
+      return <ProductCategories categories={uniqueCategories} />
     }
   },
   {

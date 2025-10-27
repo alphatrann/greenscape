@@ -51,11 +51,15 @@ export const useFetchOrders = () => {
   }, [pagination, q, total, from, to, selectedCountries, status, sortBy, order, shippingCost])
 
   const fetchOfflineData = useCallback(async () => {
-    const { data, count, sales, ...groups } = await window.electronAPI.getOrders(query)
-    setGroups(groups)
-    setSales(sales)
-    setTotalCount(count)
-    setOrders(data)
+    try {
+      const { data, count, sales, ...groups } = await window.electronAPI.getOrders(query)
+      setGroups(groups)
+      setSales(sales)
+      setTotalCount(count)
+      setOrders(data)
+    } catch (error: any) {
+      toast.error(error?.message ?? 'Error fetching offline orders')
+    }
   }, [query])
 
   const fetchOnlineData = useCallback(async () => {
@@ -81,7 +85,8 @@ export const useFetchOrders = () => {
       setTotalCount(count)
       setOrders(data)
     } catch {
-      toast.error('Error fetching orders. Please try again later')
+      toast.error('Error fetching orders. Using offline data instead')
+      await fetchOfflineData()
     }
   }, [query])
 

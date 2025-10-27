@@ -67,7 +67,9 @@ export function CategoryTree({ category, openAddCategoryModal, depth = 0 }: Cate
             {category.name}
           </div>
 
-          <span className="text-right font-medium text-sm">{formatPrice(category.sales)}</span>
+          <span className="text-right font-medium text-sm">
+            {formatPrice(category.sales, { inCent: true })}
+          </span>
           <span className="text-right font-medium text-sm text-muted-foreground">
             {category.unitsSold.toLocaleString('en-US')}
           </span>

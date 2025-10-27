@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 import { fetchProductImage } from '@renderer/common/api'
 import { getLocalImage } from '@renderer/../../common/utils'
+import toast from 'react-hot-toast'
 
 export const useFetchProduct = (options?: { storeImages: boolean }) => {
   const { slug } = useParams()
@@ -14,9 +15,13 @@ export const useFetchProduct = (options?: { storeImages: boolean }) => {
   const hasFetched = useRef<string | null>(null)
 
   const fetchProductDetailOffline = async () => {
-    if (!slug) return
-    const productDetail = await window.electronAPI.getProductDetail(slug)
-    return productDetail
+    try {
+      if (!slug) return
+      const productDetail = await window.electronAPI.getProductDetail(slug)
+      setProduct(productDetail)
+    } catch (error: any) {
+      toast.error(error?.message ?? 'Failed to fetch offline product detail')
+    }
   }
 
   useEffect(() => {
@@ -53,16 +58,13 @@ export const useFetchProduct = (options?: { storeImages: boolean }) => {
 
           setProduct(data)
         })
+        .catch(async () => {
+          toast.error('Failed to fetch products. Using local data instead...')
+          await fetchProductDetailOffline()
+        })
         .finally(() => setLoading(false))
     } else {
       fetchProductDetailOffline()
-        .then((data) => {
-          if (!data) {
-            return
-          }
-          setProduct(data)
-        })
-        .finally(() => setLoading(false))
     }
   }, [slug, online])
 

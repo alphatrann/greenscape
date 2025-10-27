@@ -85,6 +85,7 @@ declare global {
       login: (dto: LoginDto) => Promise<User>
       logout: () => Promise<void>
       getCurrentUser: () => Promise<User | null>
+      getLocalUser: () => Promise<User | null>
     }
   }
 }

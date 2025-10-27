@@ -73,7 +73,11 @@ export const useCreateProduct = () => {
       } else {
         await window.electronAPI.createOfflineProduct(newProduct)
       }
-
+    } catch (error: any) {
+      await window.electronAPI.createOfflineProduct(newProduct)
+      toast.error(`${error.message}. Saving an offline version instead...`)
+    } finally {
+      setLoading(false)
       await window.electronAPI.upsertOfflineProducts([newProduct])
       const paths = await window.electronAPI.uploadLocalProductImages(newProduct.id, filesPayload, {
         synced: online
@@ -89,14 +93,11 @@ export const useCreateProduct = () => {
           }
         } else throw new Error('Failed to upload images from disk')
       }
+
       form.reset()
       clearFiles()
       toast.success('Product created')
       navigate(`${AppRoute.Products}/${slug}`)
-    } catch (error: any) {
-      toast.error(`Failed to create product. Please try again. Reason: ${error.message}`)
-    } finally {
-      setLoading(false)
     }
   }
 

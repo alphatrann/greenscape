@@ -12,9 +12,11 @@ export const createProduct = async (dto: ProductFormDto) => {
       Authorization: `Bearer ${token}`
     }
   })
-  if (!response.ok && response.status === 400)
-    return response.json() as Promise<{ message: string }>
   const data = await response.json()
+  if (!response.ok) {
+    if (response.status === 400) return data as Promise<{ message: string }>
+    else throw new Error(data.message)
+  }
   return data.data as Product
 }
 
@@ -43,7 +45,7 @@ export const fetchProduct = async (slug: string) => {
     }
   })
   const data = await response.json()
-  if (!data.success) throw new Error(data.message)
+  if (!response.ok) throw new Error(data.message)
   return data.data as Product | null
 }
 
@@ -75,7 +77,8 @@ export const deleteImages = async (productId: number, deletedImageIds: string[])
     }
   )
   const data = await response.json()
-  if (!response.ok) throw new Error(data?.message ?? '')
+  if (!response.ok) throw new Error(data?.message ?? 'Error deleting images')
+
   return data
 }
 
@@ -90,8 +93,10 @@ export const updateProduct = async (productId: number, dto: Partial<ProductFormD
       Authorization: `Bearer ${token}`
     }
   })
-  if (!response.ok && response.status === 400)
-    return response.json() as Promise<{ message: string }>
   const data = await response.json()
+  if (!response.ok) {
+    if (response.status === 400) return data as Promise<{ message: string }>
+    else throw new Error(data.message)
+  }
   return data.data as Product
 }

@@ -66,18 +66,24 @@ export const useFetchProducts = () => {
         inStock: inStock.map((i) => i ?? '').join('-')
       }
     })
-    window.electronAPI.fetchProducts(queryString, selectedCategory).then((data) => {
-      if ('data' in data) {
-        setProducts(data.data)
-        setStatusGroups(data.statusGroups)
-        setTotalProductsCount(data.count)
-        setCategoryGroups(data.categoryGroups)
+    window.electronAPI
+      .fetchProducts(queryString, selectedCategory)
+      .then((data) => {
+        if ('data' in data) {
+          setProducts(data.data)
+          setStatusGroups(data.statusGroups)
+          setTotalProductsCount(data.count)
+          setCategoryGroups(data.categoryGroups)
 
-        window.electronAPI.upsertOfflineProducts(data.data)
-      } else {
-        toast.error(`Failed to fetch products. Reason ${data.message}`)
-      }
-    })
+          window.electronAPI.upsertOfflineProducts(data.data)
+        } else {
+          toast.error(`Failed to fetch products. Reason ${data.message}`)
+        }
+      })
+      .catch(async () => {
+        toast.error('Failed to fetch products. Using local data instead...')
+        await fetchOfflineData()
+      })
 
     fetchCategories(queryString)
   }, [query])

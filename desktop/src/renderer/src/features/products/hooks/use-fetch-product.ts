@@ -15,12 +15,15 @@ export const useFetchProduct = (options?: { storeImages: boolean }) => {
   const hasFetched = useRef<string | null>(null)
 
   const fetchProductDetailOffline = async () => {
+    setLoading(true)
     try {
       if (!slug) return
       const productDetail = await window.electronAPI.getProductDetail(slug)
       setProduct(productDetail)
     } catch (error: any) {
       toast.error(error?.message ?? 'Failed to fetch offline product detail')
+    } finally {
+      setLoading(false)
     }
   }
 

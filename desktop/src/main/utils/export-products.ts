@@ -1,6 +1,5 @@
 import xlsx from 'xlsx'
 import { Category, Product } from '../../common/types'
-import { flattenCategories } from '../../common/utils'
 
 function buildCategoryMap(categories: Category[]) {
   const map = new Map<number, Category>()
@@ -43,6 +42,7 @@ export function exportProductsToJSON(products: Product[], categories: Category[]
 }
 
 export function exportProductsToCSV(products: Product[], categories: Category[]) {
+  const categoryMap = buildCategoryMap(categories)
   const headers = [
     'ID',
     'Slug',
@@ -64,7 +64,7 @@ export function exportProductsToCSV(products: Product[], categories: Category[])
     p.price,
     new Date(p.createdAt).toISOString(),
     p.status,
-    Array.from(new Set(flattenCategories(categories).map((c) => c.name))).join(','),
+    p.categories.map((c) => categoryMap.get(c.id)?.name).join(', '),
     p.images[0]?.file?.url || getLocalImage(p.images[0]?.file?.id),
     p.ordersMade
   ])
@@ -75,6 +75,7 @@ export function exportProductsToCSV(products: Product[], categories: Category[])
 }
 
 export function exportProductsToExcel(products: Product[], categories: Category[]) {
+  const categoryMap = buildCategoryMap(categories)
   const rows = products.map((p) => ({
     ID: p.id,
     Slug: p.slug,
@@ -83,7 +84,7 @@ export function exportProductsToExcel(products: Product[], categories: Category[
     Price: p.price,
     'Created At': new Date(p.createdAt).toISOString(),
     Status: p.status,
-    Categories: Array.from(new Set(flattenCategories(categories).map((c) => c.name))).join(','),
+    Categories: p.categories.map((c) => categoryMap.get(c.id)?.name).join(', '),
     'Image URL': p.images[0]?.file?.url || getLocalImage(p.images[0]?.file?.id),
     'Orders Made': p.ordersMade
   }))

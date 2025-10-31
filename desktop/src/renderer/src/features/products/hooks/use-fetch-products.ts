@@ -75,7 +75,8 @@ export const useFetchProducts = () => {
           setTotalProductsCount(data.count)
           setCategoryGroups(data.categoryGroups)
 
-          window.electronAPI.upsertOfflineProducts(data.data)
+          // storing the image URLs locally doesn't help much
+          window.electronAPI.upsertOfflineProducts(data.data.map((p) => ({ ...p, images: [] })))
         } else {
           toast.error(`Failed to fetch products. Reason ${data.message}`)
         }

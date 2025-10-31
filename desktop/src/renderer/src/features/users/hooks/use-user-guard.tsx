@@ -21,7 +21,6 @@ export const useUserGuard = () => {
 
   const loadLocalUser = async () => {
     const storedUser = await window.electronAPI.getLocalUser()
-    console.log({ storedUser })
     if (storedUser) {
       try {
         setCurrentUser(storedUser)
@@ -46,8 +45,6 @@ export const useUserGuard = () => {
       .getCurrentUser()
       .then((data) => {
         if (data) {
-          console.log({ data })
-
           setCurrentUser(data)
           if (location.pathname === AppRoute.Login) {
             navigate(AppRoute.Home, { replace: true })

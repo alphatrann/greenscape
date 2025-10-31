@@ -4,15 +4,20 @@ import { UploadFileDto } from './dto';
 import { FilesService } from './files.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { join } from 'path';
+import { PrismaClient } from '@prisma/client';
+import { TransactionClient } from '../common/types';
 
 @Injectable()
 export class LocalFilesService implements FilesService {
   constructor(private prisma: PrismaService) {}
 
-  async createMany(uploadFilesDto: UploadFileDto[]): Promise<string[]> {
+  async createMany(
+    uploadFilesDto: UploadFileDto[],
+    tx?: TransactionClient,
+  ): Promise<string[]> {
+    const client = tx ?? this.prisma;
     const ids = uploadFilesDto.map(() => uuidv4());
-    await this.prisma.file.createMany({
+    await client.file.createMany({
       data: ids.map((id, i) => ({
         id,
         filename: uploadFilesDto[i].filename,
@@ -35,15 +40,19 @@ export class LocalFilesService implements FilesService {
     return file;
   }
 
-  async remove(keys: string[]) {
-    const toDeleteFiles = await this.prisma.file.findMany({
+  async remove(keys: string[], tx?: TransactionClient): Promise<string[]> {
+    const client = tx ?? this.prisma;
+    const toDeleteFiles = await client.file.findMany({
       where: { id: { in: keys } },
     });
+    const deleted: string[] = [];
     for (const file of toDeleteFiles) {
       try {
         await rm(file.path);
+        deleted.push(file.id);
       } catch {}
     }
-    await this.prisma.file.deleteMany({ where: { id: { in: keys } } });
+    await client.file.deleteMany({ where: { id: { in: deleted } } });
+    return deleted;
   }
 }

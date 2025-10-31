@@ -77,7 +77,16 @@ export class ProductsController {
       findManyProductsDto,
       slug,
     );
-    return { success: true, count, data: products, statusGroups };
+    const categoryGroups = await this.productsService.aggregateCategories(
+      findManyProductsDto,
+    );
+    return {
+      success: true,
+      count,
+      data: products,
+      statusGroups,
+      categoryGroups,
+    };
   }
 
   @Get('cart')

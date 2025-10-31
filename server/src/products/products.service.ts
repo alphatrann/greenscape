@@ -12,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, FindManyProductsDto, UpdateProductDto } from './dto';
 import { LocalFilesService } from '../files/local-files.service';
 import { formProductQueries } from './utils';
+import { MAX_PRODUCT_IMAGES_COUNT } from '../common/constants';
 
 @Injectable()
 export class ProductsService {
@@ -57,9 +58,20 @@ export class ProductsService {
     imagesUploadDto: UploadFileDto[],
   ) {
     try {
-      const keys = await this.filesService.createMany(imagesUploadDto);
-      await this.prisma.image.createMany({
-        data: keys.map((key) => ({ fileId: key, productId })),
+      await this.prisma.$transaction(async (tx) => {
+        const keys = await this.filesService.createMany(imagesUploadDto, tx);
+        const { images } = await tx.product.findUniqueOrThrow({
+          where: { id: productId },
+          select: { images: { select: { fileId: true } } },
+        });
+        if (images.length > MAX_PRODUCT_IMAGES_COUNT)
+          throw new BadRequestException(
+            `A product can only have at most 4 images, but got ${images.length} images.`,
+          );
+        await this.filesService.remove(keys, tx);
+        await tx.image.createMany({
+          data: keys.map((key) => ({ fileId: key, productId })),
+        });
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -177,6 +189,7 @@ export class ProductsService {
 
   async aggregateCategories(dto: FindManyProductsDto) {
     const { where } = formProductQueries(dto);
+    delete where['categories'];
     const groups = await this.prisma.category.findMany({
       where: { products: { some: { ...where } }, subCategories: { none: {} } },
       select: { id: true, _count: { select: { products: { where } } } },
@@ -291,19 +304,22 @@ export class ProductsService {
         where: { id: { in: ids } },
         select: { images: { select: { fileId: true } } },
       });
-      if (productsWithImagesOnly.length !== ids.length)
-        throw new NotFoundException({
-          success: false,
-          message: `${
-            ids.length - productsWithImagesOnly.length
-          } products were not deleted because they were not found`,
-        });
+
       const imageKeys = productsWithImagesOnly.flatMap((img) =>
         img.images.map((image) => image.fileId),
       );
-      await this.filesService.remove(imageKeys);
-      await this.prisma.product.deleteMany({
-        where: { id: { in: ids } },
+      await this.prisma.$transaction(async (tx) => {
+        const deleted = await this.filesService.remove(imageKeys, tx);
+        if (deleted.length !== ids.length)
+          throw new NotFoundException({
+            success: false,
+            message: `${
+              ids.length - productsWithImagesOnly.length
+            } haven't been deleted due to errors`,
+          });
+        await tx.product.deleteMany({
+          where: { id: { in: ids } },
+        });
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError)

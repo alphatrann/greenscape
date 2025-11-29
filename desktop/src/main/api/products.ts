@@ -35,6 +35,7 @@ export const uploadProductImages = async (productId: number, formData: FormData)
   )
   const data = await response.json()
   if (!response.ok) throw new Error(data?.message ?? 'Error uploading products')
+  return data.ids as string[]
 }
 
 export const fetchProduct = async (slug: string) => {
@@ -63,7 +64,7 @@ export const fetchProducts = async (query = '', slug = ''): Promise<GetProductsR
   return data
 }
 
-export const deleteImages = async (productId: number, deletedImageIds: string[]) => {
+export const deleteProductImages = async (productId: number, deletedImageIds: string[]) => {
   const token = await getToken()
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/products/${

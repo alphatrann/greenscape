@@ -27,6 +27,7 @@ export function exportOrdersToJSON(orders: Order[]) {
 export function exportOrdersToCSV(orders: Order[]) {
   const headers = [
     'ID',
+    'Customer',
     'Phone',
     'Email',
     'Country',
@@ -41,6 +42,7 @@ export function exportOrdersToCSV(orders: Order[]) {
 
   const rows = orders.map((o) => [
     o.id,
+    o.customer || '',
     o.phone || '',
     o.email || '',
     o.country ? getCountryName(o.country) : '',
@@ -61,6 +63,7 @@ export function exportOrdersToCSV(orders: Order[]) {
 export function exportOrdersToExcel(orders: Order[]) {
   const rows = orders.map((o) => ({
     ID: o.id,
+    Customer: o.customer || '',
     Phone: o.phone || '',
     Email: o.email || '',
     Country: o.country ? getCountryName(o.country) : '',

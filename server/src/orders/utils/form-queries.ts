@@ -11,9 +11,11 @@ export function formQueries({
   totalRange,
   sortBy,
   order,
+  q,
 }: FindManyOrdersDto) {
   const where: Prisma.OrderWhereInput = {};
   const orderBy: Prisma.OrderOrderByWithRelationAndSearchRelevanceInput = {};
+  if (q) where.customer = { contains: q, mode: 'insensitive' };
   if (countries) where.country = { in: countries };
   where.shippingCost = shippingCost;
   if (totalRange) {
@@ -29,5 +31,6 @@ export function formQueries({
 
   if (status === 'delivered') where.deliveredAt = { not: null };
   if (status === 'pending') where.deliveredAt = null;
+  if (sortBy) orderBy[sortBy] = order;
   return { where, orderBy };
 }

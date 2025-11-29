@@ -14,7 +14,8 @@ import {
   FilePayload,
   ExportOrdersPayload,
   ExportPayload,
-  LoginDto
+  LoginDto,
+  SyncOptions
 } from '../common/types'
 
 declare global {
@@ -40,6 +41,7 @@ declare global {
       ) => Promise<void>
       createProduct: (dto: ProductFormDto) => Promise<Product | { message: string }>
       uploadProductImages: (productId: number, paths: string[]) => Promise<string[]>
+      syncProductImageIds: (productId: number, ids: string[]) => Promise<void>
       updateProduct: (
         productId: number,
         dto: ProductFormDto
@@ -55,9 +57,9 @@ declare global {
       uploadLocalProductImages: (
         productId: number,
         filesPayload: LocalFilePayload[],
-        options: SyncOptions
+        options?: SyncOptions
       ) => Promise<string[]>
-      deleteOfflineProducts: (ids: number[]) => Promise<void>
+      deleteLocalProductImages: (productId: number, imageIds: string[]) => Promise<void>
 
       deleteRecords: (
         ids: (number | string)[],

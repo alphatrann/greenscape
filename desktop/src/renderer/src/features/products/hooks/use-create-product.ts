@@ -85,7 +85,8 @@ export const useCreateProduct = () => {
       if (online) {
         if (paths.length > 0) {
           try {
-            await window.electronAPI.uploadProductImages(newProduct.id, paths)
+            const ids = await window.electronAPI.uploadProductImages(newProduct.id, paths)
+            await window.electronAPI.syncProductImageIds(newProduct.id, ids)
           } catch (error) {
             // rollback
             await window.electronAPI.deleteRecords([newProduct.id], 'products')

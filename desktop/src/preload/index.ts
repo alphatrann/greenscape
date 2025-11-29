@@ -8,8 +8,7 @@ import {
   LoginDto,
   Order,
   Product,
-  ProductFormDto,
-  SyncOptions
+  ProductFormDto
 } from '../common/types'
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -37,12 +36,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('fetch-products', query, selectedCategory),
   createOfflineProduct: (product: Product) => ipcRenderer.invoke('create-offline-product', product),
   updateOfflineProduct: (product: Product) => ipcRenderer.invoke('update-offline-product', product),
-  uploadLocalProductImages: (
-    productId: number,
-    filesPayload: LocalFilePayload[],
-    options: SyncOptions
-  ) => ipcRenderer.invoke('upload-local-product-images', productId, filesPayload, options),
-  deleteOfflineProducts: (ids: number[]) => ipcRenderer.invoke('delete-offline-products', ids),
+  uploadLocalProductImages: (productId: number, filesPayload: LocalFilePayload[]) =>
+    ipcRenderer.invoke('upload-local-product-images', productId, filesPayload),
+  deleteLocalProductImages: (productId: number, imageIds: string[]) =>
+    ipcRenderer.invoke('delete-local-product-images', productId, imageIds),
+  syncProductImageIds: (productId: number, ids: string[]) =>
+    ipcRenderer.invoke('sync-product-image-ids', productId, ids),
 
   deleteRecords: (ids: (number | string)[], entityName: 'categories' | 'products') =>
     ipcRenderer.invoke('delete-records', ids, entityName),

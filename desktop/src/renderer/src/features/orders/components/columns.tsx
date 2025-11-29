@@ -51,6 +51,12 @@ export const columns: ColumnDef<Order>[] = [
     }
   },
   {
+    id: 'customer',
+    accessorKey: 'Customer',
+    header: () => <div className="pl-4">Customer</div>,
+    cell: ({ row }) => <div className="text-sm pl-4">{row.original.customer}</div>
+  },
+  {
     id: 'phone',
     accessorKey: 'Phone',
     header: () => <div className="pl-4">Phone number</div>,

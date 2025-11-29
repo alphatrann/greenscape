@@ -36,6 +36,7 @@ export class OrdersService {
         total: true,
         phone: true,
         email: true,
+        customer: true,
         country: true,
         shippingCost: true,
         tax: true,

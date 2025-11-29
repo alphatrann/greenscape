@@ -140,7 +140,7 @@ export async function attachImages(
   productId: number,
   imagesDir: string,
   files: LocalFilePayload[],
-  options: SyncOptions
+  options: SyncOptions = { synced: true }
 ) {
   await db.read()
   const idx = db.data!.products.findIndex((prod) => prod.id === productId)
@@ -186,6 +186,65 @@ export async function attachImages(
   return []
 }
 
+export async function detachImages(productId: number, imageIds: string[]) {
+  await db.read()
+  const idx = db.data!.products.findIndex((p) => p.id === productId)
+  if (idx < 0) return []
+
+  const product = { ...db.data!.products[idx] }
+  product.images = product.images ?? []
+
+  const imagesToRemove = product.images.filter((i) => imageIds.includes(i.file.id))
+  const remainingImages = product.images.filter((i) => !imageIds.includes(i.file.id))
+
+  // collect local file paths to try to remove from disk
+  const paths: string[] = imagesToRemove
+    .map((i) => i.file.url)
+    .filter((u): u is string => typeof u === 'string' && u.length > 0)
+    .map((u) => (u.startsWith('file://') ? u.replace(/^file:\/\//, '') : u))
+
+  if (paths.length > 0) {
+    try {
+      const fs = await import('fs/promises')
+      await Promise.all(
+        paths.map(async (p) => {
+          try {
+            await fs.unlink(p)
+          } catch {
+            // ignore individual file deletion errors
+          }
+        })
+      )
+    } catch {
+      // ignore if fs import or deletions fail
+    }
+  }
+
+  db.data!.products[idx] = { ...product, images: remainingImages }
+
+  db.data!.ops.push({
+    actionType: SyncActionType.DeleteProductImages,
+    payload: { productId, imageIds },
+    timestamp: new Date().toISOString()
+  })
+  await db.write()
+  return paths
+}
+
+export async function syncProductImageIds(productId: number, imageIds: string[]) {
+  await db.read()
+  const productIndex = db.data.products.findIndex((p) => p.id === productId)
+  if (productIndex > -1) {
+    const images = db.data.products[productIndex].images
+    images.forEach((i) => {
+      if (imageIds.includes(i.file.id)) {
+        i.file.id = imageIds.find((id) => id === i.file.id) ?? i.file.id
+      }
+    })
+  }
+  await db.write()
+}
+
 export async function createOfflineProduct(product: Product) {
   await db.read()
   db.data.ops.push({
@@ -203,11 +262,5 @@ export async function updateOfflineProduct(product: Product) {
     payload: product,
     timestamp: new Date().toISOString()
   })
-  await db.write()
-}
-
-export async function deleteOfflineProducts(ids: number[]) {
-  await db.read()
-  db.data.products = db.data.products.filter((p) => !ids.includes(p.id))
   await db.write()
 }

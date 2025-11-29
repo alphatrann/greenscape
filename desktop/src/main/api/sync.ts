@@ -4,7 +4,7 @@ import { SyncActionType, SyncOperation } from '../types'
 import { getImagesFormData } from '../utils/get-images-form-data'
 import { createCategory, updateCategory } from './categories'
 import { updateDeliveryStatus } from './orders'
-import { createProduct, updateProduct, uploadProductImages } from './products'
+import { createProduct, deleteProductImages, updateProduct, uploadProductImages } from './products'
 
 function mapCategories(payload: Product, categoryMappings: Map<number, number>) {
   const { categories }: Product = payload
@@ -18,7 +18,8 @@ function mapCategories(payload: Product, categoryMappings: Map<number, number>) 
 async function updateRefs(
   ops: SyncOperation[],
   categoryMappings: Map<number, number>,
-  productMappings: Map<number, number>
+  productMappings: Map<number, number>,
+  imageMappings: Map<string, string>
 ) {
   for (const op of ops) {
     switch (op.actionType) {
@@ -39,6 +40,10 @@ async function updateRefs(
         const categoryMappingIds = mapCategories(op.payload, categoryMappings)
         op.payload.categories = categoryMappingIds.map((id) => ({ id }))
         break
+      case SyncActionType.DeleteProductImages:
+        const actualImageIds = op.payload.imageIds.map((id: string) => imageMappings.get(id) ?? id)
+        op.payload.imageIds = actualImageIds
+        break
       case SyncActionType.UpdateProduct:
         const updateMappingIds = mapCategories(op.payload, categoryMappings)
         op.payload.categories = updateMappingIds.map((id) => ({ id }))
@@ -51,7 +56,8 @@ async function updateRefs(
 async function tryOp(
   op: SyncOperation,
   categoryMappings: Map<number, number>,
-  productMappings: Map<number, number>
+  productMappings: Map<number, number>,
+  imageMappings: Map<string, string>
 ) {
   console.log(`Syncing operation: ${op.actionType}`)
   switch (op.actionType) {
@@ -109,13 +115,37 @@ async function tryOp(
       })
       break
     case SyncActionType.UploadProductImages:
-      const { paths, productId: imagesProductId } = op.payload as {
+      const {
+        ids: localIds,
+        paths,
+        productId: imagesProductId
+      } = op.payload as {
+        ids: string[]
         paths: string[]
         productId: number
       }
       const mapped = productMappings.get(imagesProductId) ?? imagesProductId
       const fd = await getImagesFormData(paths)
-      await uploadProductImages(mapped, fd)
+      const actualIds = await uploadProductImages(mapped, fd)
+      if (localIds.length !== actualIds.length)
+        throw new Error(
+          `The lengths of local IDs and actual IDs don't match (${localIds.length} and ${actualIds.length}).`
+        )
+      localIds.forEach((id, index) => {
+        imageMappings.set(id, actualIds[index])
+      })
+      const productIndex = db.data.products.findIndex((p) => p.id === productId)
+      if (productIndex > -1) {
+        const images = db.data.products[productIndex].images
+        images.forEach((i) => {
+          i.file.id = imageMappings.get(i.file.id) ?? i.file.id
+        })
+      }
+      break
+    case SyncActionType.DeleteProductImages:
+      const { productId, imageIds } = op.payload as { productId: number; imageIds: string[] }
+      const actualImageIds = imageIds.map((id) => imageMappings.get(id) ?? id)
+      await deleteProductImages(productId, actualImageIds)
       break
     case SyncActionType.UpdateDeliveryStatus:
       const { deliveredAt } = await updateDeliveryStatus(op.payload.orderId)
@@ -160,19 +190,24 @@ export async function syncOperations(maxAttempts = 5) {
   const ops = db.data.ops
   const categoryMappings = new Map<number, number>()
   const productMappings = new Map<number, number>()
+  const imageMappings = new Map<string, string>()
 
   ops.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
   while (ops.length > 0) {
     const op = ops.at(-1)!
     try {
-      await retryWithBackoff(() => tryOp(op, categoryMappings, productMappings), maxAttempts)
+      await retryWithBackoff(
+        () => tryOp(op, categoryMappings, productMappings, imageMappings),
+        maxAttempts
+      )
       ops.pop()
-      await updateRefs(ops, categoryMappings, productMappings)
+      await updateRefs(ops, categoryMappings, productMappings, imageMappings)
       await db.write()
-    } catch (error) {
-      console.error(`Failed to sync operation after ${maxAttempts} attempts:`, op)
-      throw error
+    } catch (error: any) {
+      throw new Error(
+        `Failed to sync operation "${op}" after ${maxAttempts} attempts. Details:\n${error.message}`
+      )
     }
   }
 }

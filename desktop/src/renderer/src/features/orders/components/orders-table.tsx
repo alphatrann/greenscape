@@ -21,6 +21,8 @@ import { CountryGroups } from './country-groups'
 import { ShippingOptionFilter } from './shipping-options-filter'
 import { StatusFilter } from './status-filter'
 import { TotalFilter } from './total-filter'
+import { cn } from '../../../lib/utils'
+import { Input } from '../../ui/input'
 
 interface OrdersTableProps {
   table: Table<Order>
@@ -37,7 +39,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   deliveryStatusGroups,
   shippingGroups
 }) => {
-  const { reset } = useFiltersContext()
+  const { reset, q, setQ } = useFiltersContext()
   const {
     from,
     setFrom,
@@ -59,6 +61,12 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       <div className="flex justify-between">
         <div className="flex flex-col gap-x-2 gap-y-4 lg:flex-1 lg:flex-row">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search customers..."
+              className="h-8 w-[250px]"
+            />
             <CountriesFilter countryGroups={countryGroups} />
             <DateRangeSelect from={from} to={to} onFromChange={setFrom} onToChange={setTo} />
             <TotalFilter />
@@ -82,7 +90,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
             <TableCell className="font-medium text-right" colSpan={2}>
               {formatPrice(sales, { inCent: true })}
             </TableCell>
-            <TableCell colSpan={2}>
+            <TableCell colSpan={3}>
               <CountryGroups
                 countryGroups={countryGroups}
                 selectedCountries={selectedCountries}
@@ -102,8 +110,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   >
                     <div className="flex items-center gap-x-3">
                       <Badge
-                        className="h-3 w-3"
-                        variant={group.shippingCost === 0 ? 'destructive' : 'default'}
+                        className={cn(
+                          'h-3 w-3',
+                          group.shippingCost === 0 && 'bg-gray-300 dark:bg-gray-600'
+                        )}
                       />
                       <span className="text-sm font-medium text-foreground">
                         {getShippingOption(group.shippingCost)}
@@ -134,8 +144,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   <div key={group} className="flex justify-between gap-x-3 items-center">
                     <div className="flex items-center gap-x-3">
                       <Badge
-                        className="h-3 w-3"
-                        variant={group === 'Pending' ? 'destructive' : 'default'}
+                        className={cn(
+                          'h-3 w-3',
+                          group === 'Pending' && 'bg-gray-300 dark:bg-gray-600'
+                        )}
                       />
                       <span className="text-sm font-medium text-foreground">{group}</span>
                       <span className="text-muted-foreground">

@@ -6,6 +6,7 @@ export enum SyncActionType {
   CreateProduct = 'createProduct',
   UploadProductImages = 'uploadProductImages',
   UpdateProduct = 'updateProduct',
+  DeleteProductImages = 'deleteProductImages',
   UpdateDeliveryStatus = 'updateDeliveryStatus'
 }
 

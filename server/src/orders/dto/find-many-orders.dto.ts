@@ -12,7 +12,7 @@ import {
 import { FindManyDto } from '../../common/dto';
 import { allowedCountries } from '../../common/utils';
 
-export class FindManyOrdersDto extends OmitType(FindManyDto, ['q']) {
+export class FindManyOrdersDto extends FindManyDto {
   @IsOptional()
   @IsIn(['delivered', 'pending'])
   status?: 'delivered' | 'pending';

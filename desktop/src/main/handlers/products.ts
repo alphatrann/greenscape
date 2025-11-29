@@ -8,7 +8,7 @@ import {
 } from '../../common/types'
 import {
   createProduct,
-  deleteImages,
+  deleteProductImages,
   fetchProduct,
   fetchProducts,
   updateProduct,
@@ -22,7 +22,8 @@ import {
   getProductDetail,
   getProducts,
   upsertProducts,
-  deleteOfflineProducts
+  detachImages,
+  syncProductImageIds
 } from '../local-store/products'
 import { ProductQuery } from '../types'
 import { productImagesDir } from './images'
@@ -42,8 +43,16 @@ ipcMain.handle('update-offline-product', (_event, product: Product) =>
 
 ipcMain.handle(
   'upload-local-product-images',
-  (_event, productId: number, files: LocalFilePayload[], syncOptions: SyncOptions) =>
-    attachImages(productId, productImagesDir, files, syncOptions)
+  (_event, productId: number, files: LocalFilePayload[], options?: SyncOptions) =>
+    attachImages(productId, productImagesDir, files, options)
+)
+
+ipcMain.handle('sync-product-image-ids', (_event, productId: number, imageIds: string[]) =>
+  syncProductImageIds(productId, imageIds)
+)
+
+ipcMain.handle('delete-local-product-images', (_event, productId: number, imageIds: string[]) =>
+  detachImages(productId, imageIds)
 )
 
 ipcMain.handle('create-product', async (_event, dto: ProductFormDto) => createProduct(dto))
@@ -52,10 +61,6 @@ ipcMain.handle(
   'upsert-offline-products',
   (_event, products: Product[], options?: { overrideImages: boolean }) =>
     upsertProducts(products, options)
-)
-
-ipcMain.handle('delete-images', (_event, productId: number, imageIds: string[]) =>
-  deleteImages(productId, imageIds)
 )
 
 ipcMain.handle('fetch-product', (_event, slug: string) => fetchProduct(slug))
@@ -73,6 +78,6 @@ ipcMain.handle('upload-product-images', async (_event, productId: number, paths:
   return uploadProductImages(productId, fd)
 })
 
-ipcMain.handle('delete-offline-products', async (_event, ids: number[]) =>
-  deleteOfflineProducts(ids)
-)
+ipcMain.handle('delete-product-images', async (_event, productId: number, imageIds: string[]) => {
+  await deleteProductImages(productId, imageIds)
+})

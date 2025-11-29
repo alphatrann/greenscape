@@ -37,6 +37,7 @@ export const useFetchOrders = () => {
     const validSortByColumns = ['total', 'shippingCost', 'createdAt', 'deliveredAt', 'id']
     const invalidSortBy = sortBy && !validSortByColumns.includes(sortBy)
     return {
+      q,
       limit: pagination.pageSize,
       offset: pagination.pageIndex * pagination.pageSize,
       shippingCost,

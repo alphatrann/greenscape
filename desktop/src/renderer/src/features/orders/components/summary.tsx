@@ -52,8 +52,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             city,
             state,
             postalCode,
-            country,
-            customer
+            country
           })}
           {country && (
             <span className="flex gap-x-3 text-sm font-medium">

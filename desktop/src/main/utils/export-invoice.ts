@@ -3,7 +3,12 @@ import { imageSize } from 'image-size'
 import * as fs from 'fs'
 import { dialog } from 'electron'
 import path from 'path'
-import { formatPrice, getPostalAddress, getShippingOption } from '../../common/utils'
+import {
+  formatPrice,
+  getCountryName,
+  getPostalAddress,
+  getShippingOption
+} from '../../common/utils'
 import { fetchOrder } from '../api/orders'
 
 function drawLogo(doc: typeof PDFDocument, pageWidth: number) {
@@ -99,6 +104,7 @@ export async function exportInvoice(id: string) {
   doc.text(order.customer)
   doc.text(order.email)
   doc.text(order.phone)
+  doc.moveDown(0.5)
   doc.text(
     getPostalAddress({
       line1: order.line1,
@@ -106,10 +112,10 @@ export async function exportInvoice(id: string) {
       city: order.city,
       state: order.state,
       postalCode: order.postalCode,
-      country: order.country,
-      customer: order.customer
+      country: order.country
     })
   )
+  doc.text(getCountryName(order.country || 'Unknown') || 'Unknown Country')
 
   // Products table
   doc.moveDown(2)

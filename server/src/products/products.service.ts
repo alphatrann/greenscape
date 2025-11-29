@@ -56,23 +56,23 @@ export class ProductsService {
   async uploadProductImages(
     productId: number,
     imagesUploadDto: UploadFileDto[],
-  ) {
+  ): Promise<string[]> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      const txResponse = await this.prisma.$transaction(async (tx) => {
         const keys = await this.filesService.createMany(imagesUploadDto, tx);
         const { images } = await tx.product.findUniqueOrThrow({
           where: { id: productId },
           select: { images: { select: { fileId: true } } },
         });
-        if (images.length > MAX_PRODUCT_IMAGES_COUNT)
+        if (images.length > MAX_PRODUCT_IMAGES_COUNT) {
+          await this.filesService.remove(keys, tx);
           throw new BadRequestException(
             `A product can only have at most 4 images, but got ${images.length} images.`,
           );
-        await this.filesService.remove(keys, tx);
-        await tx.image.createMany({
-          data: keys.map((key) => ({ fileId: key, productId })),
-        });
+        }
+        return keys;
       });
+      return txResponse;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === PrismaError.RecordNotFound) {

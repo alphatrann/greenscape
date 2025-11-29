@@ -181,7 +181,7 @@ export class ProductsController {
     )
     files: Express.Multer.File[],
   ) {
-    await this.productsService.uploadProductImages(
+    const ids = await this.productsService.uploadProductImages(
       id,
       files.map((file) => ({
         buffer: file.buffer,
@@ -190,7 +190,7 @@ export class ProductsController {
         path: file.path,
       })),
     );
-    return { success: true };
+    return { success: true, ids };
   }
 
   @Delete(':productId/remove-images')

@@ -1,5 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Product, Status } from '@renderer/../../common/types'
+import {
+  FilePreview,
+  LocalFilePayload,
+  Product,
+  ProductImage,
+  Status
+} from '@renderer/../../common/types'
 import { AppRoute } from '@renderer/common/app-route'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 import { useEffect, useState } from 'react'
@@ -81,14 +87,13 @@ export const useEditProduct = (product: Product) => {
         buffer: await f.arrayBuffer()
       }))
     )
+    const existingImageIds = new Set(prevImages.map((img) => img.file.id))
+
+    const deletedImages = product.images
+      .map((image) => image.file.id)
+      .filter((imageId) => !existingImageIds.has(imageId))
     try {
       setLoading(true)
-
-      const existingImageIds = new Set(prevImages.map((img) => img.file.id))
-
-      const deletedImages = product.images
-        .map((image) => image.file.id)
-        .filter((imageId) => !existingImageIds.has(imageId))
 
       if (online) {
         const response = await window.electronAPI.updateProduct(product.id, values)
@@ -116,16 +121,11 @@ export const useEditProduct = (product: Product) => {
     } finally {
       setLoading(false)
       await window.electronAPI.upsertOfflineProducts([updated])
-      if (files.length > 0) {
-        const paths = await window.electronAPI.uploadLocalProductImages(product.id, filesPayload, {
-          synced: online
-        })
+      await Promise.all([
+        uploadProductImages(updated.id, files, filesPayload, online),
+        deleteProductImages(product.id, prevImages, deletedImages)
+      ])
 
-        if (online) {
-          if (paths.length > 0) await window.electronAPI.uploadProductImages(product.id, paths)
-          else throw new Error('Failed to upload images from disk')
-        }
-      }
       form.reset({
         name: '',
         desc: '',
@@ -146,5 +146,34 @@ export const useEditProduct = (product: Product) => {
     files,
     deleteFile,
     prevImages
+  }
+}
+async function uploadProductImages(
+  productId: number,
+  files: FilePreview[],
+  filesPayload: LocalFilePayload[],
+  online: boolean
+) {
+  if (files.length > 0) {
+    const paths = await window.electronAPI.uploadLocalProductImages(productId, filesPayload, {
+      synced: online
+    })
+
+    if (online) {
+      if (paths.length > 0) {
+        const ids = await window.electronAPI.uploadProductImages(productId, paths)
+        await window.electronAPI.syncProductImageIds(productId, ids)
+      } else throw new Error('Failed to upload images from disk')
+    }
+  }
+}
+
+async function deleteProductImages(
+  productId: number,
+  prevImages: ProductImage[],
+  deletedImages: string[]
+) {
+  if (prevImages.length > 0 && deletedImages.length > 0) {
+    await window.electronAPI.deleteLocalProductImages(productId, deletedImages)
   }
 }

@@ -40,7 +40,11 @@ export const ImagesUpload: React.FC<ImagesUploadProps> = memo(
           <CardDescription>Upload up to 4 images displaying the product</CardDescription>
         </CardHeader>
         <CardContent>
-          {!existingImages || online ? (
+          {!online && existingImages?.length === 0 ? (
+            <div className="text-center text-muted-foreground py-8">
+              Product image upload is unavailable in offline mode.
+            </div>
+          ) : (
             <div className="grid gap-2">
               {urls.length > 0 ? (
                 <PreviewImage deleteImage={deleteImage} url={urls[0]} size="lg" />
@@ -64,10 +68,6 @@ export const ImagesUpload: React.FC<ImagesUploadProps> = memo(
                   <ImageDropzone loading={loading} dropzoneState={dropzoneState} />
                 )}
               </div>
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground py-8">
-              Product image upload is unavailable in offline mode.
             </div>
           )}
         </CardContent>

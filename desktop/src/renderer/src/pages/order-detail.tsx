@@ -12,13 +12,19 @@ import { useFetchOrder } from '../features/orders/hooks/use-fetch-order'
 import { Breadcrumb } from '../features/ui/breadcrumb'
 import { Button } from '../features/ui/button'
 import { Separator } from '../features/ui/separator'
+import { useOnlineStatus } from '../common/contexts/online-context'
 
 export default function OrderDetailPage() {
   const { loading, order } = useFetchOrder()
+  const { online } = useOnlineStatus()
   const onExportInvoice = async () => {
     if (!order) return
-    await window.electronAPI.exportInvoice(order.id)
-    toast.success('Order exported successfully')
+    if (!online)
+      toast.error('You are offline. Please connect to the internet to export the invoice.')
+    else {
+      await window.electronAPI.exportInvoice(order.id)
+      toast.success('Order exported successfully')
+    }
   }
 
   if (loading) return <Loading />

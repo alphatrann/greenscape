@@ -28,6 +28,16 @@ export const useEditCategory = (
     }
   }, [category])
 
+  async function editOfflineCategory(values: z.infer<typeof formSchema>, category: Category) {
+    const updated: Category = {
+      ...category,
+      name: values.name,
+      slug: category.slug === values.slug ? category.slug : `${values.slug}-${v4()}`
+    }
+    await window.electronAPI.updateCategoryOffline(updated)
+    editCategory(updated)
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!category) return
     try {
@@ -39,20 +49,16 @@ export const useEditCategory = (
           return
         } else editCategory(response)
       } else {
-        const updated: Category = {
-          ...category,
-          name: values.name,
-          slug: category.slug === values.slug ? category.slug : `${values.slug}-${v4()}`
-        }
-        /** @todo store pending writes */
-        editCategory(updated)
+        await editOfflineCategory(values, category)
       }
       toast.success('Category updated')
-      onClose()
     } catch (error: any) {
-      toast.error(error.message)
+      await editOfflineCategory(values, category)
+      toast.error(`${error.message}. Saving an offline version instead...`)
     } finally {
       setLoading(false)
+      onClose()
+      form.reset()
     }
   }
 

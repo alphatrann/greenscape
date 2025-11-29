@@ -22,12 +22,13 @@ const CountryGroupItem = ({
 }) => {
   return (
     <div key={country} className="flex justify-between items-center">
-      <div className="flex items-center gap-x-3">
+      <div className="flex items-center gap-x-2">
         <CountryFlag code={country} />
         <span className="text-sm font-medium text-foreground">{getCountryName(country)}</span>
+        <span className="text-muted-foreground"> ({((total / sales) * 100).toFixed(1)}%)</span>
       </div>
       <span className="font-mono text-sm text-muted-foreground">
-        {formatPrice(total, { inCent: true })} ({((total / sales) * 100).toFixed(2)}%)
+        {formatPrice(total, { inCent: true })}
       </span>
     </div>
   )

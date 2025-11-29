@@ -19,12 +19,11 @@ export const useUserGuard = () => {
     navigate(`${AppRoute.Login}?callback=${location.pathname}`)
   }
 
-  const loadFromLocalStorage = () => {
-    const storedUser = localStorage.getItem('currentUser')
+  const loadLocalUser = async () => {
+    const storedUser = await window.electronAPI.getLocalUser()
     if (storedUser) {
       try {
-        const parsedUser = JSON.parse(storedUser)
-        setCurrentUser(parsedUser)
+        setCurrentUser(storedUser)
         navigate(location.pathname === AppRoute.Login ? AppRoute.Home : location.pathname, {
           replace: true
         })
@@ -38,7 +37,7 @@ export const useUserGuard = () => {
 
   useEffect(() => {
     if (!online) {
-      loadFromLocalStorage()
+      loadLocalUser()
       return
     }
     setChecking(true)
@@ -54,9 +53,7 @@ export const useUserGuard = () => {
           if (location.pathname !== AppRoute.Login) redirectToLogin()
         }
       })
-      .catch(() => {
-        loadFromLocalStorage()
-      })
+      .catch(loadLocalUser)
       .finally(() => setChecking(false))
   }, [online, location.pathname])
 

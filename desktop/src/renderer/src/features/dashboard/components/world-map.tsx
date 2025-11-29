@@ -1,4 +1,4 @@
-import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
+import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps'
 import { scaleLinear } from 'd3-scale'
 import { SalesByCountry } from '../../../../../common/types'
 import mapFeatures from '../../../../../../resources/features.json'
@@ -25,33 +25,37 @@ export const WorldMap = ({
 
   return (
     <ComposableMap>
-      <Geographies geography={mapFeatures}>
-        {({ geographies }) =>
-          geographies.map((geo: { id: string; rsmKey: any; properties: { name: any } }) => {
-            const d = data.find((s) => s.country === geo.id)
+      <ZoomableGroup>
+        <Geographies geography={mapFeatures}>
+          {({ geographies }) =>
+            geographies.map((geo: { id: string; rsmKey: any; properties: { name: any } }) => {
+              const d = data.find((s) => s.country === geo.id)
 
-            return (
-              <Geography
-                key={geo.rsmKey}
-                data-tooltip-id="world-map"
-                data-tooltip-content={content}
-                onMouseEnter={() => {
-                  setTooltipContent(`${geo.properties.name}: ${formatPrice((d?.sales || 0) / 100)}`)
-                  setSelectedCountry(d?.country ?? '')
-                }}
-                onMouseLeave={() => {
-                  setTooltipContent('')
-                  setSelectedCountry('')
-                }}
-                stroke="#fff"
-                // @ts-ignore
-                fill={d ? colorScale(d.sales) : 'hsl(140.6 84.2% 92.5%)'}
-                geography={geo}
-              />
-            )
-          })
-        }
-      </Geographies>
+              return (
+                <Geography
+                  key={geo.rsmKey}
+                  data-tooltip-id="world-map"
+                  data-tooltip-content={content}
+                  onMouseEnter={() => {
+                    setTooltipContent(
+                      `${geo.properties.name}: ${formatPrice((d?.sales || 0) / 100)}`
+                    )
+                    setSelectedCountry(d?.country ?? '')
+                  }}
+                  onMouseLeave={() => {
+                    setTooltipContent('')
+                    setSelectedCountry('')
+                  }}
+                  stroke="var(--secondary-foreground)"
+                  // @ts-ignore
+                  fill={d ? colorScale(d.sales) : 'var(--accent)'}
+                  geography={geo}
+                />
+              )
+            })
+          }
+        </Geographies>
+      </ZoomableGroup>
     </ComposableMap>
   )
 }

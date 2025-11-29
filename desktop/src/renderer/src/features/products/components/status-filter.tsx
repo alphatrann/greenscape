@@ -52,7 +52,7 @@ export const StatusFilter: React.FC<StatusFilterProps> = ({ statusGroups }) => {
                     <CircleIcon className="fill-current h-2 w-2" />
                   </div>
                   <span>{s}</span>
-                  {statusGroups.find((group) => group.status === s)?.count && (
+                  {(statusGroups.find((group) => group.status === s)?.count || 0) > 0 && (
                     <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
                       {statusGroups.find((group) => group.status === s)?.count}
                     </span>

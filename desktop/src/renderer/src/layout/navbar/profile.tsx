@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@renderer/features/ui/dropdown-menu'
-import { User } from '@renderer/features/users/types'
+import { User } from '@renderer/../../common/types'
 
 export const Profile = ({ user }: { user: User | null }) => {
   const { onLogout } = useLogout()

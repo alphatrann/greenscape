@@ -8,7 +8,7 @@ export const useLogout = () => {
   const setCurrentUser = useUserStore((state) => state.setCurrentUser)
   const onLogout = async () => {
     try {
-      await window.electronAPI.deleteToken()
+      await window.electronAPI.logout()
       navigate(AppRoute.Login)
       toast.success('Log out successfully')
     } catch (error) {

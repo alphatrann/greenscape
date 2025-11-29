@@ -5,7 +5,6 @@ import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { useUserStore } from '@renderer/features/users/store'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { login } from '../api'
 import { AppRoute } from '@renderer/common/app-route'
 
 const formSchema = z.object({
@@ -29,10 +28,9 @@ export const useLogin = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setLoading(true)
-      const data = await login(values)
-      await window.electronAPI.saveToken(data.accessToken)
+      const data = await window.electronAPI.login(values)
 
-      setCurrentUser(data.data)
+      setCurrentUser(data)
       form.reset()
       toast.success('Login successfully')
       navigate(searchParams.get('callback') ?? AppRoute.Home)

@@ -79,5 +79,6 @@ export class AWSFilesService implements FilesService {
     });
     await this.s3Client.send(command);
     await this.prisma.file.deleteMany({ where: { id: { in: keys } } });
+    return keys;
   }
 }

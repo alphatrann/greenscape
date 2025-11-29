@@ -1,17 +1,10 @@
+import './handlers'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
-import fs from 'fs'
 import { join } from 'path'
 import darwinIcon from '../../resources/logo.icns?asset'
 import winIcon from '../../resources/logo.ico?asset'
 import linuxIcon from '../../resources/logo.png?asset'
-import { initHandlers } from './handlers'
-
-const imagesDir = join(app.getPath('userData'), 'images')
-
-if (!fs.existsSync(imagesDir)) {
-  fs.mkdirSync(imagesDir, { recursive: true })
-}
 
 const getOSIcon = () => {
   switch (process.platform) {
@@ -79,5 +72,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-initHandlers(imagesDir)

@@ -1,5 +1,21 @@
 import { LocalFilePayload } from '../common/types'
 
+export enum SyncActionType {
+  CreateCategory = 'createCategory',
+  UpdateCategory = 'updateCategory',
+  CreateProduct = 'createProduct',
+  UploadProductImages = 'uploadProductImages',
+  UpdateProduct = 'updateProduct',
+  DeleteProductImages = 'deleteProductImages',
+  UpdateDeliveryStatus = 'updateDeliveryStatus'
+}
+
+export interface SyncOperation {
+  actionType: SyncActionType
+  payload: any
+  timestamp: string
+}
+
 export interface SaveImagesOfflineDto {
   files: LocalFilePayload[]
   imagesDir: string
@@ -20,7 +36,6 @@ export interface ProductQuery {
 }
 
 export interface OrderQuery {
-  q?: string
   totalRange?: [number?, number?]
   shippingCost?: number
   status?: string

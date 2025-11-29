@@ -1,4 +1,6 @@
 import xlsx from 'xlsx'
+import { Order } from '../../common/types'
+import { getCountryName, getShippingOption } from '../../common/utils'
 
 export function getDateOnly(date: Date) {
   const year = date.getFullYear().toString().padStart(4, '0')
@@ -7,27 +9,48 @@ export function getDateOnly(date: Date) {
   return `${year}-${month}-${dateOfMonth}`
 }
 
-export function exportOrdersToCSV(orders: any[]) {
+export function exportOrdersToJSON(orders: Order[]) {
+  const exportedOrders: any[] = []
+  orders.forEach((o) => {
+    exportedOrders.push({
+      ...o,
+      country: o.country ? getCountryName(o.country) : undefined,
+      subtotal: o.total / 100,
+      tax: o.tax / 100,
+      shippingOption: getShippingOption(o.shippingCost),
+      total: (o.total + o.tax) / 100 + o.shippingCost
+    })
+  })
+  return JSON.stringify(exportedOrders, null, 2)
+}
+
+export function exportOrdersToCSV(orders: Order[]) {
   const headers = [
     'ID',
-    'Total',
+    'Customer',
     'Phone',
     'Email',
     'Country',
-    'Shipping Cost',
     'Shipping Option',
+    'Subtotal',
+    'Shipping Cost',
+    'Tax',
+    'Total',
     'Created At',
     'Delivered At'
   ]
 
   const rows = orders.map((o) => [
     o.id,
-    o.total,
+    o.customer || '',
     o.phone || '',
     o.email || '',
-    o.country || '',
+    o.country ? getCountryName(o.country) : '',
+    getShippingOption(o.shippingCost),
+    o.total / 100,
     o.shippingCost,
-    o.shippingOption,
+    o.tax / 100,
+    (o.total + o.tax) / 100 + o.shippingCost,
     new Date(o.createdAt).toISOString(),
     o.deliveredAt ? new Date(o.deliveredAt).toISOString() : ''
   ])
@@ -37,15 +60,18 @@ export function exportOrdersToCSV(orders: any[]) {
     .join('\n')
 }
 
-export function exportOrdersToExcel(orders: any[]) {
+export function exportOrdersToExcel(orders: Order[]) {
   const rows = orders.map((o) => ({
     ID: o.id,
-    Total: o.total,
+    Customer: o.customer || '',
     Phone: o.phone || '',
     Email: o.email || '',
-    Country: o.country || '',
+    Country: o.country ? getCountryName(o.country) : '',
+    'Shipping Option': getShippingOption(o.shippingCost),
+    Subtotal: o.total / 100,
     'Shipping Cost': o.shippingCost,
-    'Shipping Option': o.shippingOption,
+    Tax: o.tax / 100,
+    Total: (o.total + o.tax) / 100 + o.shippingCost,
     'Created At': new Date(o.createdAt).toISOString(),
     'Delivered At': o.deliveredAt ? new Date(o.deliveredAt).toISOString() : ''
   }))

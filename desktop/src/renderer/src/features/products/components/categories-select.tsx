@@ -1,5 +1,4 @@
 import { CategoriesCheckboxMenu } from '@renderer/features/categories/components/checkbox-menu'
-import { Category } from '@renderer/features/categories/types'
 import { Badge } from '@renderer/features/ui/badge'
 import { Button } from '@renderer/features/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@renderer/features/ui/card'
@@ -7,7 +6,7 @@ import { FormField, FormMessage } from '@renderer/features/ui/form'
 import { Separator } from '@renderer/features/ui/separator'
 import { UseFormReturn } from 'react-hook-form'
 import { searchCategory } from '@renderer/features/categories/utils'
-import { ProductFormDto } from '@renderer/../../common/types'
+import { Category, ProductFormDto } from '@renderer/../../common/types'
 
 interface CategoriesSelectProps {
   form: UseFormReturn<ProductFormDto, any, ProductFormDto>

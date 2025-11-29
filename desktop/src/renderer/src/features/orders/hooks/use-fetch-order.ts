@@ -10,6 +10,17 @@ export const useFetchOrder = () => {
   const [order, setOrder] = useState<Order | null>(null)
   const { id } = useParams()
 
+  function getOfflineOrders(id: string) {
+    window.electronAPI
+      .getOfflineOrder(id)
+      .then((data) => {
+        if (!data) return
+        setOrder(data)
+      })
+      .catch((error) => toast.error(error.message))
+      .finally(() => setLoading(false))
+  }
+
   useEffect(() => {
     if (!id || typeof id !== 'string') return
     setLoading(true)
@@ -19,20 +30,15 @@ export const useFetchOrder = () => {
         .then((data) => {
           if (!data) return
           setOrder(data)
-          // @ts-ignore
-          window.electronAPI.upsertOrders([data])
+          window.electronAPI.upsertOfflineOrders([data])
         })
-        .catch((error) => toast.error(error.message))
+        .catch(() => {
+          toast.error('Failed to get order detail. Using offline data instead')
+          getOfflineOrders(id)
+        })
         .finally(() => setLoading(false))
     } else {
-      window.electronAPI
-        .getOrderDetail(id)
-        .then((data) => {
-          if (!data) return
-          setOrder(data)
-        })
-        .catch((error) => toast.error(error.message))
-        .finally(() => setLoading(false))
+      getOfflineOrders(id)
     }
   }, [id, online])
 

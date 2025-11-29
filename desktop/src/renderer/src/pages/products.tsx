@@ -9,7 +9,8 @@ import { ExportButton } from '../common/export/export-button'
 import { useFetchProducts } from '../features/products/hooks/use-fetch-products'
 
 export default function ProductsPage() {
-  const { totalProductsCount, categories, statusGroups, products, setProducts } = useFetchProducts()
+  const { totalProductsCount, categories, statusGroups, products, categoryGroups, setProducts } =
+    useFetchProducts()
 
   return (
     <>
@@ -32,6 +33,7 @@ export default function ProductsPage() {
         <div className="mt-6 space-y-3">
           <ProductsTable
             categories={categories}
+            categoryGroups={categoryGroups}
             statusGroups={statusGroups}
             count={totalProductsCount}
             products={products}
@@ -39,7 +41,10 @@ export default function ProductsPage() {
         </div>
       </div>
       <DeleteRecordsModal
-        deleteInUI={(ids) => setProducts((prev) => prev.filter((p) => !ids.includes(p.id)))}
+        deleteInUI={async (ids) => {
+          await window.electronAPI.deleteOfflineProducts(ids as number[])
+          setProducts((prev) => prev.filter((p) => !ids.includes(p.id)))
+        }}
         entityName="products"
       />
     </>

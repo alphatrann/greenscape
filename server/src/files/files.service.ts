@@ -4,5 +4,5 @@ import { File } from '@prisma/client';
 export interface FilesService {
   createMany(uploadFilesDto: UploadFileDto[]): Promise<string[]>;
   findOne(id: string): Promise<File | null>;
-  remove(keys: string[]): Promise<void>;
+  remove(keys: string[]): Promise<string[]>;
 }

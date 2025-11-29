@@ -8,7 +8,7 @@ import { useFetchProduct } from '../features/products/hooks/use-fetch-product'
 import NotFound from '../common/components/not-found'
 
 export default function ProductPage() {
-  const { loading, product } = useFetchProduct()
+  const { loading, product } = useFetchProduct({ storeImages: true })
   if (loading) return <Loading />
   if (!product) return <NotFound />
 
@@ -23,7 +23,7 @@ export default function ProductPage() {
         />
         <section className="relative mt-6 grid gap-x-8 sm:grid-cols-2">
           <div className="h-fit sm:sticky sm:top-6">
-            {product.images.length > 0 && <ImagesGallery product={product} />}
+            <ImagesGallery product={product} />
           </div>
           <div className="mt-6">
             <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">

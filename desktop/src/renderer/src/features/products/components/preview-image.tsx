@@ -23,7 +23,7 @@ const sizeClasses = {
 export const PreviewImage = ({ size, url, deleteImage, loading = false }: PreviewImageProps) => {
   return (
     <div className={cn('group relative rounded-md', sizeClasses[size])}>
-      <div className="absolute left-0 top-0 z-10 h-full w-full object-cover transition-colors group-hover:bg-white/80" />
+      <div className="absolute left-0 top-0 z-10 h-full w-full object-cover transition-colors group-hover:bg-background/80" />
       <img
         alt="Product image"
         className="aspect-square w-full rounded-md object-cover"

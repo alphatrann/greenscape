@@ -1,59 +1,79 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { LocalFilePayload, ProductFormDto } from '../common/types'
+import {
+  Category,
+  CategoryFormDto,
+  ExportOrdersPayload,
+  ExportPayload,
+  LocalFilePayload,
+  LoginDto,
+  Order,
+  Product,
+  ProductFormDto
+} from '../common/types'
 
-try {
-  contextBridge.exposeInMainWorld('electronAPI', {
-    exportData: (payload: any) => ipcRenderer.send('export-data', payload),
-    exportInvoice: (order: any) => ipcRenderer.send('export-invoice', order),
+contextBridge.exposeInMainWorld('electronAPI', {
+  syncOperations: () => ipcRenderer.invoke('sync-operations'),
+  getMonthlySalesInYear: (year: number) => ipcRenderer.invoke('get-monthly-sales-in-year', year),
+  getKeyStats: (start: Date, end: Date) => ipcRenderer.invoke('get-key-stats', start, end),
+  getSalesByCountries: (start: Date, end: Date) =>
+    ipcRenderer.invoke('get-sales-by-countries', start, end),
 
-    upsertProducts: (products: any[], options?: { overrideImages: boolean }) =>
-      ipcRenderer.invoke('upsert-products', products, options),
-    upsertOrders: (orders: any[]) => ipcRenderer.invoke('upsert-orders', orders),
-    uploadProductImages: (productId: number, paths: string[]) =>
-      ipcRenderer.invoke('upload-product-images', productId, paths),
+  exportProducts: (payload: ExportPayload) => ipcRenderer.invoke('export-products', payload),
+  exportOrders: (payload: ExportOrdersPayload) => ipcRenderer.invoke('export-orders', payload),
+  exportInvoice: (id: string) => ipcRenderer.invoke('export-invoice', id),
 
-    getProducts: (query: Record<string, any>) => ipcRenderer.invoke('get-products', query),
-    getOrders: (query: Record<string, any>) => ipcRenderer.invoke('get-orders', query),
+  upsertOfflineProducts: (products: Product[], options?: { overrideImages: boolean }) =>
+    ipcRenderer.invoke('upsert-offline-products', products, options),
+  createProduct: (dto: ProductFormDto) => ipcRenderer.invoke('create-product', dto),
+  uploadProductImages: (productId: number, paths: string[]) =>
+    ipcRenderer.invoke('upload-product-images', productId, paths),
+  updateProduct: (productId: number, dto: ProductFormDto) =>
+    ipcRenderer.invoke('update-product', productId, dto),
+  deleteImages: (productId: number, imageIds: string[]) =>
+    ipcRenderer.invoke('delete-images', productId, imageIds),
+  getProducts: (query: Record<string, any>) => ipcRenderer.invoke('get-products', query),
+  fetchProducts: (query?: string, selectedCategory?: string) =>
+    ipcRenderer.invoke('fetch-products', query, selectedCategory),
+  createOfflineProduct: (product: Product) => ipcRenderer.invoke('create-offline-product', product),
+  updateOfflineProduct: (product: Product) => ipcRenderer.invoke('update-offline-product', product),
+  uploadLocalProductImages: (productId: number, filesPayload: LocalFilePayload[]) =>
+    ipcRenderer.invoke('upload-local-product-images', productId, filesPayload),
+  deleteLocalProductImages: (productId: number, imageIds: string[]) =>
+    ipcRenderer.invoke('delete-local-product-images', productId, imageIds),
+  syncProductImageIds: (productId: number, ids: string[]) =>
+    ipcRenderer.invoke('sync-product-image-ids', productId, ids),
 
-    getProductDetail: (slug: string) => ipcRenderer.invoke('get-product-detail', slug),
-    getOrderDetail: (id: string) => ipcRenderer.invoke('get-order-detail', id),
+  deleteRecords: (ids: (number | string)[], entityName: 'categories' | 'products') =>
+    ipcRenderer.invoke('delete-records', ids, entityName),
 
-    // Added handlers below
-    getMonthlySalesInYear: (year: number) => ipcRenderer.invoke('get-monthly-sales-in-year', year),
-    getKeyStats: (start: Date, end: Date) => ipcRenderer.invoke('get-key-stats', start, end),
-    getSalesByCountries: (start: Date, end: Date) =>
-      ipcRenderer.invoke('get-sales-by-countries', start, end),
+  upsertOfflineOrders: (orders: Order[]) => ipcRenderer.invoke('upsert-offline-orders', orders),
+  getOrders: (query: Record<string, any>) => ipcRenderer.invoke('get-orders', query),
+  fetchOrders: (query?: string) => ipcRenderer.invoke('fetch-orders', query),
+  updateDeliveryStatus: (orderId: string) => ipcRenderer.invoke('update-delivery-status', orderId),
+  updateDeliveryStatusOffline: (orderId: string) =>
+    ipcRenderer.invoke('update-delivery-status-offline', orderId),
+  getOfflineOrder: (id: string) => ipcRenderer.invoke('get-offline-order', id),
+  fetchOrder: (id: string) => ipcRenderer.invoke('fetch-order', id),
 
-    createProduct: (dto: any) => ipcRenderer.invoke('create-product', dto),
-    updateProduct: (productId: number, dto: Partial<ProductFormDto>) =>
-      ipcRenderer.invoke('update-product', productId, dto),
-    deleteImages: (productId: number, imageIds: string[]) =>
-      ipcRenderer.invoke('delete-images', productId, imageIds),
-    deleteRecords: (ids: (number | string)[], entityName: 'categories' | 'products') =>
-      ipcRenderer.invoke('delete-records', ids, entityName),
-    fetchProducts: (query?: string, selectedCategory?: string) =>
-      ipcRenderer.invoke('fetch-products', query, selectedCategory),
-    uploadLocalProductImages: (productId: number, filePayloads: LocalFilePayload[]) =>
-      ipcRenderer.invoke('upload-local-product-images', productId, filePayloads),
+  // ✅ Category-related
+  exportCategories: (payload: ExportPayload) => ipcRenderer.invoke('export-categories', payload),
+  upsertCategories: (categories: Category[]) => ipcRenderer.invoke('upsert-categories', categories),
+  setCategories: (categories: Category[]) => ipcRenderer.invoke('set-categories', categories),
+  createCategory: (dto: CategoryFormDto) => ipcRenderer.invoke('create-category', dto),
+  updateCategory: (id: number, dto: CategoryFormDto) =>
+    ipcRenderer.invoke('update-category', id, dto),
+  createCategoryOffline: (category: Category) =>
+    ipcRenderer.invoke('create-category-offline', category),
+  updateCategoryOffline: (category: Category) =>
+    ipcRenderer.invoke('update-category-offline', category),
+  fetchCategoriesTree: (query?: string) => ipcRenderer.invoke('fetch-categories-tree', query),
+  getCategoriesTree: () => ipcRenderer.invoke('get-categories-tree'),
 
-    fetchOrders: (query?: string) => ipcRenderer.invoke('fetch-orders', query),
-    updateDeliveryStatus: (orderId: string) =>
-      ipcRenderer.invoke('update-delivery-status', orderId),
+  getProductDetail: (slug: string) => ipcRenderer.invoke('get-product-detail', slug),
+  fetchProduct: (slug: string) => ipcRenderer.invoke('fetch-product', slug),
 
-    upsertCategories: (categories: any[]) => ipcRenderer.invoke('upsert-categories', categories),
-    createCategory: (dto: any) => ipcRenderer.invoke('create-category', dto),
-    updateCategory: (id: number, dto: any) => ipcRenderer.invoke('update-category', id, dto),
-    getCategories: (query: Record<string, any>) => ipcRenderer.invoke('get-categories', query),
-    getCategoriesTree: (query?: string) => ipcRenderer.invoke('get-categories-tree', query),
-
-    fetchProduct: (slug: string) => ipcRenderer.invoke('fetch-product', slug),
-    fetchOrder: (id: string) => ipcRenderer.invoke('fetch-order', id),
-
-    saveToken: (token: string) => ipcRenderer.invoke('save-token', token),
-    deleteToken: () => ipcRenderer.invoke('delete-token'),
-
-    getCurrentUser: () => ipcRenderer.invoke('get-current-user')
-  })
-} catch (error) {
-  console.error(error)
-}
+  login: (dto: LoginDto) => ipcRenderer.invoke('login', dto),
+  logout: () => ipcRenderer.invoke('logout'),
+  getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
+  getLocalUser: () => ipcRenderer.invoke('get-local-user')
+})

@@ -51,9 +51,9 @@ export const CategoriesCheckboxMenu = ({
               >
                 {category.name}
 
-                {category?._count?.products > 0 && (
+                {category?.productCount > 0 && (
                   <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                    {category?._count?.products}
+                    {category?.productCount}
                   </span>
                 )}
               </DropdownMenuCheckboxItem>

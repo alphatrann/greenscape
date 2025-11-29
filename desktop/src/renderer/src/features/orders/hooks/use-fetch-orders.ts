@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFiltersContext } from '../../../common/contexts/filters-context'
+import { useFiltersContext } from '@renderer/common/contexts/filters-context'
 import { useOrderFiltersContext } from '../contexts/order-filters-context'
-import { useTable } from '../../../common/data-table'
+import { useTable } from '@renderer/common/data-table'
 import toast from 'react-hot-toast'
-import { useOnlineStatus } from '../../../common/contexts/online-context'
+import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 import { columns } from '../components/columns'
 import qs from 'query-string'
-import { Order, OrdersResponse } from '../../../../../common/types'
+import { Order, OrdersResponse } from '@renderer/../../common/types'
 
 export const useFetchOrders = () => {
   const { total, from, to, selectedCountries, status, shippingCost } = useOrderFiltersContext()
@@ -37,9 +37,9 @@ export const useFetchOrders = () => {
     const validSortByColumns = ['total', 'shippingCost', 'createdAt', 'deliveredAt', 'id']
     const invalidSortBy = sortBy && !validSortByColumns.includes(sortBy)
     return {
+      q,
       limit: pagination.pageSize,
       offset: pagination.pageIndex * pagination.pageSize,
-      q,
       shippingCost,
       totalRange: total,
       from: from,
@@ -52,11 +52,15 @@ export const useFetchOrders = () => {
   }, [pagination, q, total, from, to, selectedCountries, status, sortBy, order, shippingCost])
 
   const fetchOfflineData = useCallback(async () => {
-    const { data, count, sales, ...groups } = await window.electronAPI.getOrders(query)
-    setGroups(groups)
-    setSales(sales)
-    setTotalCount(count)
-    setOrders(data)
+    try {
+      const { data, count, sales, ...groups } = await window.electronAPI.getOrders(query)
+      setGroups(groups)
+      setSales(sales)
+      setTotalCount(count)
+      setOrders(data)
+    } catch (error: any) {
+      toast.error(error?.message ?? 'Error fetching offline orders')
+    }
   }, [query])
 
   const fetchOnlineData = useCallback(async () => {
@@ -75,15 +79,15 @@ export const useFetchOrders = () => {
     try {
       const { data, count, sales, ...groups } = await window.electronAPI.fetchOrders(queryString)
 
-      // @ts-ignore
-      window.electronAPI.upsertOrders(data)
+      window.electronAPI.upsertOfflineOrders(data)
 
       setGroups(groups)
       setSales(sales)
       setTotalCount(count)
       setOrders(data)
     } catch {
-      toast.error('Error fetching orders. Please try again later')
+      toast.error('Error fetching orders. Using offline data instead')
+      await fetchOfflineData()
     }
   }, [query])
 

@@ -4,8 +4,9 @@ import { useParams } from 'react-router-dom'
 import { useOnlineStatus } from '@renderer/common/contexts/online-context'
 import { fetchProductImage } from '@renderer/common/api'
 import { getLocalImage } from '@renderer/../../common/utils'
+import toast from 'react-hot-toast'
 
-export const useFetchProduct = () => {
+export const useFetchProduct = (options?: { storeImages: boolean }) => {
   const { slug } = useParams()
 
   const [loading, setLoading] = useState(false)
@@ -14,9 +15,16 @@ export const useFetchProduct = () => {
   const hasFetched = useRef<string | null>(null)
 
   const fetchProductDetailOffline = async () => {
-    if (!slug) return
-    const productDetail = await window.electronAPI.getProductDetail(slug)
-    return productDetail
+    setLoading(true)
+    try {
+      if (!slug) return
+      const productDetail = await window.electronAPI.getProductDetail(slug)
+      setProduct(productDetail)
+    } catch (error: any) {
+      toast.error(error?.message ?? 'Failed to fetch offline product detail')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -32,33 +40,34 @@ export const useFetchProduct = () => {
           if (!data) {
             return
           }
+          await window.electronAPI.upsertOfflineProducts([{ ...data, images: [] }], {
+            overrideImages: true
+          })
 
-          await window.electronAPI.upsertProducts([{ ...data, images: [] }])
+          if (options?.storeImages) {
+            const images = await Promise.all(
+              data.images.map((i) => fetchProductImage(i.file.url || getLocalImage(i.file.id)!))
+            )
 
-          const images = await Promise.all(
-            data.images.map((i) => fetchProductImage(i.file.url || getLocalImage(i.file.id)!))
-          )
-
-          await window.electronAPI.uploadLocalProductImages(
-            data.id,
-            images.map((image, i) => ({
-              ...image,
-              id: data.images[i].file.id
-            }))
-          )
+            await window.electronAPI.uploadLocalProductImages(
+              data.id,
+              images.map((image, i) => ({
+                ...image,
+                id: data.images[i].file.id
+              })),
+              { synced: true }
+            )
+          }
 
           setProduct(data)
+        })
+        .catch(async () => {
+          toast.error('Failed to fetch products. Using local data instead...')
+          await fetchProductDetailOffline()
         })
         .finally(() => setLoading(false))
     } else {
       fetchProductDetailOffline()
-        .then((data) => {
-          if (!data) {
-            return
-          }
-          setProduct(data)
-        })
-        .finally(() => setLoading(false))
     }
   }, [slug, online])
 

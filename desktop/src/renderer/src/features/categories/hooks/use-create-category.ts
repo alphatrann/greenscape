@@ -24,6 +24,22 @@ export const useCreateCategory = (
       slug: ''
     }
   })
+  async function saveCategoryOffline(values: z.infer<typeof formSchema>) {
+    const offlineSlug = `${values.slug}-${v4()}`
+    const newCategory: Category = {
+      id: -Math.floor(Math.random() * 2 ** 32 - 1),
+      ...values,
+      slug: offlineSlug,
+      productCount: 0,
+      parentCategoryId,
+      unitsSold: 0,
+      sales: 0,
+      subCategories: [],
+      parentCategory: null
+    }
+    await window.electronAPI.createCategoryOffline(newCategory)
+    addCategory(newCategory)
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -36,29 +52,18 @@ export const useCreateCategory = (
           return
         } else addCategory({ ...response, unitsSold: 0, sales: 0, subCategories: [] })
       } else {
-        const newCategory: Category = {
-          id: -Math.floor(Math.random() * 2 ** 32 - 1),
-          ...values,
-          slug: `${values.slug}-${v4()}`,
-          _count: { products: 0 },
-          parentCategoryId,
-          unitsSold: 0,
-          sales: 0,
-          subCategories: [],
-          parentCategory: null
-        }
-        /** @todo store pending writes here */
-        addCategory(newCategory)
+        await saveCategoryOffline(values)
       }
-      closeModal()
       toast.success('Category created')
-      form.reset()
-      setTotal((t) => t + 1)
     } catch (error: any) {
       const message: string = error.message
-      toast.error(message)
+      await saveCategoryOffline(values)
+      toast.error(`${message}. Saving an offline version instead...`)
     } finally {
       setLoading(false)
+      closeModal()
+      form.reset()
+      setTotal((t) => t + 1)
     }
   }
 

@@ -1,11 +1,48 @@
 import xlsx from 'xlsx'
-import { Product } from '../types'
+import { Category, Product } from '../../common/types'
+
+function buildCategoryMap(categories: Category[]) {
+  const map = new Map<number, Category>()
+  function recurse(data: Category[]) {
+    for (const c of data) {
+      map.set(c.id, c)
+      recurse(c.subCategories ?? [])
+    }
+  }
+  recurse(categories)
+  return map
+}
 
 export function getLocalImage(id: string) {
   return `${import.meta.env.VITE_API_URL}/files/${id}`
 }
+type ProductCategory = Pick<Category, 'id' | 'name' | 'slug'>
 
-export function exportProductsToCSV(products: Product[]) {
+export function exportProductsToJSON(products: Product[], categories: Category[]) {
+  const categoryMap = buildCategoryMap(categories)
+  const exportedProducts: (Product & {
+    categories: ProductCategory[]
+  })[] = []
+  products.forEach((prod) => {
+    const exportedProduct = { ...prod, categories: [] as ProductCategory[] }
+    prod.categories.map((c) => {
+      const categoryInfo = categoryMap.get(c.id)
+      if (categoryInfo) {
+        const { id, name, slug } = categoryInfo
+        exportedProduct.categories.push({
+          id,
+          name,
+          slug
+        })
+      }
+    })
+    exportedProducts.push(exportedProduct)
+  })
+  return JSON.stringify(exportedProducts, null, 2)
+}
+
+export function exportProductsToCSV(products: Product[], categories: Category[]) {
+  const categoryMap = buildCategoryMap(categories)
   const headers = [
     'ID',
     'Slug',
@@ -27,9 +64,9 @@ export function exportProductsToCSV(products: Product[]) {
     p.price,
     new Date(p.createdAt).toISOString(),
     p.status,
-    p.categories.map((c) => c.name).join(','),
+    p.categories.map((c) => categoryMap.get(c.id)?.name).join(', '),
     p.images[0]?.file?.url || getLocalImage(p.images[0]?.file?.id),
-    p._count.orders
+    p.ordersMade
   ])
 
   return [headers, ...rows]
@@ -37,7 +74,8 @@ export function exportProductsToCSV(products: Product[]) {
     .join('\n')
 }
 
-export function exportProductsToExcel(products: any[]) {
+export function exportProductsToExcel(products: Product[], categories: Category[]) {
+  const categoryMap = buildCategoryMap(categories)
   const rows = products.map((p) => ({
     ID: p.id,
     Slug: p.slug,
@@ -46,9 +84,9 @@ export function exportProductsToExcel(products: any[]) {
     Price: p.price,
     'Created At': new Date(p.createdAt).toISOString(),
     Status: p.status,
-    Categories: p.categories.map((c) => c.name).join(','),
+    Categories: p.categories.map((c) => categoryMap.get(c.id)?.name).join(', '),
     'Image URL': p.images[0]?.file?.url || getLocalImage(p.images[0]?.file?.id),
-    'Orders Made': p._count.orders
+    'Orders Made': p.ordersMade
   }))
 
   const worksheet = xlsx.utils.json_to_sheet(rows)

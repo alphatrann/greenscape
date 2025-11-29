@@ -37,7 +37,6 @@ export const columns: ColumnDef<Order>[] = [
       </div>
     )
   },
-
   {
     id: 'country',
     accessorKey: 'country',
@@ -50,6 +49,12 @@ export const columns: ColumnDef<Order>[] = [
         </div>
       )
     }
+  },
+  {
+    id: 'customer',
+    accessorKey: 'Customer',
+    header: () => <div className="pl-4">Customer</div>,
+    cell: ({ row }) => <div className="text-sm pl-4">{row.original.customer}</div>
   },
   {
     id: 'phone',

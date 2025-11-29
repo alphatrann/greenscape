@@ -51,11 +51,15 @@ export class ProductsController {
     const statusGroups = await this.productsService.aggregateStatus(
       findManyProductsDto,
     );
+    const categoryGroups = await this.productsService.aggregateCategories(
+      findManyProductsDto,
+    );
     return {
       success: true,
       count,
       data: products,
       statusGroups,
+      categoryGroups,
     };
   }
 
@@ -73,7 +77,16 @@ export class ProductsController {
       findManyProductsDto,
       slug,
     );
-    return { success: true, count, data: products, statusGroups };
+    const categoryGroups = await this.productsService.aggregateCategories(
+      findManyProductsDto,
+    );
+    return {
+      success: true,
+      count,
+      data: products,
+      statusGroups,
+      categoryGroups,
+    };
   }
 
   @Get('cart')
@@ -168,7 +181,7 @@ export class ProductsController {
     )
     files: Express.Multer.File[],
   ) {
-    await this.productsService.uploadProductImages(
+    const ids = await this.productsService.uploadProductImages(
       id,
       files.map((file) => ({
         buffer: file.buffer,
@@ -177,7 +190,7 @@ export class ProductsController {
         path: file.path,
       })),
     );
-    return { success: true };
+    return { success: true, ids };
   }
 
   @Delete(':productId/remove-images')

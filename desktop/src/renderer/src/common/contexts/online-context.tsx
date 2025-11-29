@@ -1,24 +1,41 @@
-import { createContext, useEffect, useState, ReactNode, useContext } from 'react'
+import { createContext, useEffect, useState, ReactNode, useContext, useRef } from 'react'
+import toast from 'react-hot-toast'
 
 type OnlineStatusContextType = {
   online: boolean
-  lastChangedAt: Date | null
+  syncing: boolean
 }
 
 const OnlineStatusContext = createContext<OnlineStatusContextType | null>(null)
 
 export const OnlineStatusProvider = ({ children }: { children: ReactNode }) => {
   const [online, setOnline] = useState<boolean>(navigator.onLine)
-  const [lastChangedAt, setLastChangedAt] = useState<Date | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const didInitialSync = useRef(false)
+
+  const sync = async () => {
+    setSyncing(true)
+    try {
+      await window.electronAPI.syncOperations()
+    } catch (error: any) {
+      toast.error(error.message)
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   useEffect(() => {
+    if (navigator.onLine && !didInitialSync.current) {
+      sync()
+      didInitialSync.current = true
+    }
+
     const goOnline = () => {
       setOnline(true)
-      setLastChangedAt(new Date())
+      sync()
     }
     const goOffline = () => {
       setOnline(false)
-      setLastChangedAt(new Date())
     }
 
     window.addEventListener('online', goOnline)
@@ -31,7 +48,7 @@ export const OnlineStatusProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   return (
-    <OnlineStatusContext.Provider value={{ online, lastChangedAt }}>
+    <OnlineStatusContext.Provider value={{ online, syncing }}>
       {children}
     </OnlineStatusContext.Provider>
   )

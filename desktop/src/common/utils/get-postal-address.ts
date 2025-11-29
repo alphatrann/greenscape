@@ -27,5 +27,6 @@ export const getPostalAddress = ({
     addressLines: line2 ? [line1, line2] : [line1],
     locality: city ?? undefined
   }).join('\n')
-  return address === 'undefined' ? 'N/A' : address
+
+  return address.replace('undefined', 'N/A').trim()
 }

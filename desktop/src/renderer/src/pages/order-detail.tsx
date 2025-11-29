@@ -4,7 +4,7 @@ import { AppRoute } from '../common/app-route'
 import { CopyButton } from '../common/components'
 import { Loading } from '../common/components/loading'
 import NotFound from '../common/components/not-found'
-import { formatPrice, getShippingOption } from '@renderer/../../common/utils'
+import { formatPrice } from '@renderer/../../common/utils'
 import { OrderItems } from '../features/orders/components/items'
 import { OrderOverview } from '../features/orders/components/overview'
 import { OrderSummary } from '../features/orders/components/summary'
@@ -12,17 +12,19 @@ import { useFetchOrder } from '../features/orders/hooks/use-fetch-order'
 import { Breadcrumb } from '../features/ui/breadcrumb'
 import { Button } from '../features/ui/button'
 import { Separator } from '../features/ui/separator'
+import { useOnlineStatus } from '../common/contexts/online-context'
 
 export default function OrderDetailPage() {
   const { loading, order } = useFetchOrder()
-  const onExportInvoice = () => {
+  const { online } = useOnlineStatus()
+  const onExportInvoice = async () => {
     if (!order) return
-    // @ts-ignore
-    window.electronAPI.exportInvoice({
-      ...order,
-      shippingOption: getShippingOption(order.shippingCost)
-    })
-    toast.success('Order exported successfully')
+    if (!online)
+      toast.error('You are offline. Please connect to the internet to export the invoice.')
+    else {
+      await window.electronAPI.exportInvoice(order.id)
+      toast.success('Order exported successfully')
+    }
   }
 
   if (loading) return <Loading />

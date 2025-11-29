@@ -1,4 +1,4 @@
-import { Product, StatusGroup } from '@renderer/../../common/types'
+import { CategoryGroup, Product, StatusGroup } from '@renderer/../../common/types'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useFiltersContext } from '../../../common/contexts/filters-context'
 import { useOnlineStatus } from '../../../common/contexts/online-context'
@@ -6,9 +6,11 @@ import { useProductFiltersContext } from '../contexts/product-filters-context'
 import qs from 'query-string'
 import { useCategoryTreeStore } from '../../categories/hooks/use-category-tree'
 import { searchCategory } from '../../categories/utils'
+import toast from 'react-hot-toast'
 
 export const useFetchProducts = () => {
   const [statusGroups, setStatusGroups] = useState<StatusGroup[]>([])
+  const [categoryGroups, setCategoryGroups] = useState<CategoryGroup[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const { categories, fetchCategories } = useCategoryTreeStore()
   const { price, selectedCategory, status, inStock, from, to } = useProductFiltersContext()
@@ -28,8 +30,8 @@ export const useFetchProducts = () => {
       status,
       price,
       inStock,
-      from: from?.toISOString(),
-      to: to?.toISOString(),
+      from: from,
+      to: to,
       q,
       order,
       sortBy: invalidSortBy ? 'createdAt' : sortBy,
@@ -40,7 +42,7 @@ export const useFetchProducts = () => {
   }, [price, status, inStock, from, to, q, order, sortBy, pagination, selectedCategory])
 
   const fetchOfflineData = useCallback(async () => {
-    const { data, count, statusGroups } = await window.electronAPI.getProducts({
+    const { data, count, statusGroups, categoryGroups } = await window.electronAPI.getProducts({
       ...query,
       selectedCategory: query.selectedCategory
         ? searchCategory(categories, query.selectedCategory, 'slug')[1]?.id
@@ -49,6 +51,7 @@ export const useFetchProducts = () => {
     setProducts(data)
     setTotalProductsCount(count)
     setStatusGroups(statusGroups)
+    setCategoryGroups(categoryGroups)
   }, [query])
 
   const fetchData = useCallback(async () => {
@@ -57,17 +60,31 @@ export const useFetchProducts = () => {
       url: '',
       query: {
         ...queryData,
+        from: queryData.from?.toISOString(),
+        to: queryData.to?.toISOString(),
         price: price.map((p) => p ?? '').join('-'),
-        inStock: inStock.map((i) => i ?? '').join('-'),
-        slug: selectedCategory
+        inStock: inStock.map((i) => i ?? '').join('-')
       }
     })
-    window.electronAPI.fetchProducts(queryString, selectedCategory).then((data) => {
-      setProducts(data.data)
-      setStatusGroups(data.statusGroups)
-      setTotalProductsCount(data.count)
-      window.electronAPI.upsertProducts(data.data)
-    })
+    window.electronAPI
+      .fetchProducts(queryString, selectedCategory)
+      .then((data) => {
+        if ('data' in data) {
+          setProducts(data.data)
+          setStatusGroups(data.statusGroups)
+          setTotalProductsCount(data.count)
+          setCategoryGroups(data.categoryGroups)
+
+          // storing the image URLs locally doesn't help much
+          window.electronAPI.upsertOfflineProducts(data.data.map((p) => ({ ...p, images: [] })))
+        } else {
+          toast.error(`Failed to fetch products. Reason ${data.message}`)
+        }
+      })
+      .catch(async () => {
+        toast.error('Failed to fetch products. Using local data instead...')
+        await fetchOfflineData()
+      })
 
     fetchCategories(queryString)
   }, [query])
@@ -78,5 +95,5 @@ export const useFetchProducts = () => {
     else fetchOfflineData()
   }, [online, fetchData, fetchOfflineData])
 
-  return { categories, statusGroups, products, totalProductsCount, setProducts }
+  return { categories, categoryGroups, statusGroups, products, totalProductsCount, setProducts }
 }

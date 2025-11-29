@@ -52,8 +52,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             city,
             state,
             postalCode,
-            country,
-            customer
+            country
           })}
           {country && (
             <span className="flex gap-x-3 text-sm font-medium">
@@ -69,7 +68,9 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           <Badge className="w-fit" variant={delivered ? 'default' : 'secondary'}>
             {delivered ? 'Delivered' : 'Pending'}
           </Badge>
-          <div className="text-sm font-medium">{delivered && format(delivered, 'Pp')}</div>
+          {(online || !delivered) && (
+            <div className="text-sm font-medium">{delivered && format(delivered, 'Pp')}</div>
+          )}
         </div>
       </div>
       <div className="grid w-full grid-cols-3 gap-x-8">
@@ -78,7 +79,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           {getShippingOption(+shippingCost)}
         </p>
       </div>
-      {online && !delivered && (
+      {!delivered && (
         <div className="flex items-center space-x-2">
           <Switch
             checked={!!delivered}

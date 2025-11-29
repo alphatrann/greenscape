@@ -2,16 +2,16 @@ import { EyeIcon } from '@heroicons/react/24/outline'
 import { CopyButton } from '@renderer/common/components/copy-button'
 import { DataTableColumnHeader, DataTableRowActions } from '@renderer/common/data-table'
 import { useDeleteRecordsModal } from '@renderer/common/delete-records'
-import { formatPrice } from '@renderer/../../common/utils'
+import { flattenCategories, formatPrice } from '@renderer/../../common/utils'
 import { Badge } from '@renderer/features/ui/badge'
 import { Checkbox } from '@renderer/features/ui/checkbox'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCategoryTreeStore } from '../../categories/hooks/use-category-tree'
-import { generatePaths } from '../../categories/utils'
 import { Button } from '../../ui/button'
 import { Product } from '@renderer/../../common/types'
+import { ProductCategories } from './product-categories'
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -55,16 +55,14 @@ export const columns: ColumnDef<Product>[] = [
     header: 'Categories',
     cell: ({ row }) => {
       const { categories } = useCategoryTreeStore()
-      const productCategories = generatePaths(
-        categories,
-        row.original.categories.map((c) => c.id)
-      )
+      const flattened = flattenCategories(categories)
 
-      return productCategories.map((c) => (
-        <div key={c.id} className="text-muted-foreground">
-          {c.name}
-        </div>
-      ))
+      const uniqueCategories = Array.from(new Set(flattened)).filter((c) => {
+        const categoryIds = row.original.categories.map((c) => c.id)
+        return categoryIds.includes(c.id)
+      })
+
+      return <ProductCategories categories={uniqueCategories} />
     }
   },
   {
@@ -84,7 +82,7 @@ export const columns: ColumnDef<Product>[] = [
       <DataTableColumnHeader column={column} title="Orders" className="justify-end" />
     ),
     cell: ({ row }) => (
-      <div className="mr-3 text-right">{row.original._count.orders.toLocaleString('en-US')}</div>
+      <div className="mr-3 text-right">{row.original.ordersMade.toLocaleString('en-US')}</div>
     )
   },
   {

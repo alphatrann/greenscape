@@ -7,7 +7,7 @@ import {
   OrdersResponse,
   ShippingGroup
 } from '../../common/types'
-import { OrderQuery } from '../types'
+import { OrderQuery, SyncActionType } from '../types'
 
 export async function upsertOrders(newOrders: Order[]) {
   await db.read()
@@ -19,6 +19,16 @@ export async function upsertOrders(newOrders: Order[]) {
   await db.write()
 }
 
+export async function updateDeliveryStatusOffline(orderId: string) {
+  await db.read()
+  db.data.ops.push({
+    actionType: SyncActionType.UpdateDeliveryStatus,
+    payload: { orderId },
+    timestamp: new Date().toISOString()
+  })
+  await db.write()
+}
+
 export async function getOrderDetail(id: string) {
   await db.read()
   return db.data.orders.find((o) => o.id === id)
@@ -26,32 +36,130 @@ export async function getOrderDetail(id: string) {
 
 export async function getOrders(query: OrderQuery): Promise<OrdersResponse> {
   await db.read()
-  let orders = [...db.data!.orders]
+  let baseOrders = [...db.data!.orders]
 
-  // --- Filtering ---
-  if (query.q) {
-    const qLower = query.q.toLowerCase()
-    orders = orders.filter(
-      (o) =>
-        o.customer.toLowerCase().includes(qLower) ||
-        o.email.toLowerCase().includes(qLower) ||
-        o.id.toLowerCase().includes(qLower)
-    )
-  }
+  // --- Base filters (apply to ALL groups + final list) ---
   if (query.totalRange) {
     const [min, max] = query.totalRange
-    if (min != null) orders = orders.filter((o) => o.total >= min * 100)
-    if (max != null) orders = orders.filter((o) => o.total <= max * 100)
+    if (min != null) baseOrders = baseOrders.filter((o) => o.total >= min * 100)
+    if (max != null) baseOrders = baseOrders.filter((o) => o.total <= max * 100)
   }
   if (query.from) {
-    orders = orders.filter((o) => new Date(o.createdAt) >= query.from!)
+    baseOrders = baseOrders.filter((o) => new Date(o.createdAt) >= query.from!)
   }
   if (query.to) {
-    orders = orders.filter((o) => new Date(o.createdAt) <= query.to!)
+    baseOrders = baseOrders.filter((o) => new Date(o.createdAt) <= query.to!)
   }
 
+  // --- Parallel datasets for groups ---
+  const ordersForCountryGroups =
+    query.status || query.shippingCost !== undefined
+      ? baseOrders.filter((o) => {
+          if (query.status) {
+            const status = o.deliveredAt ? DeliveryStatus.Delivered : DeliveryStatus.Pending
+            if (status !== query.status) return false
+          }
+          if (query.shippingCost !== undefined && o.shippingCost !== query.shippingCost) {
+            return false
+          }
+          return true
+        })
+      : baseOrders
+
+  const ordersForStatusGroups =
+    (query.countries && query.countries.length > 0) || query.shippingCost !== undefined
+      ? baseOrders.filter((o) => {
+          if (
+            query.countries &&
+            query.countries.length > 0 &&
+            (!o.country || !query.countries.includes(o.country))
+          ) {
+            return false
+          }
+          if (query.shippingCost !== undefined && o.shippingCost !== query.shippingCost) {
+            return false
+          }
+          return true
+        })
+      : baseOrders
+
+  const ordersForShippingGroups =
+    (query.countries && query.countries.length > 0) || query.status
+      ? baseOrders.filter((o) => {
+          if (
+            query.countries &&
+            query.countries.length > 0 &&
+            (!o.country || !query.countries.includes(o.country))
+          ) {
+            return false
+          }
+          if (query.status) {
+            const status = o.deliveredAt ? DeliveryStatus.Delivered : DeliveryStatus.Pending
+            if (status !== query.status) return false
+          }
+          return true
+        })
+      : baseOrders
+
+  // --- Build groups ---
+  // Country groups
+  const countryMap = new Map<string, CountryGroup>()
+  for (const o of ordersForCountryGroups) {
+    if (!o.country) continue
+    if (!countryMap.has(o.country)) {
+      countryMap.set(o.country, { country: o.country, count: 0, total: 0 })
+    }
+    const g = countryMap.get(o.country)!
+    g.count += 1
+    g.total += o.total
+  }
+  const countryGroups = [...countryMap.values()]
+
+  // Delivery status groups
+  const deliveryStatusGroups: DeliveryStatusGroups = {
+    delivered: {
+      count: ordersForStatusGroups.filter((o) => !!o.deliveredAt).length,
+      total: ordersForStatusGroups
+        .filter((o) => !!o.deliveredAt)
+        .reduce((sum, o) => sum + o.total, 0)
+    },
+    pending: {
+      count: ordersForStatusGroups.filter((o) => !o.deliveredAt).length,
+      total: ordersForStatusGroups
+        .filter((o) => !o.deliveredAt)
+        .reduce((sum, o) => sum + o.total, 0)
+    }
+  }
+
+  // Shipping groups
+  const shippingMap = new Map<number, ShippingGroup>()
+  for (const o of ordersForShippingGroups) {
+    if (!shippingMap.has(o.shippingCost)) {
+      shippingMap.set(o.shippingCost, { shippingCost: o.shippingCost, count: 0, total: 0 })
+    }
+    const g = shippingMap.get(o.shippingCost)!
+    g.count += 1
+    g.total += o.total
+  }
+  const shippingGroups = [...shippingMap.values()]
+
+  // --- Final orders list (apply ALL filters) ---
+  let finalOrders = [...baseOrders]
+  if (query.countries && query.countries.length > 0) {
+    finalOrders = finalOrders.filter((o) => o.country && query.countries!.includes(o.country))
+  }
+  if (query.status) {
+    finalOrders = finalOrders.filter(
+      (o) => (o.deliveredAt ? DeliveryStatus.Delivered : DeliveryStatus.Pending) === query.status
+    )
+  }
+  if (query.shippingCost !== undefined) {
+    finalOrders = finalOrders.filter((o) => o.shippingCost === query.shippingCost)
+  }
+
+  // Sorting
   if (query.sortBy) {
-    orders.sort((a, b) => {
+    finalOrders.sort((a, b) => {
       let v1: any = a[query.sortBy!]
       let v2: any = b[query.sortBy!]
       if (query.sortBy === 'createdAt' || query.sortBy === 'deliveredAt') {
@@ -64,73 +172,12 @@ export async function getOrders(query: OrderQuery): Promise<OrdersResponse> {
     })
   }
 
-  let ordersWithoutCountriesFilter = [...orders]
-  let ordersWithoutStatusFilter = [...orders]
-  let ordersWithoutShippingCostFilter = [...orders]
-  if (query.countries && query.countries.length > 0) {
-    orders = orders.filter((o) => o.country && query.countries!.includes(o.country))
-    ordersWithoutStatusFilter = [...orders]
-    ordersWithoutShippingCostFilter = [...orders]
-  }
-  if (query.status) {
-    orders = orders.filter(
-      (o) => (o.deliveredAt ? DeliveryStatus.Delivered : DeliveryStatus.Pending) === query.status
-    )
-    ordersWithoutCountriesFilter = [...orders]
-    ordersWithoutShippingCostFilter = [...orders]
-  }
-  if (query.shippingCost !== undefined) {
-    orders = orders.filter((o) => o.shippingCost === query.shippingCost)
-    ordersWithoutCountriesFilter = [...orders]
-    ordersWithoutStatusFilter = [...orders]
-  }
+  const count = finalOrders.length
+  const sales = finalOrders.reduce((sum, o) => sum + o.total, 0)
 
-  const countryGroups: CountryGroup[] = []
-  const countryMap = new Map<string, CountryGroup>()
-  for (const o of ordersWithoutCountriesFilter) {
-    if (!o.country) continue
-    if (!countryMap.has(o.country)) {
-      countryMap.set(o.country, { country: o.country, count: 0, total: 0 })
-    }
-    const group = countryMap.get(o.country)!
-    group.count += 1
-    group.total += o.total
-  }
-  countryGroups.push(...countryMap.values())
-
-  const deliveryStatusGroups: DeliveryStatusGroups = {
-    delivered: {
-      count: ordersWithoutStatusFilter.filter((o) => !!o.deliveredAt).length,
-      total: ordersWithoutStatusFilter
-        .filter((o) => !!o.deliveredAt)
-        .reduce((sum, o) => sum + o.total, 0)
-    },
-    pending: {
-      count: ordersWithoutStatusFilter.filter((o) => !o.deliveredAt).length,
-      total: ordersWithoutStatusFilter
-        .filter((o) => !o.deliveredAt)
-        .reduce((sum, o) => sum + o.total, 0)
-    }
-  }
-
-  const shippingGroups: ShippingGroup[] = []
-  const shippingMap = new Map<number, ShippingGroup>()
-  for (const o of ordersWithoutShippingCostFilter) {
-    if (!shippingMap.has(o.shippingCost)) {
-      shippingMap.set(o.shippingCost, { shippingCost: o.shippingCost, count: 0, total: 0 })
-    }
-    const group = shippingMap.get(o.shippingCost)!
-    group.count += 1
-    group.total += o.total
-  }
-  shippingGroups.push(...shippingMap.values())
-
-  const count = orders.length
-
-  const sales = orders.reduce((sum, o) => sum + o.total, 0)
   if (query.offset != null && query.limit != null) {
-    orders = orders.slice(query.offset, query.offset + query.limit)
+    finalOrders = finalOrders.slice(query.offset, query.offset + query.limit)
   }
 
-  return { data: orders, count, countryGroups, deliveryStatusGroups, sales, shippingGroups }
+  return { data: finalOrders, count, countryGroups, deliveryStatusGroups, sales, shippingGroups }
 }

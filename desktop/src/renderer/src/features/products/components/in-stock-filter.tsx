@@ -31,8 +31,11 @@ export const InStockFilter = () => {
             <Input
               placeholder="0"
               type="number"
-              value={inStock[0]?.toString()}
-              onChange={(e) => setInStock([parseInt(e.target.value), inStock[1]])}
+              step={1}
+              value={inStock[0]?.toString() ?? ''}
+              onChange={(e) =>
+                setInStock([e.target.value ? parseInt(e.target.value) : null, inStock[1]])
+              }
             />
           </div>
           <div className="flex-1 space-y-2">
@@ -40,8 +43,11 @@ export const InStockFilter = () => {
             <Input
               placeholder="5"
               type="number"
-              value={inStock[1]?.toString()}
-              onChange={(e) => setInStock([inStock[0], parseInt(e.target.value)])}
+              step={1}
+              value={inStock[1]?.toString() ?? ''}
+              onChange={(e) =>
+                setInStock([inStock[0], e.target.value ? parseInt(e.target.value) : null])
+              }
             />
           </div>
         </div>
